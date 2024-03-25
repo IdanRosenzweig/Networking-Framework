@@ -33,40 +33,38 @@ std::unique_ptr<linux_cl_conn<ip4_conn>> linux_client_ip4::conn_to_host() {
     server_addr.sin_port = htons(4444);
     server_addr.sin_addr.s_addr = inet_addr(ip.c_str());
 
-    cout << "ready" << endl;
-
-
-    cout << "sending data" << endl;
-#define PACKET_LEN 64
-    char packet[PACKET_LEN];
-    struct iphdr *iph = (struct iphdr *)packet;
-    char *data = packet + sizeof(struct iphdr);
-    strcpy(data, "Hello, this is raw data from the client.");
-
-    iph->ihl = 5;
-    iph->version = 4;
-    iph->tos = 0;
-    iph->tot_len = sizeof(struct iphdr) + strlen(data);
-    iph->id = htonl(4444);
-    iph->frag_off = 0;
-    iph->ttl = 211;
-    iph->protocol = IPPROTO_RAW;
-    iph->check = 0;
-    iph->saddr = 0; // Set source IP to 0 for the kernel to fill it automatically
-    iph->daddr = server_addr.sin_addr.s_addr;
-
-
-    iph->check = checksum((unsigned short *)packet, iph->tot_len >> 1);
-
-    cout << "sent " << sendto(fd, packet, iph->tot_len, 0, (struct sockaddr *)&server_addr, sizeof(server_addr)) << " bytes" << endl;
+//    cout << "ready" << endl;
+//
+//
+//    cout << "sending data" << endl;
+//#define PACKET_LEN 64
+//    char packet[PACKET_LEN];
+//    struct iphdr *iph = (struct iphdr *)packet;
+//    char *data = packet + sizeof(struct iphdr);
+//    strcpy(data, "Hello, this is raw data from the client.");
+//
+//    iph->ihl = 5;
+//    iph->version = 4;
+//    iph->tos = 0;
+//    iph->tot_len = sizeof(struct iphdr) + strlen(data);
+//    iph->id = htonl(4444);
+//    iph->frag_off = 0;
+//    iph->ttl = 211;
+//    iph->protocol = IPPROTO_RAW;
+//    iph->check = 0;
+//    iph->saddr = 0; // Set source IP to 0 for the kernel to fill it automatically
+//    iph->daddr = server_addr.sin_addr.s_addr;
+//
+//
+//    iph->check = checksum((unsigned short *)packet, iph->tot_len >> 1);
+//
+//    cout << "sent " << sendto(fd, packet, iph->tot_len, 0, (struct sockaddr *)&server_addr, sizeof(server_addr)) << " bytes" << endl;
 
     auto *host = new linux_cl_conn<ip4_conn>;
     host->fd = fd; // my open fd
     host->addr = server_addr; // server's addr
     return std::unique_ptr<linux_cl_conn<ip4_conn>>(host);
 }
-
-using namespace std;
 
 linux_client_ip4::linux_client_ip4(const string &ip) : ip(ip) {
 

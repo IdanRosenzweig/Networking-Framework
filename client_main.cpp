@@ -65,35 +65,26 @@
 //    return 0;
 //}
 
+
 //int main() {
-//    std::cout << "Hello, World!" << std::endl;
+//    vector<string> hosts = {
+//            "wiki.osdev.org",
+//            "www.wix.com",
+//            "docs.google.com",
+//            "www.scs.stanford.edu",
+//            "yahho.com",
+//            "google.com",
+//            "youtube.com",
+//            "tradingview.com",
+//            "walla.co.il",
+//            "nasa.com",
+//            "medium.com",
+//    };
 //
 //    linux_client_dns client("8.8.8.8");
-//    client.query("wiki.osdev.org");
+//    client.conn_to_server();
+//    for (string& str : hosts)
+//        client.query(str);
 //
 //    return 0;
 //}
-
-
-int main() {
-    vector<string> hosts = {
-            "wiki.osdev.org",
-            "www.wix.com",
-            "docs.google.com",
-            "www.scs.stanford.edu",
-            "yahho.com",
-            "google.com",
-            "youtube.com",
-            "tradingview.com",
-            "walla.co.il",
-            "nasa.com",
-            "medium.com",
-    };
-
-    linux_client_dns client("8.8.8.8");
-    client.conn_to_server();
-    for (string& str : hosts)
-        client.query(str);
-
-    return 0;
-}

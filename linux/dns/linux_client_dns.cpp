@@ -261,7 +261,6 @@ string decode_name(unsigned char *reader, unsigned char *buffer, int *count) {
 //}
 
 void linux_client_dns::query(const std::string &name) {
-
     // total buffer
 #define BUFF_SZ 65536
     unsigned char buf[BUFF_SZ];
