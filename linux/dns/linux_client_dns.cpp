@@ -294,10 +294,10 @@ void linux_client_dns::query(const std::string &name) {
 
 
     // send dns_query
-    server->send_data((char *) buf, sizeof(struct dns_header) + query.size());
+    this->basic_cl_client::send_data((char *) buf, sizeof(struct dns_header) + query.size());
 
     // receive answer
-    server->recv_data(buf, BUFF_SZ);
+    this->basic_cl_client::recv_data(buf, BUFF_SZ);
 
 
     struct dns_header *response = (struct dns_header *) buf;

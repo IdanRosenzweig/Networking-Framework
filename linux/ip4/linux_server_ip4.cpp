@@ -22,7 +22,7 @@ void parse_packet(unsigned char *packet, ssize_t packet_size) {
     printf("Payload data: %s\n", data);
 }
 
-std::unique_ptr<linux_cl_conn<ip4_conn>> linux_server_ip4::discover_next_host() {
+std::unique_ptr<linux_cl_conn> linux_server_ip4::discover_next_host() {
     // we are currently only interested in discovering the address of the client that sends the next data
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
@@ -42,10 +42,10 @@ std::unique_ptr<linux_cl_conn<ip4_conn>> linux_server_ip4::discover_next_host() 
     printf("Received message from IP: %s and port: %i\n",
            inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-    auto *host = new linux_cl_conn<ip4_conn>;
+    auto *host = new linux_cl_conn;
     host->fd = fd; // the server's open fd
     host->addr = client_addr;
-    return std::unique_ptr<linux_cl_conn<ip4_conn>>(host);
+    return std::unique_ptr<linux_cl_conn>(host);
 }
 
 linux_server_ip4::linux_server_ip4() {

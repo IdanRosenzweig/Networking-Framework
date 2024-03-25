@@ -1,6 +1,6 @@
 #include "linux_server_tcp.h"
 
-std::unique_ptr<linux_co_conn<tcp_conn>> linux_server_tcp::conn_next_host() {
+std::unique_ptr<linux_co_conn> linux_server_tcp::conn_next_host() {
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
 
@@ -17,9 +17,9 @@ std::unique_ptr<linux_co_conn<tcp_conn>> linux_server_tcp::conn_next_host() {
     }
     cout << "client accepted" << endl;
 
-    auto *host = new linux_co_conn<tcp_conn>;
+    auto *host = new linux_co_conn;
     host->fd = client_sd;
-    return std::unique_ptr<linux_co_conn<tcp_conn>>(host);
+    return std::unique_ptr<linux_co_conn>(host);
 }
 
 linux_server_tcp::linux_server_tcp(int port) : port(port) {

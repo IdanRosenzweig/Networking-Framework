@@ -1,6 +1,6 @@
 #include "linux_client_tcp.h"
 
-std::unique_ptr<linux_co_conn<tcp_conn>> linux_client_tcp::conn_host() {
+std::unique_ptr<linux_co_conn> linux_client_tcp::conn_host() {
     int fd = socket(AF_INET,
                     SOCK_STREAM,
                     IPPROTO_TCP);
@@ -32,9 +32,9 @@ std::unique_ptr<linux_co_conn<tcp_conn>> linux_client_tcp::conn_host() {
 
     cout << "connected successfully" << endl;
 
-    auto *host = new linux_co_conn<tcp_conn>;
+    auto *host = new linux_co_conn;
     host->fd = fd;
-    return std::unique_ptr<linux_co_conn<tcp_conn>>(host);
+    return std::unique_ptr<linux_co_conn>(host);
 }
 
 linux_client_tcp::linux_client_tcp(const string &ip, int port) : ip(ip), port(port) {

@@ -29,41 +29,41 @@
 //    return 0;
 //}
 
-//int main() {
-//    std::cout << "Hello, World!" << std::endl;
-//
-//    linux_client_udp client(IP, PORT);
-//    client.conn_to_server();
-//
-//    std::cout << "sending data" << std::endl;
-//    char* msg = "hello";
-//    int len = strlen(msg);
-//    cout << "sent " << client.server->send_data(msg, len) << " bytes" << endl;
-//    std::cout << "data sent" << std::endl;
-//
-//    char buff[6];
-//    memset(buff, '\x00', 6);
-//    client.server->recv_data(buff, 5);
-//    cout << "server: " << buff << endl;
-//
-//
-//    std::cout << "sending data" << std::endl;
-//    char* msg2 = "secnd";
-//    int len2 = strlen(msg2);
-//    cout << "sent " << client.server->send_data(msg2, len2) << " bytes" << endl;
-//    std::cout << "data sent" << std::endl;
-//
-//    char buff2[6];
-//    memset(buff2, '\x00', 6);
-//    client.server->recv_data(buff2, 5);
-//    cout << "server: " << buff2 << endl;
-//
-//    while (true) {
-//
-//    }
-//
-//    return 0;
-//}
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+
+    linux_client_udp client(IP, PORT);
+    client.conn_to_server();
+
+    std::cout << "sending data" << std::endl;
+    char* msg = "hello";
+    int len = strlen(msg);
+    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
+    std::cout << "data sent" << std::endl;
+
+    char buff[6];
+    memset(buff, '\x00', 6);
+    client.recv_data(buff, 5);
+    cout << "server: " << buff << endl;
+
+
+    std::cout << "sending data" << std::endl;
+    char* msg2 = "secnd";
+    int len2 = strlen(msg2);
+    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
+    std::cout << "data sent" << std::endl;
+
+    char buff2[6];
+    memset(buff2, '\x00', 6);
+    client.recv_data(buff2, 5);
+    cout << "server: " << buff2 << endl;
+
+    while (true) {
+
+    }
+
+    return 0;
+}
 
 
 //int main() {

@@ -6,14 +6,13 @@
 #include <cstring>
 #include "../../abstract/connectionless/basic_cl_server.h"
 #include "../linux_cl_conn.h"
-#include "../../abstract/connectionless/connection/ip4_conn.h"
 #include <memory>
 
 #include <arpa/inet.h>
 
-class linux_server_ip4 : public basic_cl_server<linux_cl_conn<ip4_conn>> {
+class linux_server_ip4 : public basic_cl_server<linux_cl_conn> {
 protected:
-    std::unique_ptr<linux_cl_conn<ip4_conn>> discover_next_host() override;
+    std::unique_ptr<linux_cl_conn> discover_next_host() override;
 
     int fd;
 

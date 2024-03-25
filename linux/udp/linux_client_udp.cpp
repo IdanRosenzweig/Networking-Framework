@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-std::unique_ptr<linux_cl_conn<udp_conn>> linux_client_udp::conn_to_host() {
+std::unique_ptr<linux_cl_conn> linux_client_udp::conn_to_host() {
     int fd = socket(AF_INET,
                     SOCK_DGRAM,
                     IPPROTO_UDP);
@@ -25,10 +25,10 @@ std::unique_ptr<linux_cl_conn<udp_conn>> linux_client_udp::conn_to_host() {
 
     cout << "ready" << endl;
 
-    auto *host = new linux_cl_conn<udp_conn>;
+    auto *host = new linux_cl_conn;
     host->fd = fd; // my open fd
     host->addr = server_addr; // server's addr
-    return std::unique_ptr<linux_cl_conn<udp_conn>>(host);
+    return std::unique_ptr<linux_cl_conn>(host);
 }
 
 linux_client_udp::linux_client_udp(const string &ip, int port) : ip(ip), port(port) {

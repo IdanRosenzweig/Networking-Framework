@@ -7,12 +7,11 @@
 #include <cstring>
 #include "../../abstract/connectionless/basic_cl_client.h"
 #include "../linux_cl_conn.h"
-#include "../../abstract/connectionless/connection/ip4_conn.h"
 #include <string>
 
-class linux_client_ip4 : public basic_cl_client<linux_cl_conn<ip4_conn>> {
+class linux_client_ip4 : public basic_cl_client<linux_cl_conn> {
 protected:
-    std::unique_ptr<linux_cl_conn<ip4_conn>> conn_to_host() override;
+    std::unique_ptr<linux_cl_conn> conn_to_host() override;
 
     std::string ip;
 

@@ -10,9 +10,7 @@
 // every type of connectionless communication in linux can be read/written through using only my open file descriptor and the server's socket address.
 
 // there is no need to implement a class for every different protocol.
-template<typename T>
-class linux_cl_conn : public T {
-    static_assert(std::is_base_of<basic_conn, T>(), "connection type must inherit basic_conn");
+class linux_cl_conn : public basic_conn {
 
 public:
     // in server side, this represents the server's open fd.
