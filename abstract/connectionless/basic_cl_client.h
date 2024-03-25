@@ -10,7 +10,7 @@ class basic_cl_client {
     static_assert(std::is_base_of<basic_conn, T>(), "connection type must inherit basic_conn");
 
 private:
-    std::unique_ptr<T> server;
+    std::unique_ptr<basic_conn> server;
 protected:
     virtual std::unique_ptr<T> conn_to_host() = 0;
 
