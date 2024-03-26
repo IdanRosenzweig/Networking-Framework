@@ -41,15 +41,24 @@ int main() {
     server.discover_next_client();
     char buff[6];
     memset(buff, '\x00', 6);
+
+//    server.recv_data(server.clients_q.front(), buff, 5);
     server.clients_q.front()->recv_data(buff, 5);
     std::cout << "msg: " << buff << std::endl;
+
+//    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
     server.clients_q.front()->send_data((void *) "mouse", 5);
 
     char buff2[6];
     memset(buff2, '\x00', 6);
+
+//    server.recv_data(server.clients_q.front(), buff2, 5);
     server.clients_q.front()->recv_data(buff2, 5);
     std::cout << "msg: " << buff2 << std::endl;
+
+//    server.send_data(server.clients_q.front(), (void *) "toast", 5);
     server.clients_q.front()->send_data((void *) "toast", 5);
+
     server.clients_q.pop();
 
 

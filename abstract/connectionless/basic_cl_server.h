@@ -7,6 +7,7 @@
 #include <queue>
 #include <memory>
 
+
 template <typename T>
 class basic_cl_server {
     static_assert(std::is_base_of<basic_conn, T>(), "connection type must inherit basic_conn");
@@ -24,6 +25,7 @@ public:
 
         clients_q.push(std::move(conn));
     }
+
 };
 
 #endif //SERVERCLIENT_BASIC_CL_SERVER_H

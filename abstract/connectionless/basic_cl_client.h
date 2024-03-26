@@ -9,27 +9,16 @@ template <typename T>
 class basic_cl_client {
     static_assert(std::is_base_of<basic_conn, T>(), "connection type must inherit basic_conn");
 
-private:
-    std::unique_ptr<basic_conn> server;
 protected:
     virtual std::unique_ptr<T> conn_to_host() = 0;
 
 public:
+    std::unique_ptr<basic_conn> server;
     void conn_to_server() {
         std::unique_ptr<T> conn = std::move(this->conn_to_host());
         if (conn == nullptr) return;
 
         server = std::move(conn);
-    }
-
-    // this function may be overridden to create encapsulation
-    virtual int send_data(void* buff, int count) {
-        return ((basic_conn*) server.get())->send_data(buff, count);
-    }
-
-    // this function may be overridden to create encapsulation
-    virtual int recv_data(void* buff, int count) {
-        return ((basic_conn*) server.get())->recv_data(buff, count);
     }
 
 };

@@ -6,18 +6,31 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "../../abstract/connectionless/basic_cl_client.h"
-#include "../linux_cl_conn.h"
+#include "../../abstract/basic_client.h"
+#include "../../abstract/basic_encapsulating_protocol.h"
 #include <string>
 
-class linux_client_udp : public basic_cl_client<linux_cl_conn> {
+class linux_client_udp : public basic_encapsulating_protocol {
+    // ipv4_client
 protected:
-    std::unique_ptr<linux_cl_conn> conn_to_host() override;
-
     std::string ip;
     int port;
 
+    int fd;
+    struct sockaddr_in addr;
+
 public:
     linux_client_udp(const std::string &ip, int port);
+
+    void init() ;
+
+    void finish() ;
+
+    int send_encapsulated_data(void *buff, int count) override;
+
+    int recv_encapsulated_data(void *buff, int count) override;
+
+
 };
 
 #endif //SERVERCLIENT_LINUX_CLIENT_UDP_H

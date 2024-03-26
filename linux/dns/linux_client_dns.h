@@ -13,11 +13,17 @@ using namespace std;
 
 #define DNS_PORT 53
 
-class linux_client_dns : public linux_client_udp {
+class linux_client_dns {
+    linux_client_udp udp_client;
 public:
+
     linux_client_dns(const string &server_ip);
 
     void query(const string &name);
+
+    void init() ;
+
+    void finish() ;
 };
 
 

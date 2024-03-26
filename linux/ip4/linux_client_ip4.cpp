@@ -1,6 +1,8 @@
 #include "linux_client_ip4.h"
 #include <iostream>
 #include <netinet/ip.h>
+#include <cstring>
+
 using namespace std;
 
 unsigned short checksum(unsigned short *buf, int nwords) {
@@ -12,30 +14,40 @@ unsigned short checksum(unsigned short *buf, int nwords) {
     return ~sum;
 }
 
-std::unique_ptr<linux_cl_conn> linux_client_ip4::conn_to_host() {
-    int fd = socket(AF_INET,
+linux_client_ip4::linux_client_ip4(const string &ip) : ip(ip) {
+
+}
+
+void linux_client_ip4::init() {
+    fd = socket(AF_INET,
                     SOCK_RAW,
                     IPPROTO_RAW);
     if (fd == -1) {
         cerr << "can't open socket" << endl;
-        return nullptr;
+        return;
     }
 
     int one = 1;
     if (setsockopt(fd, IPPROTO_IP, IP_HDRINCL, &one, sizeof(one)) < 0) {
         perror("setsockopt");
-        return nullptr;
+        return;
     }
 
-    struct sockaddr_in server_addr;
-    memset(&server_addr, '\x00', sizeof(struct sockaddr_in));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(4444);
-    server_addr.sin_addr.s_addr = inet_addr(ip.c_str());
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(4444);
+    addr.sin_addr.s_addr = inet_addr(ip.c_str());
 
+
+
+}
+
+void linux_client_ip4::finish() {
+    close(fd);
+    fd = -1;
+}
+
+int linux_client_ip4::send_encapsulated_data(void *buff, int count) {
     cout << "ready" << endl;
-
-
     cout << "sending data" << endl;
 #define PACKET_LEN 64
     char packet[PACKET_LEN];
@@ -53,19 +65,15 @@ std::unique_ptr<linux_cl_conn> linux_client_ip4::conn_to_host() {
     iph->protocol = IPPROTO_RAW;
     iph->check = 0;
     iph->saddr = 0; // Set source IP to 0 for the kernel to fill it automatically
-    iph->daddr = server_addr.sin_addr.s_addr;
-
+    iph->daddr = addr.sin_addr.s_addr;
 
     iph->check = checksum((unsigned short *)packet, iph->tot_len >> 1);
 
-    cout << "sent " << sendto(fd, packet, iph->tot_len, 0, (struct sockaddr *)&server_addr, sizeof(server_addr)) << " bytes" << endl;
-
-    auto *host = new linux_cl_conn;
-    host->fd = fd; // my open fd
-    host->addr = server_addr; // server's addr
-    return std::unique_ptr<linux_cl_conn>(host);
+    int cnt = sendto(fd, packet, iph->tot_len, 0, (struct sockaddr *)&addr, sizeof(addr));
+    cout << "sent " << cnt << " bytes" << endl;
+    return cnt;
 }
 
-linux_client_ip4::linux_client_ip4(const string &ip) : ip(ip) {
-
+int linux_client_ip4::recv_encapsulated_data(void *buff, int count) {
+    return 0;
 }
