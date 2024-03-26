@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "../udp/linux_client_udp.h"
+#include "../../abstract/connectionless/basic_cl_client.h"
 
 #include <iostream>
 
@@ -13,7 +14,7 @@ using namespace std;
 
 #define DNS_PORT 53
 
-class linux_client_dns {
+class linux_client_dns : public basic_cl_client {
     linux_client_udp udp_client;
 public:
 
@@ -21,9 +22,9 @@ public:
 
     void query(const string &name);
 
-    void init() ;
+    void init() override;
 
-    void finish() ;
+    void finish() override;
 };
 
 

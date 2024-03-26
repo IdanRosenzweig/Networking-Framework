@@ -6,11 +6,10 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "../../abstract/connectionless/basic_cl_client.h"
-#include "../../abstract/basic_client.h"
 #include "../../abstract/basic_encapsulating_protocol.h"
 #include <string>
 
-class linux_client_udp : public basic_encapsulating_protocol {
+class linux_client_udp : public basic_cl_client, public basic_encapsulating_protocol {
     // ipv4_client
 protected:
     std::string ip;
@@ -22,9 +21,9 @@ protected:
 public:
     linux_client_udp(const std::string &ip, int port);
 
-    void init() ;
+    void init() override;
 
-    void finish() ;
+    void finish() override;
 
     int send_encapsulated_data(void *buff, int count) override;
 

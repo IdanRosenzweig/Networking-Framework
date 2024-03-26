@@ -10,15 +10,31 @@
 
 #include <arpa/inet.h>
 
-class linux_server_udp : public basic_cl_server<linux_cl_conn> {
+class linux_server_udp  {
 protected:
-    std::unique_ptr<linux_cl_conn> discover_next_host() override;
+    // discover next host trying to send us data
+    virtual sockaddr_in discover_next_host();
+
+public:
+    std::queue<sockaddr_in> clients_q;
+
+    void discover_next_client() {
+        sockaddr_in conn = discover_next_host();
+        clients_q.push(conn);
+    }
 
     int port;
     int fd;
 
 public:
     linux_server_udp(int port);
+
+    void setup();
+    void destroy();
+
+    int send_encapsulated_data(void *buff, int count, sockaddr_in addr) ;
+
+    int recv_encapsulated_data(void *buff, int count, sockaddr_in addr) ;
 };
 
 #endif //SERVERCLIENT_LINUX_SERVER_IP4_H
