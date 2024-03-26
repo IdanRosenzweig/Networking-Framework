@@ -33,38 +33,80 @@
 //    return 0;
 //}
 
+//int main() {
+//    std::cout << "Hello, World!" << std::endl;
+//
+//    linux_server_udp server(4444);
+//    server.setup();
+//
+//    server.discover_next_client();
+//    char buff[6];
+//    memset(buff, '\x00', 6);
+//
+////    server.recv_data(server.clients_q.front(), buff, 5);
+////    server.clients_q.front()->recv_data(buff, 5);
+//    server.recv_encapsulated_data(buff, 5, server.clients_q.front());
+//    std::cout << "msg: " << buff << std::endl;
+//
+////    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
+////    server.clients_q.front()->send_data((void *) "mouse", 5);
+//    server.send_encapsulated_data((void *) "mouse", 5, server.clients_q.front());
+//
+//    char buff2[6];
+//    memset(buff2, '\x00', 6);
+//
+////    server.recv_data(server.clients_q.front(), buff2, 5);
+////    server.clients_q.front()->recv_data(buff2, 5);
+//    server.recv_encapsulated_data(buff2, 5, server.clients_q.front());
+//    std::cout << "msg: " << buff2 << std::endl;
+//
+////    server.send_data(server.clients_q.front(), (void *) "toast", 5);
+////    server.clients_q.front()->send_data((void *) "toast", 5);
+//    server.send_encapsulated_data((void *) "toast", 5, server.clients_q.front());
+//
+//    server.clients_q.pop();
+//
+//
+//    while (true) {
+//
+//    }
+//
+//    return 0;
+//}
+
+
 int main() {
     std::cout << "Hello, World!" << std::endl;
 
-    linux_server_udp server(4444);
+    linux_server_tcp server(4444);
     server.setup();
 
-    server.discover_next_client();
+    server.accept_next_client();
     char buff[6];
     memset(buff, '\x00', 6);
 
 //    server.recv_data(server.clients_q.front(), buff, 5);
 //    server.clients_q.front()->recv_data(buff, 5);
-    server.recv_encapsulated_data(buff, 5, server.clients_q.front());
+    server.recv_encapsulated_data(buff, 5, server.clients[0]);
     std::cout << "msg: " << buff << std::endl;
 
 //    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
 //    server.clients_q.front()->send_data((void *) "mouse", 5);
-    server.send_encapsulated_data((void *) "mouse", 5, server.clients_q.front());
+    server.send_encapsulated_data((void *) "mouse", 5, server.clients[0]);
 
     char buff2[6];
     memset(buff2, '\x00', 6);
 
 //    server.recv_data(server.clients_q.front(), buff2, 5);
 //    server.clients_q.front()->recv_data(buff2, 5);
-    server.recv_encapsulated_data(buff2, 5, server.clients_q.front());
+    server.recv_encapsulated_data(buff2, 5, server.clients[0]);
     std::cout << "msg: " << buff2 << std::endl;
 
 //    server.send_data(server.clients_q.front(), (void *) "toast", 5);
 //    server.clients_q.front()->send_data((void *) "toast", 5);
-    server.send_encapsulated_data((void *) "toast", 5, server.clients_q.front());
+    server.send_encapsulated_data((void *) "toast", 5, server.clients[0]);
 
-    server.clients_q.pop();
+//    server.clients_q.pop();
 
 
     while (true) {

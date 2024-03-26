@@ -6,21 +6,30 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "../../abstract/connection_oriented/client/basic_client.h"
-#include "../linux_co_conn.h"
+#include "../../abstract/basic_encapsulating_protocol.h"
 
 #include <iostream>
 
 using namespace std;
 
-class linux_client_tcp : public basic_client<linux_co_conn> {
+class linux_client_tcp : public basic_encapsulating_protocol {
 protected:
-    std::unique_ptr<linux_co_conn> conn_host() override;
 
     string ip;
     int port;
 
+    int fd;
+    struct sockaddr_in addr;
+
 public:
     linux_client_tcp(const string &ip, int port);
+
+    void conn() ;
+    void disconn() ;
+
+    int send_encapsulated_data(void *buff, int count) override;
+
+    int recv_encapsulated_data(void *buff, int count) override;
 };
 
 
