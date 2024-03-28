@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_LINUX_CLIENT_UDP_H
-#define SERVERCLIENT_LINUX_CLIENT_UDP_H
+#ifndef SERVERCLIENT_UDP_CONN_CLIENT_H
+#define SERVERCLIENT_UDP_CONN_CLIENT_H
 
 #include <unistd.h>
 #include <netinet/in.h>
@@ -9,7 +9,7 @@
 #include "../../abstract/basic_encapsulating_protocol.h"
 #include <string>
 
-class linux_client_udp : public basic_cl_client, public basic_encapsulating_protocol {
+class udp_conn_client : public basic_cl_client, public basic_encapsulating_protocol {
     // ipv4_client
 protected:
     std::string ip;
@@ -19,7 +19,7 @@ protected:
     struct sockaddr_in addr;
 
 public:
-    linux_client_udp(const std::string &ip, int port);
+    udp_conn_client(const std::string &ip, int port);
 
     void init() override;
 
@@ -32,4 +32,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_LINUX_CLIENT_UDP_H
+#endif //SERVERCLIENT_UDP_CONN_CLIENT_H

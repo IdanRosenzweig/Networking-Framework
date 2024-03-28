@@ -1,11 +1,11 @@
-#ifndef SERVERCLIENT_LINUX_CLIENT_DNS_H
-#define SERVERCLIENT_LINUX_CLIENT_DNS_H
+#ifndef SERVERCLIENT_DNS_CLIENT_H
+#define SERVERCLIENT_DNS_CLIENT_H
 
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <cstring>
-#include "../udp/linux_client_udp.h"
+#include "../udp/udp_conn_client.h"
 #include "../../abstract/connectionless/basic_cl_client.h"
 
 #include <iostream>
@@ -14,11 +14,11 @@ using namespace std;
 
 #define DNS_PORT 53
 
-class linux_client_dns : public basic_cl_client {
-    linux_client_udp udp_client;
+class dns_client : public basic_cl_client {
+    udp_conn_client udp_client;
 public:
 
-    linux_client_dns(const string &server_ip);
+    dns_client(const string &server_ip);
 
     void query(const string &name);
 
@@ -28,4 +28,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_LINUX_CLIENT_DNS_H
+#endif //SERVERCLIENT_DNS_CLIENT_H

@@ -2,22 +2,21 @@
 
 #include "abstract/connection_oriented/server/basic_server.h"
 #include "abstract/connection_oriented/server/basic_client_handler.h"
-#include "abstract/connection_oriented/client/basic_client.h"
-#include "abstract/connection_oriented/client/basic_server_handler.h"
+#include "abstract/connection_oriented/client/basic_co_client.h"
 
 #include "abstract/connectionless/basic_cl_server.h"
 #include "abstract/connectionless/basic_cl_client.h"
 
-#include "linux/tcp/linux_server_tcp.h"
-#include "linux/udp/linux_server_udp.h"
-#include "linux/ip4/linux_server_ip4.h"
+#include "linux/tcp/tcp_conn_server.h"
+#include "linux/udp/udp_conn_server.h"
+//#include "linux/ip4/ip4_conn_server.h"
 
 #define PORT 2222
 
 //int main() {
 //    std::cout << "Hello, World!" << std::endl;
 //
-//    linux_server_ip4 server;
+//    ip4_conn_server server;
 //
 //    while (true) {
 //        server.discover_next_client();
@@ -36,35 +35,36 @@
 //int main() {
 //    std::cout << "Hello, World!" << std::endl;
 //
-//    linux_server_udp server(4444);
+//    udp_conn_server server(4444);
 //    server.setup();
 //
-//    server.discover_next_client();
+//    sockaddr_in client = server.discover_next_client();
 //    char buff[6];
 //    memset(buff, '\x00', 6);
 //
 ////    server.recv_data(server.clients_q.front(), buff, 5);
 ////    server.clients_q.front()->recv_data(buff, 5);
-//    server.recv_encapsulated_data(buff, 5, server.clients_q.front());
+//    server.recv_encapsulated_data(buff, 5, client);
 //    std::cout << "msg: " << buff << std::endl;
 //
 ////    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
 ////    server.clients_q.front()->send_data((void *) "mouse", 5);
-//    server.send_encapsulated_data((void *) "mouse", 5, server.clients_q.front());
+//    server.send_encapsulated_data((void *) "mouse", 5, client);
 //
+//    client = server.discover_next_client();
 //    char buff2[6];
 //    memset(buff2, '\x00', 6);
 //
 ////    server.recv_data(server.clients_q.front(), buff2, 5);
 ////    server.clients_q.front()->recv_data(buff2, 5);
-//    server.recv_encapsulated_data(buff2, 5, server.clients_q.front());
+//    server.recv_encapsulated_data(buff2, 5, client);
 //    std::cout << "msg: " << buff2 << std::endl;
 //
 ////    server.send_data(server.clients_q.front(), (void *) "toast", 5);
 ////    server.clients_q.front()->send_data((void *) "toast", 5);
-//    server.send_encapsulated_data((void *) "toast", 5, server.clients_q.front());
+//    server.send_encapsulated_data((void *) "toast", 5, client);
 //
-//    server.clients_q.pop();
+////    server.clients_q.pop();
 //
 //
 //    while (true) {
@@ -78,33 +78,33 @@
 int main() {
     std::cout << "Hello, World!" << std::endl;
 
-    linux_server_tcp server(4444);
+    tcp_conn_server server(4444);
     server.setup();
 
-    server.accept_next_client();
+    handler client = server.conn_next_host();
     char buff[6];
     memset(buff, '\x00', 6);
 
 //    server.recv_data(server.clients_q.front(), buff, 5);
 //    server.clients_q.front()->recv_data(buff, 5);
-    server.recv_encapsulated_data(buff, 5, server.clients[0]);
+    client.recv_encapsulated_data(buff, 5);
     std::cout << "msg: " << buff << std::endl;
 
 //    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
 //    server.clients_q.front()->send_data((void *) "mouse", 5);
-    server.send_encapsulated_data((void *) "mouse", 5, server.clients[0]);
+    client.send_encapsulated_data((void *) "mouse", 5);
 
     char buff2[6];
     memset(buff2, '\x00', 6);
 
 //    server.recv_data(server.clients_q.front(), buff2, 5);
 //    server.clients_q.front()->recv_data(buff2, 5);
-    server.recv_encapsulated_data(buff2, 5, server.clients[0]);
+    client.recv_encapsulated_data(buff2, 5);
     std::cout << "msg: " << buff2 << std::endl;
 
 //    server.send_data(server.clients_q.front(), (void *) "toast", 5);
 //    server.clients_q.front()->send_data((void *) "toast", 5);
-    server.send_encapsulated_data((void *) "toast", 5, server.clients[0]);
+    client.send_encapsulated_data((void *) "toast", 5);
 
 //    server.clients_q.pop();
 

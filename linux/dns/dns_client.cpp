@@ -1,4 +1,4 @@
-#include "linux_client_dns.h"
+#include "dns_client.h"
 
 #include <netinet/in.h>
 #include <arpa/nameser.h>
@@ -6,11 +6,11 @@
 #include <vector>
 
 
-linux_client_dns::linux_client_dns(const string &server_ip) : udp_client(server_ip, DNS_PORT) {
+dns_client::dns_client(const string &server_ip) : udp_client(server_ip, DNS_PORT) {
 
 }
 
-//string linux_client_dns::query(const string &name) {
+//string dns_client::query(const string &name) {
 //
 //#define LEN 200
 //    unsigned char buf[LEN];
@@ -260,7 +260,7 @@ string decode_name(unsigned char *reader, unsigned char *buffer, int *count) {
 //    return name;
 //}
 
-void linux_client_dns::query(const std::string &name) {
+void dns_client::query(const std::string &name) {
     // total buffer
 #define BUFF_SZ 65536
     unsigned char buf[BUFF_SZ];
@@ -294,11 +294,11 @@ void linux_client_dns::query(const std::string &name) {
 
 
     // send dns_query
-//    this->linux_client_udp::send_data((char *) buf, sizeof(struct dns_header) + query.size());
+//    this->udp_conn_client::send_data((char *) buf, sizeof(struct dns_header) + query.size());
     udp_client.send_encapsulated_data((char *) buf, sizeof(struct dns_header) + query.size());
 
     // receive answer
-//    this->linux_client_udp::recv_data(buf, BUFF_SZ);
+//    this->udp_conn_client::recv_data(buf, BUFF_SZ);
     udp_client.recv_encapsulated_data(buf, BUFF_SZ);
 
 
@@ -436,10 +436,10 @@ void linux_client_dns::query(const std::string &name) {
 
 }
 
-void linux_client_dns::init() {
+void dns_client::init() {
     udp_client.init();
 }
 
-void linux_client_dns::finish() {
+void dns_client::finish() {
     udp_client.finish();
 }

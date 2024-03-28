@@ -1,8 +1,8 @@
-#include "linux_server_udp.h"
+#include "udp_conn_server.h"
 #include <iostream>
 using namespace std;
 
-sockaddr_in linux_server_udp::discover_next_host() {
+sockaddr_in udp_conn_server::discover_next_host() {
     // we are currently only interested in discovering the address of the client that sends the next data
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
@@ -18,11 +18,11 @@ sockaddr_in linux_server_udp::discover_next_host() {
     return client_addr;
 }
 
-linux_server_udp::linux_server_udp(int port) : port(port) {
+udp_conn_server::udp_conn_server(int port) : port(port) {
 
 }
 
-void linux_server_udp::setup() {
+void udp_conn_server::setup() {
 // opening a file descriptor
     fd = socket(
             AF_INET, // IPv4
@@ -52,15 +52,15 @@ void linux_server_udp::setup() {
     cout << "waiting on port: " << port << endl;
 }
 
-void linux_server_udp::destroy() {
+void udp_conn_server::destroy() {
     close(fd);
 }
 
-int linux_server_udp::send_encapsulated_data(void *buff, int count, sockaddr_in addr) {
+int udp_conn_server::send_encapsulated_data(void *buff, int count, sockaddr_in addr) {
     return sendto(fd, buff, count, 0, (struct sockaddr*)&addr, sizeof(addr));
 }
 
-int linux_server_udp::recv_encapsulated_data(void *buff, int count, sockaddr_in addr) {
+int udp_conn_server::recv_encapsulated_data(void *buff, int count, sockaddr_in addr) {
     socklen_t len = sizeof(addr);
     return recvfrom(fd, buff, count, 0, (struct sockaddr*)&addr, &len);
 }

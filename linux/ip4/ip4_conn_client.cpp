@@ -1,4 +1,4 @@
-#include "linux_client_ip4.h"
+#include "ip4_conn_client.h"
 #include <iostream>
 #include <netinet/ip.h>
 #include <cstring>
@@ -14,11 +14,11 @@ unsigned short checksum(unsigned short *buf, int nwords) {
     return ~sum;
 }
 
-linux_client_ip4::linux_client_ip4(const string &ip) : ip(ip) {
+ip4_conn_client::ip4_conn_client(const string &ip) : ip(ip) {
 
 }
 
-void linux_client_ip4::init() {
+void ip4_conn_client::init() {
     fd = socket(AF_INET,
                     SOCK_RAW,
                     IPPROTO_RAW);
@@ -41,12 +41,12 @@ void linux_client_ip4::init() {
 
 }
 
-void linux_client_ip4::finish() {
+void ip4_conn_client::finish() {
     close(fd);
     fd = -1;
 }
 
-int linux_client_ip4::send_encapsulated_data(void *buff, int count) {
+int ip4_conn_client::send_encapsulated_data(void *buff, int count) {
     cout << "ready" << endl;
     cout << "sending data" << endl;
 #define PACKET_LEN 64
@@ -74,6 +74,6 @@ int linux_client_ip4::send_encapsulated_data(void *buff, int count) {
     return cnt;
 }
 
-int linux_client_ip4::recv_encapsulated_data(void *buff, int count) {
+int ip4_conn_client::recv_encapsulated_data(void *buff, int count) {
     return 0;
 }

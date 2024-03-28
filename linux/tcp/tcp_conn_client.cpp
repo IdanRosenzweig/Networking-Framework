@@ -1,12 +1,12 @@
-#include "linux_client_tcp.h"
+#include "tcp_conn_client.h"
 
 
-linux_client_tcp::linux_client_tcp(const string &ip, int port) : ip(ip), port(port) {
+tcp_conn_client::tcp_conn_client(const string &ip, int port) : ip(ip), port(port) {
 
 }
 
 
-void linux_client_tcp::conn() {
+void tcp_conn_client::conn() {
     fd = socket(AF_INET,
                     SOCK_STREAM,
                     IPPROTO_TCP);
@@ -38,15 +38,15 @@ void linux_client_tcp::conn() {
 
 }
 
-void linux_client_tcp::disconn() {
+void tcp_conn_client::disconn() {
     close(fd);
 }
 
 
-int linux_client_tcp::send_encapsulated_data(void *buff, int count) {
+int tcp_conn_client::send_encapsulated_data(void *buff, int count) {
     return send(fd, buff, count, 0);
 }
 
-int linux_client_tcp::recv_encapsulated_data(void *buff, int count) {
+int tcp_conn_client::recv_encapsulated_data(void *buff, int count) {
     return recv(fd, buff, count, 0);
 }

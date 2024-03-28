@@ -1,6 +1,6 @@
-#include "linux_server_tcp.h"
+#include "tcp_conn_server.h"
 
-linux_server_tcp::handler linux_server_tcp::conn_next_host() {
+handler tcp_conn_server::conn_next_host() {
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
 
@@ -20,11 +20,11 @@ linux_server_tcp::handler linux_server_tcp::conn_next_host() {
     return {client_sd, client_addr};
 }
 
-linux_server_tcp::linux_server_tcp(int port) : port(port) {
+tcp_conn_server::tcp_conn_server(int port) : port(port) {
 
 }
 
-void linux_server_tcp::setup() {
+void tcp_conn_server::setup() {
 // opening a file descriptor
     fd = socket(
             AF_INET, // IPv4
@@ -62,16 +62,7 @@ void linux_server_tcp::setup() {
     cout << "listening on port: " << port << endl;
 }
 
-void linux_server_tcp::destroy() {
+void tcp_conn_server::destroy() {
     close(fd);
 }
-
-int linux_server_tcp::send_encapsulated_data(void *buff, int count, linux_server_tcp::handler handler) {
-    return send(handler.fd, buff, count, 0);
-}
-
-int linux_server_tcp::recv_encapsulated_data(void *buff, int count, linux_server_tcp::handler handler) {
-    return recv(handler.fd, buff, count, 0);
-}
-
 

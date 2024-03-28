@@ -1,12 +1,14 @@
-#include "linux_client_udp.h"
+#include "udp_conn_client.h"
 #include <iostream>
 using namespace std;
 
-linux_client_udp::linux_client_udp(const string &ip, int port) : ip(ip), port(port) {
+udp_conn_client::udp_conn_client(const string &ip, int port) : ip(ip), port(port) {
 
 }
 
-void linux_client_udp::init() {
+void udp_conn_client::init() {
+    // this whole function count have been simply ip4.init(ip) if we used it...
+
     fd = socket(AF_INET,
                     SOCK_DGRAM,
                     IPPROTO_UDP);
@@ -27,15 +29,15 @@ void linux_client_udp::init() {
 
 }
 
-void linux_client_udp::finish() {
+void udp_conn_client::finish() {
     close(fd);
 }
 
-int linux_client_udp::send_encapsulated_data(void *buff, int count) {
+int udp_conn_client::send_encapsulated_data(void *buff, int count) {
     return sendto(fd, buff, count, 0, (struct sockaddr *) &addr, sizeof(addr));
 }
 
-int linux_client_udp::recv_encapsulated_data(void *buff, int count) {
+int udp_conn_client::recv_encapsulated_data(void *buff, int count) {
     socklen_t len = sizeof(addr);
     return recvfrom(fd,
                     buff, count,
