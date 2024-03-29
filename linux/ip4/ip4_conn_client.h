@@ -12,10 +12,17 @@ class ip4_conn_client : public basic_cl_client, public basic_encapsulating_proto
 //    network_layer_gateway
 protected:
     int fd;
+
     std::string ip;
-    struct sockaddr_in addr;
+    struct sockaddr_in dest_addr;
+
+    int prot;
+
 public:
-    ip4_conn_client(const std::string &ip);
+    // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.
+    // you must specify beforehand the type of protocol you would encapsulate
+    // in the ip packets, and can't change that type
+    ip4_conn_client(const std::string& str, int protocol);
 
     void init() override;
 

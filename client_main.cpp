@@ -117,13 +117,13 @@ int dns_main() {
 }
 
 int icmp_main() {
-    icmp_conn_client client;
+    char* str = "172.217.22.46";
+//    char* str = "google.com";
+
+    icmp_conn_client client(str);
     client.init();
 
-    char* name = "172.217.22.46";
-//    char* name = "google.com";
-
-    client.ping(name);
+    client.ping();
 }
 
 int main() {
