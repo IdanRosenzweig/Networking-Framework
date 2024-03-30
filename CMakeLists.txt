@@ -20,6 +20,7 @@ add_executable(Client
         linux/udp/udp_conn_client.cpp
         linux/dns/dns_client.cpp
         linux/icmp/icmp_conn_client.cpp
+        linux/ether/arp_conn_client.cpp
 
         linux/ip4/ip4_conn_client.cpp
 

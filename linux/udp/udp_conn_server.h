@@ -8,10 +8,11 @@
 #include "../linux_cl_conn.h"
 #include <memory>
 #include <queue>
+#include "../ip4/handler.h"
 
 #include <arpa/inet.h>
 
-class udp_conn_server : public basic_cl_server {
+class udp_conn_server : public basic_cl_server, public encapsulated_data_handler {
 protected:
     // discover next host trying to send us data
     virtual sockaddr_in discover_next_host(); // todo in basic_cl_server with template
@@ -39,6 +40,8 @@ public:
     int send_encapsulated_data(void *buff, int count, sockaddr_in addr) ;
     // last parameter gets IP. this should have been a PORT, but we don't use a sub class ip4_client...
     int recv_encapsulated_data(void *buff, int count, sockaddr_in addr) ;
+
+    void handler_received_data(void *buff) override;
 
 };
 

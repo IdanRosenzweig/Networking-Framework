@@ -1,5 +1,6 @@
 #include "udp_conn_server.h"
 #include <iostream>
+#include<netinet/udp.h>
 using namespace std;
 
 sockaddr_in udp_conn_server::discover_next_host() {
@@ -63,4 +64,13 @@ int udp_conn_server::send_encapsulated_data(void *buff, int count, sockaddr_in a
 int udp_conn_server::recv_encapsulated_data(void *buff, int count, sockaddr_in addr) {
     socklen_t len = sizeof(addr);
     return recvfrom(fd, buff, count, 0, (struct sockaddr*)&addr, &len);
+}
+
+void udp_conn_server::handler_received_data(void *buff) {
+    cout << "UDP here handling" << endl;
+    struct udphdr* udp = static_cast<udphdr *>(buff);
+    char* data = (char*) buff + sizeof(udphdr);
+
+    cout << "data: " << data << endl;
+
 }
