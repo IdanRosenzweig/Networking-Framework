@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string>
-#include "../../abstract/basic_encapsulating_protocol.h"
+#include "../../abstract/basic_encapsulating_client.h"
 #include "../../abstract/connectionless/basic_cl_client.h"
 
 class arp_conn_client : public basic_cl_client {

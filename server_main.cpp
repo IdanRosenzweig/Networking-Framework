@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include "abstract/connection_oriented/server/basic_server.h"
-#include "abstract/connection_oriented/server/basic_client_handler.h"
-#include "abstract/connection_oriented/client/basic_co_client.h"
+#include "abstract/connection_oriented/basic_server.h"
+#include "abstract/connection_oriented/basic_co_client.h"
 
 #include "abstract/connectionless/basic_cl_server.h"
 #include "abstract/connectionless/basic_cl_client.h"
@@ -39,12 +38,26 @@ int udp_main() {
     udp_conn_server temp_udp(4444);
 
     ip4_conn_server ip_server;
-    ip_server.register_handler(IPPROTO_UDP, &temp_udp);
+    ip_server.register_handler(IPPROTO_UDP);
+    temp_udp.ip_server = &ip_server;
 
-    ip_server.handle_prot_next_msg(IPPROTO_UDP);
-    ip_server.handle_prot_next_msg(IPPROTO_UDP);
-    ip_server.handle_prot_next_msg(IPPROTO_UDP);
+    char buff[6];
+    memset(buff, '\x00', 6);
+    temp_udp.recv_data(buff, 5);
+    cout << "msg: " << buff << endl;
 
+    cout << "sending data" << endl;
+    char* data = "servr";
+    temp_udp.send_data(data, 5);
+
+
+    temp_udp.recv_data(buff, 5); // first one actually captures this server's response, and ignores it
+    temp_udp.recv_data(buff, 5);
+    cout << "msg: " << buff << endl;
+
+    cout << "sending data" << endl;
+    data = "toast";
+    temp_udp.send_data(data, 5);
 
     while (true) {
 
@@ -59,33 +72,33 @@ int udp_main2() {
     udp_conn_server server(4444);
     server.setup();
 
-    sockaddr_in client = server.discover_next_client();
-    char buff[6];
-    memset(buff, '\x00', 6);
-
-//    server.recv_data(server.clients_q.front(), buff, 5);
-//    server.clients_q.front()->recv_data(buff, 5);
-    server.recv_encapsulated_data(buff, 5, client);
-    std::cout << "msg: " << buff << std::endl;
-
-//    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
-//    server.clients_q.front()->send_data((void *) "mouse", 5);
-    server.send_encapsulated_data((void *) "mouse", 5, client);
-
-    client = server.discover_next_client();
-    char buff2[6];
-    memset(buff2, '\x00', 6);
-
-//    server.recv_data(server.clients_q.front(), buff2, 5);
-//    server.clients_q.front()->recv_data(buff2, 5);
-    server.recv_encapsulated_data(buff2, 5, client);
-    std::cout << "msg: " << buff2 << std::endl;
-
-//    server.send_data(server.clients_q.front(), (void *) "toast", 5);
-//    server.clients_q.front()->send_data((void *) "toast", 5);
-    server.send_encapsulated_data((void *) "toast", 5, client);
-
-//    server.clients_q.pop();
+//    sockaddr_in client = server.discover_next_client();
+//    char buff[6];
+//    memset(buff, '\x00', 6);
+//
+////    server.recv_data(server.clients_q.front(), buff, 5);
+////    server.clients_q.front()->recv_data(buff, 5);
+//    server.recv_encapsulated_data(buff, 5, client);
+//    std::cout << "msg: " << buff << std::endl;
+//
+////    server.send_data(server.clients_q.front(), (void *) "mouse", 5);
+////    server.clients_q.front()->send_data((void *) "mouse", 5);
+//    server.send_encapsulated_data((void *) "mouse", 5, client);
+//
+//    client = server.discover_next_client();
+//    char buff2[6];
+//    memset(buff2, '\x00', 6);
+//
+////    server.recv_data(server.clients_q.front(), buff2, 5);
+////    server.clients_q.front()->recv_data(buff2, 5);
+//    server.recv_encapsulated_data(buff2, 5, client);
+//    std::cout << "msg: " << buff2 << std::endl;
+//
+////    server.send_data(server.clients_q.front(), (void *) "toast", 5);
+////    server.clients_q.front()->send_data((void *) "toast", 5);
+//    server.send_encapsulated_data((void *) "toast", 5, client);
+//
+////    server.clients_q.pop();
 
 
     while (true) {

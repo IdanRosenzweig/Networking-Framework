@@ -45,8 +45,8 @@ void ip4_conn_client::finish() {
 
 int ip4_conn_client::send_encapsulated_data(void *buff, int count) {
 
-#define PACKET_LEN 256
-    char packet[PACKET_LEN];
+#define BUFF_LEN 256
+    char packet[BUFF_LEN];
     struct iphdr *iph = (struct iphdr *)packet;
 
     char *data = packet + sizeof(struct iphdr);
@@ -72,11 +72,11 @@ int ip4_conn_client::send_encapsulated_data(void *buff, int count) {
 
 int ip4_conn_client::recv_encapsulated_data(void *buff, int count) {
 #define PACKET_LEN 50
-    char packet[PACKET_LEN];
+    char packet[BUFF_LEN];
 
     socklen_t sock_len = sizeof(dest_addr);
 
-    int res = recvfrom(fd, packet, PACKET_LEN, 0, (struct sockaddr *)&dest_addr, &sock_len);
+    int res = recvfrom(fd, packet, BUFF_LEN, 0, (struct sockaddr *)&dest_addr, &sock_len);
 
     char *data = packet + sizeof(struct iphdr);
     int data_cnt = std::min((int) (res - sizeof(struct iphdr)), count);

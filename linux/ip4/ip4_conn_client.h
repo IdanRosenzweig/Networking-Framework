@@ -5,10 +5,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string>
-#include "../../abstract/basic_encapsulating_protocol.h"
+#include "../../abstract/basic_encapsulating_client.h"
 #include "../../abstract/connectionless/basic_cl_client.h"
 
-class ip4_conn_client : public basic_cl_client, public basic_encapsulating_protocol {
+class ip4_conn_client : public basic_cl_client, public basic_encapsulating_client {
 //    network_layer_gateway
 protected:
     std::string ip;

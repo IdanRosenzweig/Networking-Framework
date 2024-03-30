@@ -5,14 +5,14 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <cstring>
-#include "../../abstract/connection_oriented/client/basic_co_client.h"
-#include "../../abstract/basic_encapsulating_protocol.h"
+#include "../../abstract/connection_oriented/basic_co_client.h"
+#include "../../abstract/basic_encapsulating_client.h"
 
 #include <iostream>
 
 using namespace std;
 
-class tcp_conn_client : public basic_co_client, public basic_encapsulating_protocol {
+class tcp_conn_client : public basic_co_client, public basic_encapsulating_client {
 protected:
 
     string ip;

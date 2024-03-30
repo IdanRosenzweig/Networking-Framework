@@ -9,23 +9,21 @@
 #include "linux/ether/arp_conn_client.h"
 
 #include "abstract/basic_gateway.h"
-#include "abstract/basic_encapsulating_protocol.h"
+#include "abstract/basic_encapsulating_client.h"
 
 #define IP "127.0.0.1"
 #define PORT 4444
 
 int udp_main() {
-    std::cout << "Hello, World!" << std::endl;
 
     udp_conn_client client(IP, PORT);
     client.init();
 
     std::cout << "sending data" << std::endl;
-    char* msg = "udp-u";
+    char* msg = "first";
     int len = strlen(msg);
 //    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
     cout << "sent " << client.send_encapsulated_data(msg, len) << " bytes" << endl;
-    std::cout << "data sent" << std::endl;
 
     char buff[6];
     memset(buff, '\x00', 6);
@@ -39,7 +37,6 @@ int udp_main() {
     int len2 = strlen(msg2);
 //    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
     cout << "sent " << client.send_encapsulated_data(msg2, len2) << " bytes" << endl;
-    std::cout << "data sent" << std::endl;
 
     char buff2[6];
     memset(buff2, '\x00', 6);

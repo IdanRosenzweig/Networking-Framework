@@ -7,10 +7,10 @@
 #include <cstring>
 #include <string>
 #include "../../abstract/connectionless/basic_cl_client.h"
-#include "../../abstract/basic_encapsulating_protocol.h"
+#include "../../abstract/basic_encapsulating_client.h"
 #include "../ip4/ip4_conn_client.h"
 class icmp_conn_client : public basic_cl_client
-//        , public basic_encapsulating_protocol
+//        , public basic_encapsulating_client
         {
 
 protected:

@@ -6,10 +6,10 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "../../abstract/connectionless/basic_cl_client.h"
-#include "../../abstract/basic_encapsulating_protocol.h"
+#include "../../abstract/basic_encapsulating_client.h"
 #include <string>
 
-class udp_conn_client : public basic_cl_client, public basic_encapsulating_protocol {
+class udp_conn_client : public basic_cl_client, public basic_encapsulating_client {
     // ipv4_client
 protected:
     std::string ip;

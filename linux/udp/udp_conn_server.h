@@ -9,25 +9,28 @@
 #include <memory>
 #include <queue>
 #include "../ip4/handler.h"
+#include "../ip4/ip4_conn_server.h"
+#include "udp_header.h"
 
 #include <arpa/inet.h>
 
-class udp_conn_server : public basic_cl_server, public encapsulated_data_handler {
-protected:
-    // discover next host trying to send us data
-    virtual sockaddr_in discover_next_host(); // todo in basic_cl_server with template
+class udp_conn_server : public basic_cl_server {
+//protected:
+//    // discover next host trying to send us data
+//    virtual sockaddr_in discover_next_host(); // todo in basic_cl_server with template
+//
+//public:
+////    std::queue<sockaddr_in> clients_q;
+//
+//    sockaddr_in discover_next_client() {
+////        sockaddr_in conn = discover_next_host();
+////        clients_q.push(conn);
+//        return discover_next_host();
+//    }
 
-public:
-//    std::queue<sockaddr_in> clients_q;
+    int server_port;
 
-    sockaddr_in discover_next_client() {
-//        sockaddr_in conn = discover_next_host();
-//        clients_q.push(conn);
-        return discover_next_host();
-    }
-
-    int port;
-    int fd;
+    int last_port; // last client's port
 
 public:
     udp_conn_server(int port);
@@ -36,13 +39,12 @@ public:
 
     void destroy() override;
 
-    // last parameter gets IP. this should have been a PORT, but we don't use a sub class ip4_client...
-    int send_encapsulated_data(void *buff, int count, sockaddr_in addr) ;
-    // last parameter gets IP. this should have been a PORT, but we don't use a sub class ip4_client...
-    int recv_encapsulated_data(void *buff, int count, sockaddr_in addr) ;
 
-    void handler_received_data(void *buff) override;
+    ip4_conn_server* ip_server;
 
+    void recv_data(void* data, int count);
+
+    void send_data(void* buff, int cnt);
 };
 
 #endif //SERVERCLIENT_IP4_CONN_SERVER_H
