@@ -12,7 +12,11 @@
 
 using namespace std;
 
-class tcp_conn_client : public basic_co_client, public basic_encapsulating_client {
+// tcp doesn't inherit basic_encapsulating_client because it doesn't support a way to
+// identify sub protocols. it just allows to send arbitrary payload
+class tcp_conn_client : public basic_co_client
+//        , public basic_encapsulating_client
+        {
 protected:
 
     string ip;
@@ -28,9 +32,13 @@ public:
 
     void disconn() override;
 
-    int send_encapsulated_data(void *buff, int count) override;
+//    int send_encapsulated_data(void *buff, int count) override;
+//
+//    int recv_encapsulated_data(void *buff, int count) override;
 
-    int recv_encapsulated_data(void *buff, int count) override;
+    int recv_data(void* data, int count);
+
+    int send_data(void* buff, int cnt);
 };
 
 

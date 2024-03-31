@@ -68,8 +68,11 @@ void udp_conn_server::recv_data(void* data, int count) {
 //    char* buff = (char*) data + sizeof(udp_header);
 //    cout << "buff: " << buff << endl;
 
-    ip_server->recv_prot_next_msg(IPPROTO_UDP);
-    char *buff = ip_server->prot_handlers[IPPROTO_UDP].data.get();
+#define BUFF_LEN 512
+    char buff[BUFF_LEN];
+    memset(&buff, '\x00', BUFF_LEN);
+    ip_server->recv_prot_next_msg(IPPROTO_UDP, buff, BUFF_LEN);
+//    char *buff = ip_server->prot_handlers[IPPROTO_UDP].data.get();
 
     struct udp_header* udp = (udp_header *) (buff);
     if (ntohs(udp->dest_port) != server_port) {
@@ -79,7 +82,7 @@ void udp_conn_server::recv_data(void* data, int count) {
     last_port = ntohs(udp->source_port);
 
     char* packet_data = (char*) buff + sizeof(udp_header);
-    memcpy(data, packet_data, count); // todo it may overflow if there is not much chars in prot_handlers[IPPROTO_UDP].buff
+    memcpy(data, packet_data, count); // todo it may overflow if there is not much chars in port_handlers[IPPROTO_UDP].buff
 }
 
 void udp_conn_server::send_data(void* data, int cnt) {

@@ -14,14 +14,9 @@ class icmp_conn_client : public basic_cl_client
         {
 
 protected:
-    // linux doesn't allow to receive raw ip packets.
-    // to receive ip packets, you must open a raw socket and specify the protocol you are using
-    ip4_conn_client ip_client;
-
-    int fd;
-
 public:
-    icmp_conn_client(const std::string &str);
+
+    ip4_conn_client* ip_client;
 
     void init() override;
 

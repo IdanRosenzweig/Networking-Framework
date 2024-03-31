@@ -6,10 +6,6 @@
 #include <vector>
 
 
-dns_client::dns_client(const string &server_ip) : udp_client(server_ip, DNS_PORT) {
-
-}
-
 //string dns_client::query(const string &name) {
 //
 //#define LEN 200
@@ -295,11 +291,13 @@ void dns_client::query(const std::string &name) {
 
     // send dns_query
 //    this->udp_conn_client::send_data((char *) buf, sizeof(struct dns_header) + query.size());
-    udp_client.send_encapsulated_data((char *) buf, sizeof(struct dns_header) + query.size());
+//    udp_client.send_encapsulated_data((char *) buf, sizeof(struct dns_header) + query.size());
+    udp_client->send_data((char *) buf, sizeof(struct dns_header) + query.size());
 
     // receive answer
 //    this->udp_conn_client::recv_data(buf, BUFF_SZ);
-    udp_client.recv_encapsulated_data(buf, BUFF_SZ);
+//    udp_client.recv_encapsulated_data(buf, BUFF_SZ);
+    udp_client->recv_data(buf, BUFF_SZ);
 
 
     struct dns_header *response = (struct dns_header *) buf;
@@ -437,9 +435,9 @@ void dns_client::query(const std::string &name) {
 }
 
 void dns_client::init() {
-    udp_client.init();
+//    udp_client->init();
 }
 
 void dns_client::finish() {
-    udp_client.finish();
+//    udp_client->finish();
 }

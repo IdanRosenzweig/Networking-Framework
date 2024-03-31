@@ -43,10 +43,10 @@ void tcp_conn_client::disconn() {
 }
 
 
-int tcp_conn_client::send_encapsulated_data(void *buff, int count) {
-    return send(fd, buff, count, 0);
+int tcp_conn_client::send_data(void *buff, int cnt) {
+    send(fd, buff, cnt, 0);
 }
 
-int tcp_conn_client::recv_encapsulated_data(void *buff, int count) {
-    return recv(fd, buff, count, 0);
+int tcp_conn_client::recv_data(void *data, int count) {
+    recv(fd, data, count, 0);
 }

@@ -7,10 +7,6 @@
 
 using namespace std;
 
-icmp_conn_client::icmp_conn_client(const std::string &str) : ip_client(str, IPPROTO_ICMP) {
-
-}
-
 void icmp_conn_client::init() {
 //    fd = socket(AF_INET,
 //                SOCK_RAW, IPPROTO_ICMP);
@@ -19,13 +15,13 @@ void icmp_conn_client::init() {
 //        return;
 //    }
 
-    ip_client.init();
+//    ip_client.init();
 }
 
 void icmp_conn_client::finish() {
 //    close(fd);
 
-    ip_client.finish();
+//    ip_client.finish();
 }
 
 struct icmp_packet {
@@ -104,7 +100,7 @@ void icmp_conn_client::ping() {
 //            std::cerr << "Failed to send packet" << std::endl;
 //            continue;
 //        }
-        if (ip_client.send_encapsulated_data(&packet, sizeof(packet)) < 1) {
+        if (ip_client->send_next_prot_msg(IPPROTO_ICMP, &packet, sizeof(packet)) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
             continue;
         }
@@ -120,7 +116,7 @@ void icmp_conn_client::ping() {
 //            std::cerr << "Cannot receive from socket" << std::endl;
 //            break;
 //        }
-        if (ip_client.recv_encapsulated_data(buf, BUFF_LEN) < 0) {
+        if (ip_client->recv_prot_next_msg(IPPROTO_ICMP, buf, BUFF_LEN) < 0) {
             std::cerr << "Cannot receive from socket" << std::endl;
             break;
         }

@@ -15,10 +15,9 @@ using namespace std;
 #define DNS_PORT 53
 
 class dns_client : public basic_cl_client {
-    udp_conn_client udp_client;
 public:
 
-    dns_client(const string &server_ip);
+    udp_conn_client* udp_client;
 
     void query(const string &name);
 

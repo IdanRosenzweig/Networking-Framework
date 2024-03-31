@@ -43,7 +43,7 @@ void ip4_conn_server::register_handler(int prot) {
 }
 
 
-void ip4_conn_server::recv_prot_next_msg(int prot) {
+int ip4_conn_server::recv_prot_next_msg(int prot, void* data, int count) {
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
 
@@ -56,26 +56,25 @@ void ip4_conn_server::recv_prot_next_msg(int prot) {
                        (struct sockaddr *) &client_addr, &len);
 
     struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(buff);
-//    prot_handlers[prot].last_client = {ntohl(client_addr.sin_addr.s_addr)};
+//    port_handlers[prot].last_client = {ntohl(client_addr.sin_addr.s_addr)};
     prot_handlers[prot].last_client = {ntohl(ip_hdr->saddr)};
 
-    char *data = buff + sizeof(struct iphdr);
+    char *packet_data = buff + sizeof(struct iphdr);
 
-    char *alloc = new char[BUFF_LEN - sizeof(struct iphdr)];
-    memcpy(alloc, data, BUFF_LEN - sizeof(struct iphdr));
+    int copy_cnt = std::min(BUFF_LEN - (int) sizeof(struct iphdr), count);
+    memcpy(data, packet_data, copy_cnt);
+    return copy_cnt;
 
-    prot_handlers[prot].data = std::unique_ptr<char>(alloc);
-
-//    prot_handlers[prot].handler->recv_data(data);
+//    prot_handlers[prot].data = std::unique_ptr<char>(alloc);
 
 }
 
-void ip4_conn_server::send_next_prot_msg(int prot, ip4_addr client, void *buff, int count) {
+int ip4_conn_server::send_next_prot_msg(int prot, ip4_addr client, void *buff, int count) {
     struct sockaddr_in sock;
     memset(&sock, 0, sizeof(sock));
     sock.sin_addr.s_addr = htonl(client.raw);
 
-    sendto(prot_handlers[prot].addit_data.fd,
+    return sendto(prot_handlers[prot].addit_data.fd,
            buff, count,
            0,
            reinterpret_cast<const sockaddr *>(&sock), sizeof(sock));

@@ -1,47 +1,85 @@
 #include "udp_conn_client.h"
 #include <iostream>
+#include "udp_header.h"
 using namespace std;
 
-udp_conn_client::udp_conn_client(const string &ip, int port) : ip(ip), port(port) {
+udp_conn_client::udp_conn_client(int port) : server_port(port) {
 
 }
 
 void udp_conn_client::init() {
     // this whole function count have been simply ip4.init(ip) if we used it...
 
-    fd = socket(AF_INET,
-                    SOCK_DGRAM,
-                    IPPROTO_UDP);
-    if (fd == -1) {
-        cerr << "can't open socket" << endl;
-        return;
-    }
-
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    if (inet_pton(AF_INET,
-                  ip.c_str(),
-                  (void *) &addr.sin_addr
-    ) == -1) {
-        cerr << "inet_pton error" << endl;
-        return;
-    }
+//    fd = socket(AF_INET,
+//                    SOCK_DGRAM,
+//                    IPPROTO_UDP);
+//    if (fd == -1) {
+//        cerr << "can't open socket" << endl;
+//        return;
+//    }
+//
+//    addr.sin_family = AF_INET;
+//    addr.sin_port = htons(server_port);
+//    if (inet_pton(AF_INET,
+//                  ip.c_str(),
+//                  (void *) &addr.sin_addr
+//    ) == -1) {
+//        cerr << "inet_pton error" << endl;
+//        return;
+//    }
 
 }
 
 void udp_conn_client::finish() {
-    close(fd);
+//    close(fd);
 }
 
-int udp_conn_client::send_encapsulated_data(void *buff, int count) {
-    return sendto(fd, buff, count, 0, (struct sockaddr *) &addr, sizeof(addr));
+void udp_conn_client::recv_data(void* data, int count) {
+//    struct udp_header* udp = static_cast<udp_header *>(data);
+//    if (ntohs(udp->dest_port) != server_port) {
+//        cout << "received udp to server_port not mine" << endl;
+//        return;
+//    }
+//    last_port = ntohs(udp->source_port);
+//
+//    char* buff = (char*) data + sizeof(udp_header);
+//    cout << "buff: " << buff << endl;
+
+#define BUFF_LEN 256
+    char buff[BUFF_LEN];
+    memset(&buff, '\x00', BUFF_LEN);
+    ip_client->recv_prot_next_msg(IPPROTO_UDP, buff, BUFF_LEN);
+//    char *buff = ip_client->prot_handlers[IPPROTO_UDP].data.get();
+
+    struct udp_header* udp = (udp_header *) (buff);
+    if (ntohs(udp->dest_port) != my_port) {
+        cout << "received udp to server_port not mine" << endl;
+        return;
+    }
+
+    char* packet_data = (char*) buff + sizeof(udp_header);
+
+    memcpy(data, packet_data, count); // todo it may overflow if there is not much chars in port_handlers[IPPROTO_UDP].buff
 }
 
-int udp_conn_client::recv_encapsulated_data(void *buff, int count) {
-    socklen_t len = sizeof(addr);
-    return recvfrom(fd,
-                    buff, count,
-                    0,
-                    (struct sockaddr *) &addr, &len);
-}
+void udp_conn_client::send_data(void* data, int cnt) {
+#define BUFF_LEN 256
+    char buff[BUFF_LEN];
+    memset(&buff, '\x00', BUFF_LEN);
 
+    // udp header
+    struct udp_header* udp = reinterpret_cast<udp_header *>(buff);
+
+    udp->source_port = htons (my_port);
+    udp->dest_port = htons (server_port);
+    udp->len = htons(sizeof(udp_header) + cnt);
+    udp->checksum = 0; // optional
+
+    // data
+    char* packet_data = buff + sizeof(udp_header);
+    memcpy(packet_data, data, cnt);
+
+
+    ip_client->send_next_prot_msg(IPPROTO_UDP,
+                                  buff, sizeof(udp_header) + cnt);
+}

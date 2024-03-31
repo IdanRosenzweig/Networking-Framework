@@ -14,30 +14,29 @@
 #include <queue>
 #include <string>
 
+#include "addit_data.h"
+
 struct ip4_addr {
     uint32_t raw;
 };
 
-struct port_data {
-    // the only thing we need to store is the fd of the opened linux socket
-    int fd{};
-
-};
-
-class ip4_conn_server : public basic_encapsulating_server<ip4_addr, int, port_data> {
+class ip4_conn_server : public basic_encapsulating_server<ip4_addr, int, prot_addit_data> {
 public:
     ip4_conn_server();
 
-    // register a handler for receiving an encapsulated protocol.
-    //
-    void register_handler(int prot) override;
+    // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.
+    // you must specify beforehand the type of protocol you would encapsulate
+    // in the ip packets, and can't change that type.
+    // so this function registers a protocol that will be used in the future
+    // (creates a new fd for the specific protocol)
+    void register_handler(int prot);
 
 
     // receive the next msg of the encapsulated protocol
-    void recv_prot_next_msg(int prot) override;
+    int recv_prot_next_msg(int prot, void* buff, int count) override;
 
     // send message to the last client that sent message with the protocol
-    void send_next_prot_msg(int prot, ip4_addr client, void* buff, int count) override;
+    int send_next_prot_msg(int prot, ip4_addr client, void* buff, int count) override;
 
 };
 
