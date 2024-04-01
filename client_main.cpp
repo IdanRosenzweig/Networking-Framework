@@ -6,6 +6,7 @@
 #include "linux/dns/dns_client.h"
 #include "linux/ip4/ip4_conn_client.h"
 #include "linux/icmp/icmp_conn_client.h"
+#include "linux/ether/ethernet_conn_client.h"
 #include "linux/ether/arp_conn_client.h"
 
 #include "abstract/basic_gateway.h"
@@ -19,11 +20,11 @@ int udp_main() {
     ip4_conn_client ip_client(IP);
     ip_client.register_handler(IPPROTO_UDP);
 
-    udp_conn_client client( PORT);
+    udp_conn_client client(PORT);
     client.ip_client = &ip_client;
 
     std::cout << "sending data" << std::endl;
-    char* msg = "first";
+    char *msg = "first";
     int len = strlen(msg);
 //    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
     client.send_data(msg, len);
@@ -38,7 +39,7 @@ int udp_main() {
 
 
     std::cout << "sending data" << std::endl;
-    char* msg2 = "secnd";
+    char *msg2 = "secnd";
     int len2 = strlen(msg2);
 //    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
     client.send_data(msg2, len2);
@@ -65,29 +66,23 @@ int tcp_main() {
     client.conn();
 
     std::cout << "sending data" << std::endl;
-    char* msg = "hello";
-    int len = strlen(msg);
-//    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
-    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
+    char *msg = "hello";
+    cout << "sent " << client.send_data(msg, strlen(msg)) << " bytes" << endl;
     std::cout << "data sent" << std::endl;
 
     char buff[6];
     memset(buff, '\x00', 6);
-//    client.recv_data(buff, 5);
     client.recv_data(buff, 5);
     cout << "server: " << buff << endl;
 
 
     std::cout << "sending data" << std::endl;
-    char* msg2 = "secnd";
-    int len2 = strlen(msg2);
-//    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
-    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
+    char *msg2 = "secnd";
+    cout << "sent " << client.send_data(msg2, strlen(msg2)) << " bytes" << endl;
     std::cout << "data sent" << std::endl;
 
     char buff2[6];
     memset(buff2, '\x00', 6);
-//    client.recv_data(buff2, 5);
     client.recv_data(buff2, 5);
     cout << "server: " << buff2 << endl;
 
@@ -122,14 +117,14 @@ int dns_main() {
     dns_client dns_client;
     dns_client.udp_client = &udp_client;
 
-    for (string& str : hosts)
+    for (string &str: hosts)
         dns_client.query(str);
 
     return 0;
 }
 
 int icmp_main() {
-    char* str = "172.217.22.46";
+    char *str = "172.217.22.46";
 //    char* str = "google.com";
 
     ip4_conn_client ip_client(str);
@@ -142,16 +137,20 @@ int icmp_main() {
 }
 
 int arp_main() {
-    arp_conn_client arp_client("");
-    arp_client.init();
+//    arp_conn_client arp_client;
+//    arp_client.init();
+
+    ethernet_conn_client ether_client("");
+    ether_client.init();
+    ether_client.spoof();
 }
 
 int main() {
 //    udp_main();
-    tcp_main();
+//    tcp_main();
 //    dns_main();
 //    icmp_main();
-//    arp_main();
+    arp_main();
 }
 
 
@@ -170,12 +169,11 @@ int main() {
 //#define IP4LEN 4
 //
 //int
-//main(int argc, char ** argv)
-//{
+//main(int argc, char **argv) {
 //
 //
 ////    if (argc < 4) {
-////        puts("usage:\t./arp_header-poison <interface> <gateway ip> <mac addr>");
+////        puts("usage:\t./arp_header-poison <INTERFACE> <gateway ip> <mac addr>");
 ////        puts("ex:\t./arp_header-poison eth0 10.1.1.1 aa:bb:cc:dd:ee:ff");
 ////        exit(1);
 ////    }
@@ -184,18 +182,20 @@ int main() {
 //    if (sock < 0)
 //        perror("socket"), exit(1);
 //
-//    char* interface = "enp0s3";
-//    char* ip = "10.0.0.1";
-//    char* mac = "aa:bb:cc:dd:ee:ff";
+//    char *INTERFACE = "enp0s3";
+//    char *ip = "10.0.0.1";
+//    char *mac = "aa:bb:cc:dd:ee:ff";
 //
 //#define PKTLEN sizeof(struct ether_header) + sizeof(struct ether_arp)
 //    char packet[PKTLEN];
-//    struct ether_header * eth_header = (struct ether_header *) packet; // ethernet header
-//    struct ether_arp * arp_header = (struct ether_arp *) (packet + sizeof(struct ether_header)); // arp_header header
+//    memset(packet, 0, PKTLEN);
+//
+//    struct ether_header *eth_header = (struct ether_header *) packet; // ethernet header
+//    struct ether_arp *arp_header = (struct ether_arp *) (packet + sizeof(struct ether_header)); // arp_header header
 //
 //
 //    // setup arp header
-//    sscanf(mac, "%x:%x:%x:%x:%x:%x",  (unsigned int *) &arp_header->arp_sha[0],
+//    sscanf(mac, "%x:%x:%x:%x:%x:%x", (unsigned int *) &arp_header->arp_sha[0],
 //           (unsigned int *) &arp_header->arp_sha[1],
 //           (unsigned int *) &arp_header->arp_sha[2],
 //           (unsigned int *) &arp_header->arp_sha[3],
@@ -226,16 +226,16 @@ int main() {
 //
 //    struct sockaddr_ll interface_addr;
 //    memset(&interface_addr, 0, sizeof(interface_addr));
-//    interface_addr.sll_ifindex = if_nametoindex(interface);
+//    interface_addr.sll_ifindex = if_nametoindex(INTERFACE);
 //    interface_addr.sll_family = AF_PACKET;
 //    memcpy(interface_addr.sll_addr, arp_header->arp_sha, ETH_ALEN);
 //    interface_addr.sll_halen = htons(ETH_ALEN);
 //
 //    while (1) {
-//        printf("%s: %s is at %s\n", interface, ip, mac);
+//        printf("%s: %s is at %s\n", INTERFACE, ip, mac);
 //        cout << "sent" << endl;
 //        sendto(sock, packet, PKTLEN, 0, (struct sockaddr *) &interface_addr, sizeof(interface_addr));
-//        sleep(2);
+//        sleep(1);
 //    }
 //    return 0;
 //}

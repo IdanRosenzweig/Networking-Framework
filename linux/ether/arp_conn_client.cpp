@@ -10,54 +10,40 @@
 
 using namespace std;
 
-arp_conn_client::arp_conn_client(const string &str) : mac(str) {
+arp_conn_client::arp_conn_client() {
 
-}
-
-struct mac_addr {
-    uint8_t addr[6];
-};
-
-mac_addr get_my_mac_address(const int sd, const char *interface) {
-    struct ifreq ifr;
-    memset(&ifr, 0, sizeof ifr);
-    snprintf(ifr.ifr_name, IFNAMSIZ, "%s", interface);
-
-    if (ioctl(sd, SIOCGIFHWADDR, &ifr) < 0)
-        return {0};
-
-    mac_addr addr;
-    memset(&addr, 0, sizeof(addr));
-    memcpy(&addr, ifr.ifr_hwaddr.sa_data, sizeof(addr));
-    return addr;
 }
 
 void arp_conn_client::init() {
-    fd = socket(AF_PACKET,
-                SOCK_RAW,
-                htons(ETH_P_ARP));
-    if (fd == -1) {
-        cerr << "can't open socket" << endl;
-        return;
-    }
-
-    mac_addr addr = get_my_mac_address(fd, "enp0s3");
-    printf("my mac is: %02x:%02x:%02x:%02x:%02x:%02x\n",
-           (unsigned int) addr.addr[0],
-           (unsigned int) addr.addr[1],
-           (unsigned int) addr.addr[2],
-           (unsigned int) addr.addr[3],
-           (unsigned int) addr.addr[4],
-           (unsigned int) addr.addr[5]
-    );
+//    fd = socket(AF_PACKET,
+//                SOCK_RAW,
+//                htons(ETH_P_ARP));
+//    if (fd == -1) {
+//        cerr << "can't open socket" << endl;
+//        return;
+//    }
+//
+//    mac_addr addr = get_my_mac_address(fd, "enp0s3");
+//    printf("my mac is: %02x:%02x:%02x:%02x:%02x:%02x\n",
+//           (unsigned int) addr.addr[0],
+//           (unsigned int) addr.addr[1],
+//           (unsigned int) addr.addr[2],
+//           (unsigned int) addr.addr[3],
+//           (unsigned int) addr.addr[4],
+//           (unsigned int) addr.addr[5]
+//    );
 
 }
 
 void arp_conn_client::finish() {
-    close(fd);
+//    close(fd);
 }
 
-void arp_conn_client::discover(const std::string ip) {
+void arp_conn_client::spoof(const string &spoofed_mac, const string &ip, const string &device_mac) {
+
+}
+
+//void arp_conn_client::discover(const std::string ip) {
 
 //
 //#define PACKET_LEN 256
@@ -98,6 +84,5 @@ void arp_conn_client::discover(const std::string ip) {
 //    memcpy(buff, data, data_cnt);
 //    return data_cnt;
 
+//}
 
-
-}
