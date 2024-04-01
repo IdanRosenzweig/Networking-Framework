@@ -77,7 +77,7 @@ struct dns_query {
     uint16_t q_type;
     uint16_t q_class;
 
-    void write_to(char *buff) {
+    void write_to_buff(char *buff) {
         memcpy(buff, q_name.c_str(), q_name.size() + 1); // including the trailing null byte
         buff += q_name.size() + 1;
 
@@ -286,7 +286,7 @@ void dns_client::query(const std::string &name) {
     query.q_type = htons(T_A); // write the dns_query type
     query.q_class = htons(1); // write the dns_query class
 
-    query.write_to((char *) (&buf[sizeof(struct dns_header)]));
+    query.write_to_buff((char *) (&buf[sizeof(struct dns_header)]));
 
 
     // send dns_query
