@@ -11,35 +11,34 @@
 #include <netpacket/packet.h>
 #include <linux/if.h>
 #include "../ip4/addit_data.h"
+#include "mac_addr.h"
+
+mac_addr get_my_mac_address(const char *interface_name);
+
 
 class ethernet_conn_client : public basic_cl_client, public basic_encapsulating_client<int, prot_addit_data> {
 //    data_link_layer_gateway
-protected:
 
-    std::string mac;
-    struct sockaddr_ll dest_addr;
+private:
+// instead of listening and filtering encapsulated protocols ourselves,
+// linux will do it for us by creating a file descriptor for the dedicated protocol
+    void register_handler(int prot);
+
+    mac_addr my_mac;
 
     struct ifreq if_idx;
-    struct ifreq my_mac;
-    struct ifreq my_priv_ip;
+    struct sockaddr_ll dest_addr; // used for interface
 
 public:
-    ethernet_conn_client(const std::string& mac);
+
+    mac_addr dest_device = BROADCAST_MAC;
+    void change_dest_mac(mac_addr mac);
+
+    ethernet_conn_client();
 
     void init() override;
 
     void finish() override;
-//
-//    int send_encapsulated_data(void *buff, int count) override;
-//
-//    int recv_encapsulated_data(void *buff, int count) override;
-
-    // linux won't allow to receive raw packets of any type, only to send ones.
-    // you must specify beforehand the type of protocol you would encapsulate
-    // in the ip packets, and can't change that type.
-    // so this function registers a protocol that will be used in the future
-    // (creates a new fd for the specific protocol)
-    void register_handler(int prot);
 
 
     // receive the next msg of the encapsulated protocol
@@ -48,6 +47,8 @@ public:
     // send message to the last client that sent message with the protocol
     int send_next_prot_msg(int prot, void* buff, int count) override;
 
-    void spoof();
+//    void spoof();
+
+    struct ifreq my_priv_ip;
 };
 #endif //SERVERCLIENT_ETHERNET_CONN_CLIENT_H

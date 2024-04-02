@@ -20,7 +20,6 @@ protected:
     int fd;
 public:
 
-    // todo can actually send arbitrary protocol...
     // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.
     // you must specify beforehand the type of protocol you would encapsulate
     // in the ip packets, and can't change that type

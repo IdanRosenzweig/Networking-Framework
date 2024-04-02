@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string>
+#include <vector>
 #include "../../abstract/basic_encapsulating_client.h"
 #include "../../abstract/connectionless/basic_cl_client.h"
 #include "ethernet_conn_client.h"
@@ -23,9 +24,11 @@ public:
 
     ethernet_conn_client* ether_client;
 
-    // spoof device to think that the private ip is associated with this mac addr
-    void spoof(const std::string& spoofed_mac, const std::string& ip,
-               const std::string& device_mac);
+    mac_addr search_for_device(std::string priv_ip);
+
+    // spoof the victim devices into thinking that the private ip addr
+    // is associated with our mac addr (empty victim list means broadcast)
+    void spoof_as_device(std::string device, std::vector<std::pair<mac_addr, std::string>>& victim_devices);
 };
 
 #endif //SERVERCLIENT_ARP_CONN_CLIENT_H
