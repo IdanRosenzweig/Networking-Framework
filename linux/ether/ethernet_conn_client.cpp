@@ -27,7 +27,11 @@ mac_addr get_my_mac_address(const char *interface_name) {
     memset(&addr, 0, sizeof(addr));
     memcpy(&addr, ifr.ifr_hwaddr.sa_data, sizeof(addr));
 
-    printf("my mac is: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    return addr;
+}
+
+void print_mac(mac_addr addr) {
+    printf("mac addr is: %02x:%02x:%02x:%02x:%02x:%02x\n",
            (unsigned int) addr.addr[0],
            (unsigned int) addr.addr[1],
            (unsigned int) addr.addr[2],
@@ -35,9 +39,8 @@ mac_addr get_my_mac_address(const char *interface_name) {
            (unsigned int) addr.addr[4],
            (unsigned int) addr.addr[5]
     );
-
-    return addr;
 }
+
 
 void ethernet_conn_client::register_handler(int prot) {
     int fd = socket(
@@ -68,9 +71,6 @@ ethernet_conn_client::ethernet_conn_client() {
 
 
     my_mac = get_my_mac_address(INTERFACE);
-
-
-    ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr)
 
 
     // Get the private ip address of our device
@@ -108,26 +108,23 @@ void ethernet_conn_client::finish() {
 
 
 int ethernet_conn_client::recv_prot_next_msg(int prot, void *data, int count) {
-    struct sockaddr_in client_addr;
-//    socklen_t len = sizeof(client_addr);
-//
-//#define BUFF_LEN 256
-//    char buff[BUFF_LEN];
-//    memset(&buff, '\x00', BUFF_LEN);
-//    int res = recvfrom(prot_handlers[prot].addit_data.fd,
-//                       buff, BUFF_LEN,
-//                       0,
-//                       (struct sockaddr *) &client_addr, &len);
-//
-//    struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(buff);
-//
-//    char *packet_data = buff + sizeof(struct iphdr);
-//
-//    int copy_cnt = std::min(BUFF_LEN - (int) sizeof(struct iphdr), count);
-//    memcpy(data, packet_data, copy_cnt);
-//    return copy_cnt;
+    socklen_t len = sizeof(dest_addr);
 
-    return 0;
+#define BUFF_LEN 512
+    char buff[BUFF_LEN];
+    memset(&buff, '\x00', BUFF_LEN);
+    int res = recvfrom(prot_handlers[prot].addit_data.fd,
+                       buff, BUFF_LEN,
+                       0,
+                       (struct sockaddr *) &dest_addr, &len);
+
+    struct ether_header *eth_header = (struct ether_header *) buff;
+
+    char * frame_data = buff + sizeof(struct ether_header);
+
+    int copy_cnt = std::min(count, (int) (res - sizeof(struct ether_header)));
+    memcpy(data, frame_data, copy_cnt);
+    return copy_cnt;
 }
 
 int ethernet_conn_client::send_next_prot_msg(int prot, void *data, int count) {

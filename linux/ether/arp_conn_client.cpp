@@ -43,7 +43,11 @@ void arp_conn_client::finish() {
 #define IP4LEN 4
 mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
     struct mac_addr my_mac = get_my_mac_address("enp0s3");
-    struct sockaddr my_ip = ether_client->my_priv_ip.ifr_addr;
+    struct in_addr my_ip = ((struct sockaddr_in *)&ether_client->my_priv_ip.ifr_addr)->sin_addr;
+
+    struct in_addr target_ip = {0};
+    if (!inet_aton(priv_ip.c_str(), &target_ip))
+        throw "can't convert device's ip";
 
 
 #define BUFF_LEN 512
@@ -63,12 +67,27 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
     memcpy(arp_header->arp_spa, &my_ip, sizeof(arp_header->arp_spa)); // device ip
 
     memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
-    memcpy(arp_header->arp_tpa, &priv_ip, sizeof(arp_header->arp_tpa));
+    memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
 
-
+    // send request
     ether_client->change_dest_mac(BROADCAST_MAC);
     ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
 
+    // receive reply
+#define BUFF_LEN 512
+    char reply[BUFF_LEN];
+    memset(reply, 0, BUFF_LEN);
+    ether_client->recv_prot_next_msg(htons(ETH_P_ARP), reply, BUFF_LEN);
+
+    struct ether_arp *arp_reply = (struct ether_arp *) reply;
+    if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
+        cout << "received arp not of type reply" << endl;
+        return {};
+    }
+
+    mac_addr res{};
+    memcpy(res.addr, arp_reply->arp_sha, sizeof(res.addr));
+    return res;
 }
 
 void arp_conn_client::spoof_as_device(std::string device,

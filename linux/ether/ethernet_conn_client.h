@@ -15,6 +15,7 @@
 
 mac_addr get_my_mac_address(const char *interface_name);
 
+void print_mac(mac_addr addr);
 
 class ethernet_conn_client : public basic_cl_client, public basic_encapsulating_client<int, prot_addit_data> {
 //    data_link_layer_gateway

