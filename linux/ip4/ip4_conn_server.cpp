@@ -66,7 +66,7 @@ int ip4_conn_server::recv_next_msg( void* data, int count) {
 
     char *packet_data = buff + sizeof(struct iphdr);
 
-    int copy_cnt = std::min(BUFF_LEN - (int) sizeof(struct iphdr), count);
+    int copy_cnt = std::min(res - (int) sizeof(struct iphdr), count);
     memcpy(data, packet_data, copy_cnt);
     return copy_cnt;
 

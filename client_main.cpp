@@ -31,13 +31,10 @@ int udp_main() {
     std::cout << "sending data" << std::endl;
     char *msg = "first";
     int len = strlen(msg);
-//    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
     client.send_data(msg, len);
 
     char buff[6];
     memset(buff, '\x00', 6);
-//    client.recv_data(buff, 5);
-    client.recv_data(buff, 5); // first one actually captures this client's message, and ignores it
     client.recv_data(buff, 5);
     cout << "server: " << buff << endl;
 
@@ -45,13 +42,10 @@ int udp_main() {
     std::cout << "sending data" << std::endl;
     char *msg2 = "secnd";
     int len2 = strlen(msg2);
-//    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
     client.send_data(msg2, len2);
 
     char buff2[6];
     memset(buff2, '\x00', 6);
-//    client.recv_data(buff2, 5);
-    client.recv_data(buff2, 5); // first one actually captures this client's message, and ignores it
     client.recv_data(buff2, 5);
     cout << "server: " << buff2 << endl;
 
@@ -170,7 +164,7 @@ void tunnel_main() {
         int len = traffic.sniff_next_msg(buff, BUFF_LEN); // next message
 
         // tunnel through udp
-        cout << "packet read. tunneling in udp" << endl;
+        cout << "packet read. tunneling in udp len " << len << endl;
         udp_client.send_data(buff, len);
     }
 }

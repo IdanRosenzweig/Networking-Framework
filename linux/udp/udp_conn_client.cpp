@@ -34,7 +34,7 @@ void udp_conn_client::finish() {
 //    close(fd);
 }
 
-void udp_conn_client::recv_data(void* data, int count) {
+int udp_conn_client::recv_data(void* data, int count) {
 //    struct udp_header* udp = static_cast<udp_header *>(data);
 //    if (ntohs(udp->dest_port) != server_port) {
 //        cout << "received udp to server_port not mine" << endl;
@@ -47,20 +47,23 @@ void udp_conn_client::recv_data(void* data, int count) {
 
 #define BUFF_LEN 256
     char buff[BUFF_LEN];
-    memset(&buff, '\x00', BUFF_LEN);
-    ip_client->setNextProt(IPPROTO_UDP);
-    ip_client->recv_next_msg(buff, BUFF_LEN);
-//    char *buff = ip_client->prot_handlers[IPPROTO_UDP].data.get();
+    while (true) {
 
-    struct udp_header* udp = (udp_header *) (buff);
-    if (ntohs(udp->dest_port) != my_port) {
-        cout << "received udp to server_port not mine" << endl;
-        return;
+        memset(&buff, '\x00', BUFF_LEN);
+        ip_client->setNextProt(IPPROTO_UDP);
+        int res = ip_client->recv_next_msg(buff, BUFF_LEN);
+
+        struct udp_header* udp = (udp_header *) (buff);
+        if (ntohs(udp->dest_port) != my_port)
+            continue; // keep on receiving
+
+        char* packet_data = (char*) buff + sizeof(udp_header);
+
+        int copy_cnt = std::min(count, (int) (res - sizeof(udp_header)));
+        memcpy(data, packet_data, copy_cnt);
+        return copy_cnt;
     }
 
-    char* packet_data = (char*) buff + sizeof(udp_header);
-
-    memcpy(data, packet_data, count); // todo it may overflow if there is not much chars in port_handlers[IPPROTO_UDP].buff
 }
 
 void udp_conn_client::send_data(void* data, int cnt) {

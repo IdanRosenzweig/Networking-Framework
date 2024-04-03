@@ -9,6 +9,7 @@
 #include "linux/tcp/tcp_conn_server.h"
 #include "linux/udp/udp_conn_server.h"
 #include "linux/ip4/ip4_conn_server.h"
+#include "linux/data_link_layer/data_link_layer_gateway.h"
 //#include "linux/ip4/ip4_conn_server.h"
 
 #define PORT 2222
@@ -50,7 +51,6 @@ int udp_main() {
     udp_client.send_data(data, 5);
 
 
-    udp_client.recv_data(buff, 5); // first one actually captures this server's response, and ignores it
     udp_client.recv_data(buff, 5);
     cout << "msg: " << buff << endl;
 
@@ -103,13 +103,26 @@ void tunnel_main() {
     udp_conn_server udp_client(4444);
     udp_client.ip_server = &ip_server;
 
+    data_link_layer_gateway gateway;
+
     while (true) {
 #define BUFF_LEN 512
         char buff[BUFF_LEN];
         memset(buff, 0, BUFF_LEN);
 
-        udp_client.recv_data(buff, BUFF_LEN);
-        cout << "received tunneled packet, size " << endl;
+        int cnt = udp_client.recv_data(buff, BUFF_LEN);
+        cout << "received tunneled packet, size " << cnt << endl;
+
+        cout << "sending raw bytes to data link layer" << endl;
+        gateway.send_raw(buff, cnt);
+
+        // todo now send through different interface
+        cout << "waiting for response" << endl;
+#define BUFF_LEN 512
+        char reply[BUFF_LEN];
+        memset(reply, 0, BUFF_LEN);
+        int reply_len = gateway.recv_raw(reply, cnt);
+        cout << "received reply with len " << reply_len << endl << endl;
     }
 
 }

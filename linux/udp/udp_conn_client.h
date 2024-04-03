@@ -35,7 +35,7 @@ public:
 
     ip4_conn_client* ip_client;
 
-    void recv_data(void* data, int count);
+    int recv_data(void* data, int count);
 
     void send_data(void* buff, int cnt);
 

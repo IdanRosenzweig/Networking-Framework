@@ -14,7 +14,10 @@ add_executable(Server
         linux/udp/udp_conn_server.cpp
         linux/ip4/ip4_conn_server.cpp
 
+        linux/data_link_layer/data_link_layer_gateway.cpp
+        linux/data_link_layer/data_link_traffic.cpp
 )
+target_link_libraries(Server ${PCAP_LIBRARY})
 
 add_executable(Client
         client_main.cpp
