@@ -48,7 +48,8 @@ void udp_conn_client::recv_data(void* data, int count) {
 #define BUFF_LEN 256
     char buff[BUFF_LEN];
     memset(&buff, '\x00', BUFF_LEN);
-    ip_client->recv_prot_next_msg(IPPROTO_UDP, buff, BUFF_LEN);
+    ip_client->setNextProt(IPPROTO_UDP);
+    ip_client->recv_next_msg(buff, BUFF_LEN);
 //    char *buff = ip_client->prot_handlers[IPPROTO_UDP].data.get();
 
     struct udp_header* udp = (udp_header *) (buff);
@@ -80,6 +81,6 @@ void udp_conn_client::send_data(void* data, int cnt) {
     memcpy(packet_data, data, cnt);
 
 
-    ip_client->send_next_prot_msg(IPPROTO_UDP,
-                                  buff, sizeof(udp_header) + cnt);
+    ip_client->setNextProt(IPPROTO_UDP);
+    ip_client->send_next_msg(buff, sizeof(udp_header) + cnt);
 }

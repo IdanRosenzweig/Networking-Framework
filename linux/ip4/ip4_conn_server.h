@@ -21,22 +21,17 @@ struct ip4_addr {
 };
 
 class ip4_conn_server : public basic_encapsulating_server<ip4_addr, int, prot_addit_data> {
+private:
+    void register_filter(int prot);
+
 public:
     ip4_conn_server();
 
-    // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.
-    // you must specify beforehand the type of protocol you would encapsulate
-    // in the ip packets, and can't change that type.
-    // so this function registers a protocol that will be used in the future
-    // (creates a new fd for the specific protocol)
-    void register_handler(int prot);
-
-
     // receive the next msg of the encapsulated protocol
-    int recv_prot_next_msg(int prot, void* buff, int count) override;
+    int recv_next_msg( void* buff, int count) override;
 
     // send message to the last client that sent message with the protocol
-    int send_next_prot_msg(int prot, ip4_addr client, void* buff, int count) override;
+    int send_next_msg( ip4_addr client, void* buff, int count) override;
 
 };
 

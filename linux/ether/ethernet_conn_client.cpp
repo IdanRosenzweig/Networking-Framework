@@ -42,7 +42,7 @@ void print_mac(mac_addr addr) {
 }
 
 
-void ethernet_conn_client::register_handler(int prot) {
+void ethernet_conn_client::register_filter(int prot) {
     int fd = socket(
             AF_PACKET,
             SOCK_RAW,
@@ -91,6 +91,14 @@ ethernet_conn_client::ethernet_conn_client() {
 //    socket_address.sll_halen = 0;
 //    socket_address.sll_addr[6] = 0x00;
 //    socket_address.sll_addr[7] = 0x00;
+
+
+
+
+
+
+
+
 }
 
 
@@ -107,16 +115,21 @@ void ethernet_conn_client::finish() {
 
 
 
-int ethernet_conn_client::recv_prot_next_msg(int prot, void *data, int count) {
+int ethernet_conn_client::recv_next_msg( void *data, int count) {
     socklen_t len = sizeof(dest_addr);
 
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
     memset(&buff, '\x00', BUFF_LEN);
-    int res = recvfrom(prot_handlers[prot].addit_data.fd,
+
+    // just before receiving, make sure there is a file descriptor for this protocol
+    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+
+    int res = recvfrom(prot_handlers[getNextProt()].addit_data.fd,
                        buff, BUFF_LEN,
                        0,
                        (struct sockaddr *) &dest_addr, &len);
+
 
     struct ether_header *eth_header = (struct ether_header *) buff;
 
@@ -127,7 +140,7 @@ int ethernet_conn_client::recv_prot_next_msg(int prot, void *data, int count) {
     return copy_cnt;
 }
 
-int ethernet_conn_client::send_next_prot_msg(int prot, void *data, int count) {
+int ethernet_conn_client::send_next_msg( void *data, int count) {
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
     memset(buff, 0, BUFF_LEN);
@@ -143,16 +156,16 @@ int ethernet_conn_client::send_next_prot_msg(int prot, void *data, int count) {
     memcpy(eth_header->ether_shost, &my_mac, ETH_ALEN); // my mac
 
     // ethertype
-    eth_header->ether_type = prot;
+    eth_header->ether_type = getNextProt();
 
 
     char* frame_data = buff + sizeof(struct ether_header);
     memcpy(frame_data, data, count);
 
     // just before sending, make sure there is a file descriptor for this protocol
-    if (!prot_handlers.count(prot)) register_handler(prot);
+    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
 
-    return sendto(prot_handlers[prot].addit_data.fd,
+    return sendto(prot_handlers[getNextProt()].addit_data.fd,
                   buff, sizeof(struct ether_header) + count,
                   0,
                   reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));

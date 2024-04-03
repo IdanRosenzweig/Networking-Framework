@@ -22,8 +22,8 @@ class ethernet_conn_client : public basic_cl_client, public basic_encapsulating_
 
 private:
 // instead of listening and filtering encapsulated protocols ourselves,
-// linux will do it for us by creating a file descriptor for the dedicated protocol
-    void register_handler(int prot);
+// linux will do it for us. just create a file descriptor for the dedicated protocol
+    void register_filter(int prot);
 
     mac_addr my_mac;
 
@@ -43,10 +43,10 @@ public:
 
 
     // receive the next msg of the encapsulated protocol
-    int recv_prot_next_msg(int prot, void* buff, int count) override;
+    int recv_next_msg( void* buff, int count) override;
 
     // send message to the last client that sent message with the protocol
-    int send_next_prot_msg(int prot, void* buff, int count) override;
+    int send_next_msg( void* buff, int count) override;
 
 //    void spoof();
 

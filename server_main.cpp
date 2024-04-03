@@ -36,7 +36,6 @@ int udp_main() {
     std::cout << "Hello, World!" << std::endl;
 
     ip4_conn_server ip_server;
-    ip_server.register_handler(IPPROTO_UDP);
 
     udp_conn_server udp_client(4444);
     udp_client.ip_server = &ip_server;
@@ -98,7 +97,26 @@ int tcp_main() {
     return 0;
 }
 
+void tunnel_main() {
+    ip4_conn_server ip_server;
+
+    udp_conn_server udp_client(4444);
+    udp_client.ip_server = &ip_server;
+
+    while (true) {
+#define BUFF_LEN 512
+        char buff[BUFF_LEN];
+        memset(buff, 0, BUFF_LEN);
+
+        udp_client.recv_data(buff, BUFF_LEN);
+        cout << "received tunneled packet, size " << endl;
+    }
+
+}
+
 int main() {
 //    udp_main();
-    tcp_main();
+//    tcp_main();
+    tunnel_main();
+
 }

@@ -5,7 +5,7 @@
 #include <memory>
 
 // a basic protocol that allow encapsulating sub protocols
-template <typename PROT_T, typename PROT_DATA>
+template<typename PROT_T, typename PROT_DATA>
 class basic_encapsulating_client {
 //public:
 //    virtual int send_encapsulated_data(void *buff, int count) = 0;
@@ -15,16 +15,24 @@ class basic_encapsulating_client {
 
 public:
     struct prot_data {
-         PROT_DATA addit_data; // additional data
+        PROT_DATA addit_data; // additional data
     };
     std::map<PROT_T, prot_data> prot_handlers;
 
 
-    // receive the next msg of the encapsulated protocol.
-    virtual int recv_prot_next_msg(PROT_T prot, void* buff, int count) = 0;
+private:
+    PROT_T next_prot; // indicated the protocol used in the next encapsulated message
+public:
+    PROT_T getNextProt() const {return next_prot;}
 
-    // send message of protocol prot to client
-    virtual int send_next_prot_msg(PROT_T prot, void* buff, int count) = 0;
+    void setNextProt(PROT_T nextProt) {next_prot = nextProt;}
+
+
+    // receive the next msg (depending on the current encapsulated protocol).
+    virtual int recv_next_msg(void *buff, int count) = 0;
+
+    // send message (depending on the current encapsulated protocol).
+    virtual int send_next_msg(void *buff, int count) = 0;
 
 };
 

@@ -14,6 +14,22 @@ unsigned short checksum(unsigned short *buf, int nwords) {
     return ~sum;
 }
 
+void ip4_conn_client::register_filter(int prot) {
+    int fd = socket(
+            AF_INET,
+            SOCK_RAW,
+            prot
+    );
+    if (fd == -1) {
+        cerr << "socket err" << endl;
+        printf("errno: %d\n", errno);
+        throw;
+    }
+
+    prot_handlers[prot].addit_data = {fd};
+
+}
+
 ip4_conn_client::ip4_conn_client(const string &ip) : ip(ip) {
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_addr.s_addr = inet_addr(ip.c_str());
@@ -86,33 +102,24 @@ void ip4_conn_client::finish() {
 //
 
 
-void ip4_conn_client::register_handler(int prot) {
-    int fd = socket(
-            AF_INET,
-            SOCK_RAW,
-            prot
-    );
-    if (fd == -1) {
-        cerr << "socket err" << endl;
-        printf("errno: %d\n", errno);
-        throw;
-    }
 
-    prot_handlers[prot].addit_data = {fd};
 
-}
-
-int ip4_conn_client::recv_prot_next_msg(int prot, void* data, int count) {
+int ip4_conn_client::recv_next_msg( void* data, int count) {
     struct sockaddr_in client_addr;
     socklen_t len = sizeof(client_addr);
 
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
     memset(&buff, '\x00', BUFF_LEN);
-    int res = recvfrom(prot_handlers[prot].addit_data.fd,
+
+    // just before receiving, make sure there is a file descriptor for this protocol
+    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+
+    int res = recvfrom(prot_handlers[getNextProt()].addit_data.fd,
                        buff, BUFF_LEN,
                        0,
                        (struct sockaddr *) &client_addr, &len);
+
 
     struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(buff);
 
@@ -124,8 +131,11 @@ int ip4_conn_client::recv_prot_next_msg(int prot, void* data, int count) {
 
 }
 
-int ip4_conn_client::send_next_prot_msg(int prot, void *buff, int count) {
-    return sendto(prot_handlers[prot].addit_data.fd,
+int ip4_conn_client::send_next_msg( void *buff, int count) {
+    // just before sending, make sure there is a file descriptor for this protocol
+    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+
+    return sendto(prot_handlers[getNextProt()].addit_data.fd,
            buff, count,
            0,
            reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
