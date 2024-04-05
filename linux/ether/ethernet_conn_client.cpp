@@ -6,7 +6,6 @@
 #include <linux/if.h>
 #include <netinet/if_ether.h>
 #include <sys/ioctl.h>
-#include <thread>
 #include "mac_addr.h"
 
 using namespace std;
@@ -41,36 +40,40 @@ void print_mac(mac_addr addr) {
     );
 }
 
-
-void ethernet_conn_client::register_filter(int prot) {
-    int fd = socket(
-            AF_PACKET,
-            SOCK_RAW,
-            prot
-    );
-    if (fd == -1) {
-        cerr << "socket err" << endl;
-        printf("errno: %d\n", errno);
-        throw;
-    }
-
-    prot_handlers[prot].addit_data = {fd};
+string get_my_priv_ip(const char *interface_name) {
 
 }
 
-ethernet_conn_client::ethernet_conn_client() {
-    int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
 
-    /* Get the index of the INTERFACE to send on */
-    memset(&if_idx, 0, sizeof(struct ifreq));
-    strncpy(if_idx.ifr_name, INTERFACE, IFNAMSIZ - 1);
-    if (ioctl(temp_fd, SIOCGIFINDEX, &if_idx) < 0)
-        perror("SIOCGIFINDEX");
+//void ethernet_conn_client::register_filter(int prot) {
+//    int fd = socket(
+//            AF_PACKET,
+//            SOCK_RAW,
+//            prot
+//    );
+//    if (fd == -1) {
+//        cerr << "socket err" << endl;
+//        printf("errno: %d\n", errno);
+//        throw;
+//    }
+//
+//    prot_handlers[prot].addit_data = {fd};
+//
+//}
 
-    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
-
+ethernet_conn_client::ethernet_conn_client() : gateway() {
 
     my_mac = get_my_mac_address(INTERFACE);
+
+    int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
+
+//    /* Get the index of the INTERFACE to send on */
+//    memset(&if_idx, 0, sizeof(struct ifreq));
+//    strncpy(if_idx.ifr_name, INTERFACE, IFNAMSIZ - 1);
+//    if (ioctl(temp_fd, SIOCGIFINDEX, &if_idx) < 0)
+//        perror("SIOCGIFINDEX");
+//
+//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
 
 
     // Get the private ip address of our device
@@ -82,25 +85,44 @@ ethernet_conn_client::ethernet_conn_client() {
     close(temp_fd);
 
 
-    memset(&dest_addr, '\x00', sizeof(dest_addr));
-//    socket_address.sll_family = AF_PACKET;
-//    socket_address.sll_protocol = htons(ETH_P_ARP);
-    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
-//    socket_address.sll_hatype = ARPHRD_ETHER;
-//    socket_address.sll_pkttype = PACKET_OTHERHOST;
-//    socket_address.sll_halen = 0;
-//    socket_address.sll_addr[6] = 0x00;
-//    socket_address.sll_addr[7] = 0x00;
+//    memset(&dest_addr, '\x00', sizeof(dest_addr));
+//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
 
 
+    worker = std::thread([this]() {
+#define BUFF_LEN 512
+        char buff[BUFF_LEN];
+        while (true) {
+            memset(&buff, '\x00', BUFF_LEN);
 
+            int sz = gateway.recv_raw(buff, BUFF_LEN);
+            if (sz <= 0) continue;
 
+            struct ether_header *eth_header = (struct ether_header *) buff;
 
+            char * data = buff + sizeof(struct ether_header);
+            int data_sz = sz - sizeof(struct ether_header);
 
+            uint8_t* alloc_msg = new uint8_t[data_sz];
+            memcpy(alloc_msg, data, data_sz);
 
+            protocolQueue.prots[eth_header->ether_type].queue.push(
+                    {std::unique_ptr<uint8_t>(alloc_msg), data_sz}
+                    );
+            if (eth_header->ether_type == htons(ETH_P_ARP)) {
+                cout << "just received arp frame" << endl;
+            }
 
+        }
+    });
+
+    // wait to ensure the thread and the sniffer has started
+    sleep(2);
 }
 
+ethernet_conn_client::~ethernet_conn_client() {
+    worker.detach();
+}
 
 void ethernet_conn_client::change_dest_mac(mac_addr mac) {
     dest_device = mac;
@@ -116,27 +138,21 @@ void ethernet_conn_client::finish() {
 
 
 int ethernet_conn_client::recv_next_msg( void *data, int count) {
-    socklen_t len = sizeof(dest_addr);
+    if (getNextProt() != htons(ETH_P_ARP))
+        throw "not arp";
 
-#define BUFF_LEN 512
-    char buff[BUFF_LEN];
-    memset(&buff, '\x00', BUFF_LEN);
+    while (protocolQueue.prots[htons(ETH_P_ARP)].queue.empty()) {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(10ms);
+    }
 
-    // just before receiving, make sure there is a file descriptor for this protocol
-    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+    message next_msg = std::move(
+            protocolQueue.prots[htons(ETH_P_ARP)].queue.front()
+            );
+    protocolQueue.prots[htons(ETH_P_ARP)].queue.pop();
 
-    int res = recvfrom(prot_handlers[getNextProt()].addit_data.fd,
-                       buff, BUFF_LEN,
-                       0,
-                       (struct sockaddr *) &dest_addr, &len);
-
-
-    struct ether_header *eth_header = (struct ether_header *) buff;
-
-    char * frame_data = buff + sizeof(struct ether_header);
-
-    int copy_cnt = std::min(count, (int) (res - sizeof(struct ether_header)));
-    memcpy(data, frame_data, copy_cnt);
+    int copy_cnt = std::min(count, next_msg.sz);
+    memcpy(data, next_msg.data.get(), copy_cnt);
     return copy_cnt;
 }
 
@@ -163,14 +179,17 @@ int ethernet_conn_client::send_next_msg( void *data, int count) {
     memcpy(frame_data, data, count);
 
     // just before sending, make sure there is a file descriptor for this protocol
-    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+//    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+//
+//    return sendto(prot_handlers[getNextProt()].addit_data.fd,
+//                  buff, sizeof(struct ether_header) + count,
+//                  0,
+//                  reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
 
-    return sendto(prot_handlers[getNextProt()].addit_data.fd,
-                  buff, sizeof(struct ether_header) + count,
-                  0,
-                  reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
+    return gateway.send_raw(buff, sizeof(struct ether_header) + count);
 
 }
+
 
 
 

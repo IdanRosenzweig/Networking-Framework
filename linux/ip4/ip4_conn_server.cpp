@@ -34,6 +34,14 @@ void ip4_conn_server::register_filter(int prot) {
         throw;
     }
 
+//    char *INTERFACE_NAME = "tap10";
+//    if (setsockopt(fd,
+//                   SOL_SOCKET, SO_BINDTODEVICE,
+//                   INTERFACE_NAME, strlen(INTERFACE_NAME)) < 0) {
+//        perror("setsockopt");
+//        exit(EXIT_FAILURE);
+//    }
+
     prot_handlers[prot].addit_data = {fd};
 
 }

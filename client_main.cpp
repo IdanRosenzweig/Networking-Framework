@@ -17,9 +17,15 @@
 #include "abstract/basic_gateway.h"
 #include "abstract/basic_encapsulating_client.h"
 #include "linux/data_link_layer/data_link_layer_gateway.h"
+#include <linux/if.h>
+#include <sys/fcntl.h>
+#include <linux/if_tun.h>
+#include <sys/ioctl.h>
+
 
 #define IP "127.0.0.1"
 #define PORT 4444
+
 
 int udp_main() {
 
@@ -139,14 +145,47 @@ int arp_main() {
     arp_client.ether_client = &ether_client;
 
 
-    string victim = "10.100.102.15";
+//    mac_addr res = arp_client.search_for_device("10.100.102.1");
+//    print_mac(res);
+    string victim = "10.100.102.12";
     vector<pair<mac_addr, string>> victim_list = {
-//            {arp_client.search_for_device(victim),victim}
-            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, victim}
+            {arp_client.search_for_device(victim),victim}
+//            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, victim}
     };
     arp_client.spoof_as_device("10.100.102.1", // router
                                victim_list);
 
+}
+
+int tap_alloc(char *dev)
+{
+    struct ifreq ifr;
+    int fd, err;
+
+    if ((fd = open("/dev/net/tun", O_RDWR)) < 0)
+    {
+        return fd;
+    }
+
+    /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
+     *        IFF_TAP   - TAP device
+     *
+     *        IFF_NO_PI - Do not provide packet information
+     */
+    memset(&ifr, 0, sizeof(ifr));
+    ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
+    if (*dev)
+    {
+        strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+    }
+
+    if ((err = ioctl(fd, TUNSETIFF, (void *)&ifr)) < 0)
+    {
+        close(fd);
+        return err;
+    }
+//    strncpy(dev, ifr.ifr_name, IFNAMSIZ);
+    return fd;
 }
 
 void tunnel_main() {
@@ -169,81 +208,19 @@ void tunnel_main() {
     }
 }
 
-int data_link_layer_fd;
-struct sockaddr_ll dest_addr; // used for interface
-void packet_handler(u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data)
-{
-    cout << "Packet captured with len " << header->len << endl;
 
-
-//    cout << "sent raw bytes: " << sendto(data_link_layer_fd,
-//                                         pkt_data, header->len,
-//                                         0,
-//                                         reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr)) << endl;
-
-//#define BUFF_LEN 20
-//    char buff[BUFF_LEN];
-//    memset(buff, 'a', BUFF_LEN);
-//cout << "sent raw bytes: " << sendto(data_link_layer_fd,
-//                                         buff, BUFF_LEN,
-//                                         0,
-//                                         reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr)) << endl;
-
-}
-
-char *dev = "enp0s3";
 int main() {
-
-//    // open fd
-//    data_link_layer_fd = socket(
-//            AF_PACKET,
-//            SOCK_RAW,
-//            htons(ETH_P_ALL)
-//    );
-//    if (data_link_layer_fd == -1) {
-//        cerr << "data_link_layer_fd err" << endl;
-//        printf("errno: %d\n", errno);
-//        throw;
-//    }
-//
-//    // get if_req
-//    struct ifreq if_idx;
-//    memset(&if_idx, 0, sizeof(struct ifreq));
-//    strncpy(if_idx.ifr_name, dev, IFNAMSIZ - 1);
-//
-//    int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP)); // todo change to ALL?
-//    if (ioctl(temp_fd, SIOCGIFINDEX, &if_idx) < 0)
-//        perror("SIOCGIFINDEX");
-//    close(temp_fd);
-//
-//    // set ll socket data
-//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
-//
-//
-//    // open the interface to be able to capture traffic
-//    char errbuf[PCAP_ERRBUF_SIZE]; // Error string
-//    pcap_t * traffic = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
-//    if (traffic == nullptr) {
-//        cerr << "can't open interface: " << dev << ", err: " << errbuf << endl;
-//        throw;
-//    }
-//
-//    pcap_loop(traffic, 0, packet_handler, NULL);
-
-//    pcap_close(traffic);
-
-
-
-
-
 
 
 //    udp_main();
 //    tcp_main();
 //    dns_main();
 //    icmp_main();
-//    arp_main();
-    tunnel_main();
+    arp_main();
+//    tunnel_main();
+
+//    system("sudo /home/idan/CLionProjects/ServerClient/network_config.sh");
+
 
     return (0);
 }

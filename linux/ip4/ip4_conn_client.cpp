@@ -3,6 +3,7 @@
 #include <netinet/ip.h>
 #include <cstring>
 
+
 using namespace std;
 
 unsigned short checksum(unsigned short *buf, int nwords) {
@@ -26,13 +27,23 @@ void ip4_conn_client::register_filter(int prot) {
         throw;
     }
 
+//    char *INTERFACE_NAME = "tap10";
+//    if (setsockopt(fd,
+//                   SOL_SOCKET, SO_BINDTODEVICE,
+//                   INTERFACE_NAME, strlen(INTERFACE_NAME)) < 0) {
+//        perror("setsockopt");
+//        exit(EXIT_FAILURE);
+//    }
+
     prot_handlers[prot].addit_data = {fd};
 
 }
 
+
 ip4_conn_client::ip4_conn_client(const string &ip) : ip(ip) {
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_addr.s_addr = inet_addr(ip.c_str());
+
 }
 
 void ip4_conn_client::init() {

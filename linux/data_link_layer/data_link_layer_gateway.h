@@ -1,6 +1,7 @@
 #ifndef SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H
 #define SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H
 
+#include <thread>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -12,6 +13,7 @@
 #include <netpacket/packet.h>
 #include <linux/if.h>
 #include <pcap/pcap.h>
+#include <thread>
 #include "../ip4/addit_data.h"
 #include "../ether/mac_addr.h"
 #include "data_link_traffic.h"
@@ -25,6 +27,7 @@ private:
     data_link_traffic traffic_in_sniff;
 
 public:
+
 
     data_link_layer_gateway();
 

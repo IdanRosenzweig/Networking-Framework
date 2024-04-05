@@ -128,8 +128,8 @@ void tunnel_main() {
 }
 
 int main() {
-//    udp_main();
+    udp_main();
 //    tcp_main();
-    tunnel_main();
+//    tunnel_main();
 
 }

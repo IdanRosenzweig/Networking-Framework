@@ -51,12 +51,12 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
 
 
 #define BUFF_LEN 512
-    char buff[BUFF_LEN];
-    memset(buff, 0, BUFF_LEN);
+    char request[BUFF_LEN];
+    memset(request, 0, BUFF_LEN);
 
 
     // setup arp
-    struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
+    struct ether_arp *arp_header = (struct ether_arp *) request; // arp_header header
     arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
     arp_header->arp_pro = htons(ETH_P_IP); // first arp addr type: ip
     arp_header->arp_hln = ETH_ALEN; // len of mac addr
@@ -69,27 +69,35 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
     memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
     memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
 
-    // send request
-    ether_client->change_dest_mac(BROADCAST_MAC);
-    ether_client->setNextProt(htons(ETH_P_ARP));
-    ether_client->send_next_msg(buff, sizeof(ether_arp));
 
-    // receive reply
 #define BUFF_LEN 512
     char reply[BUFF_LEN];
-    memset(reply, 0, BUFF_LEN);
-    ether_client->setNextProt(htons(ETH_P_ARP));
-    ether_client->recv_next_msg(reply, BUFF_LEN);
+    while (true) {
 
-    struct ether_arp *arp_reply = (struct ether_arp *) reply;
-    if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
-        cout << "received arp not of type reply" << endl;
-        return {};
+        // send request
+        ether_client->change_dest_mac(BROADCAST_MAC);
+        ether_client->setNextProt(htons(ETH_P_ARP));
+        ether_client->send_next_msg(request, sizeof(ether_arp));
+
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(500ms);
+
+        // receive reply
+        memset(reply, 0, BUFF_LEN);
+        ether_client->setNextProt(htons(ETH_P_ARP));
+        ether_client->recv_next_msg(reply, BUFF_LEN);
+
+        struct ether_arp *arp_reply = (struct ether_arp *) reply;
+        if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
+            cout << "received arp not of type reply" << endl;
+            continue;
+        }
+
+        mac_addr res{};
+        memcpy(res.addr, arp_reply->arp_sha, sizeof(res.addr));
+        return res;
     }
 
-    mac_addr res{};
-    memcpy(res.addr, arp_reply->arp_sha, sizeof(res.addr));
-    return res;
 }
 
 void arp_conn_client::spoof_as_device(std::string device,
