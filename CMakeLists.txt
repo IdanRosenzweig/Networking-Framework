@@ -16,7 +16,13 @@ add_executable(Server
 
         linux/data_link_layer/data_link_layer_gateway.cpp
         linux/data_link_layer/data_link_traffic.cpp
+
+        linux/ether/ethernet_conn_server.cpp
+
+        linux/ether/mac_addr.cpp
 )
+
+
 target_link_libraries(Server ${PCAP_LIBRARY})
 
 add_executable(Client
@@ -32,6 +38,8 @@ add_executable(Client
         linux/data_link_layer/data_link_traffic.cpp
 
         linux/ip4/ip4_conn_client.cpp
+
+        linux/ether/mac_addr.cpp
 
 )
 target_link_libraries(Client ${PCAP_LIBRARY})

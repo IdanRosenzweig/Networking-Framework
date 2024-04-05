@@ -1,4 +1,5 @@
 #include <iostream>
+#include <linux/if_ether.h>
 
 #include "abstract/connection_oriented/basic_server.h"
 #include "abstract/connection_oriented/basic_co_client.h"
@@ -11,6 +12,7 @@
 #include "linux/ip4/ip4_conn_server.h"
 #include "linux/data_link_layer/data_link_layer_gateway.h"
 //#include "linux/ip4/ip4_conn_server.h"
+#include "linux/ether/ethernet_conn_server.h"
 
 #define PORT 2222
 
@@ -135,4 +137,14 @@ int main() {
 //    tcp_main();
 //    tunnel_main();
 
+//    ethernet_conn_server ether_server;
+//#define BUFF_LEN 256
+//    char buff[BUFF_LEN];
+//    while (true) {
+//        memset(&buff, '\x00', BUFF_LEN);
+//
+//        ether_server.setNextProt(htons(ETH_P_IP));
+//        int len = ether_server.recv_next_msg(buff, BUFF_LEN);
+//        cout << "received len: " << len << endl;
+//    }
 }

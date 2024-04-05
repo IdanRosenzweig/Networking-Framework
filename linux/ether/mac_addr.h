@@ -9,4 +9,8 @@ struct mac_addr {
 
 #define BROADCAST_MAC (mac_addr{0xff,0xff,0xff,0xff,0xff,0xff})
 
+mac_addr get_my_mac_address(const char *interface_name);
+
+void print_mac(mac_addr addr);
+
 #endif //SERVERCLIENT_MAC_ADDR_H

@@ -1,5 +1,5 @@
-#include "ethernet_conn_client.h"
-
+#include <cstring>
+#include "ethernet_conn_server.h"
 #include <iostream>
 #include <netinet/ip.h>
 #include <cstring>
@@ -7,13 +7,10 @@
 #include <netinet/if_ether.h>
 #include <sys/ioctl.h>
 #include "mac_addr.h"
-
+#include "ethernet_conn_client.h"
 using namespace std;
 
-
-
-
-ethernet_conn_client::ethernet_conn_client() : gateway() {
+ethernet_conn_server::ethernet_conn_server() {
     char *INTERFACE = "enp0s3";
 
     my_mac = get_my_mac_address(INTERFACE);
@@ -37,11 +34,6 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
 
     close(temp_fd);
 
-
-//    memset(&dest_addr, '\x00', sizeof(dest_addr));
-//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
-
-
     worker = std::thread([this]() {
 #define BUFF_LEN 512
         char buff[BUFF_LEN];
@@ -61,7 +53,7 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
 
             protocolQueue.prots[eth_header->ether_type].queue.push(
                     {std::unique_ptr<uint8_t>(alloc_msg), data_sz}
-                    );
+            );
 
         }
     });
@@ -70,22 +62,18 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
     sleep(2);
 }
 
-ethernet_conn_client::~ethernet_conn_client() {
+ethernet_conn_server::~ethernet_conn_server() {
     worker.detach();
 }
 
-void ethernet_conn_client::change_dest_mac(mac_addr mac) {
-    dest_device = mac;
+void ethernet_conn_server::setup() {
 }
 
-void ethernet_conn_client::init() {
-}
-
-void ethernet_conn_client::finish() {
+void ethernet_conn_server::destroy() {
 }
 
 
-int ethernet_conn_client::recv_next_msg( void *data, int count) {
+int ethernet_conn_server::recv_next_msg( void *data, int count) {
     while (protocolQueue.prots[getNextProt()].queue.empty()) {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(10ms);
@@ -93,7 +81,7 @@ int ethernet_conn_client::recv_next_msg( void *data, int count) {
 
     message next_msg = std::move(
             protocolQueue.prots[getNextProt()].queue.front()
-            );
+    );
     protocolQueue.prots[getNextProt()].queue.pop();
 
     int copy_cnt = std::min(count, next_msg.sz);
@@ -101,7 +89,7 @@ int ethernet_conn_client::recv_next_msg( void *data, int count) {
     return copy_cnt;
 }
 
-int ethernet_conn_client::send_next_msg( void *data, int count) {
+int ethernet_conn_server::send_next_msg( void *data, int count) {
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
     memset(buff, 0, BUFF_LEN);
@@ -125,4 +113,8 @@ int ethernet_conn_client::send_next_msg( void *data, int count) {
 
     return gateway.send_raw(buff, sizeof(struct ether_header) + count);
 
+}
+
+void ethernet_conn_server::change_dest_mac(mac_addr mac) {
+    dest_device = mac;
 }
