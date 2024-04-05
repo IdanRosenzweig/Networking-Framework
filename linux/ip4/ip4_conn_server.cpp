@@ -34,6 +34,13 @@ void ip4_conn_server::register_filter(int prot) {
         throw;
     }
 
+    struct sockaddr_in sock;
+    memset(&sock, 0, sizeof(sockaddr_in));
+    sock.sin_port = htons(4444);
+    if (bind(fd, (const sockaddr *) &sock, sizeof(sock)) == -1) {
+        cout << "error binding" << endl;
+        return;
+    }
 //    char *INTERFACE_NAME = "tap10";
 //    if (setsockopt(fd,
 //                   SOL_SOCKET, SO_BINDTODEVICE,

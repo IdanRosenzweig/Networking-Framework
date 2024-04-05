@@ -76,9 +76,10 @@ int udp_conn_server::recv_data(void* data, int count) {
         int res = ip_server->recv_next_msg(buff, BUFF_LEN);
 
         struct udp_header* udp = (udp_header *) (buff);
-        if (ntohs(udp->dest_port) != server_port)
+        if (ntohs(udp->dest_port) != server_port) {
+            cout << "server recieved to wrong port: " << ntohs(udp->dest_port) << endl;
             continue; // keep on receiving
-
+        }
         last_port = ntohs(udp->source_port);
 
         char* packet_data = (char*) buff + sizeof(udp_header);

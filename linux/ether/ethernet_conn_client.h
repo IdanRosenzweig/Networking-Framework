@@ -20,30 +20,21 @@ mac_addr get_my_mac_address(const char *interface_name);
 
 void print_mac(mac_addr addr);
 
-std::string get_my_priv_ip(const char *interface_name);
-
 class ethernet_conn_client : public basic_cl_client, public basic_encapsulating_client<int, prot_addit_data> {
 private:
-// instead of listening and filtering encapsulated protocols ourselves,
-// linux will do it for us. just create a file descriptor for the dedicated protocol
-//    void register_filter(int prot);
-
-
-//    struct ifreq if_idx;
-//    struct sockaddr_ll dest_addr; // used for interface
-
     data_link_layer_gateway gateway;
 
     std::thread worker;
 
     protocol_queue<int> protocolQueue;
 
+    mac_addr dest_device = BROADCAST_MAC;
+
 public:
 
     mac_addr my_mac;
     struct ifreq my_priv_ip;
 
-    mac_addr dest_device = BROADCAST_MAC;
     void change_dest_mac(mac_addr mac);
 
     ethernet_conn_client();
@@ -60,8 +51,6 @@ public:
 
     // send message to the last client that sent message with the protocol
     int send_next_msg( void* buff, int count) override;
-
-//    void spoof();
 
 };
 #endif //SERVERCLIENT_ETHERNET_CONN_CLIENT_H

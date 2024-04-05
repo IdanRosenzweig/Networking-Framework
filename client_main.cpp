@@ -29,7 +29,10 @@
 
 int udp_main() {
 
+    ethernet_conn_client ether_client;
+
     ip4_conn_client ip_client(IP);
+    ip_client.ether_client = &ether_client;
 
     udp_conn_client client(PORT);
     client.ip_client = &ip_client;
@@ -212,11 +215,11 @@ void tunnel_main() {
 int main() {
 
 
-//    udp_main();
+    udp_main();
 //    tcp_main();
 //    dns_main();
 //    icmp_main();
-    arp_main();
+//    arp_main();
 //    tunnel_main();
 
 //    system("sudo /home/idan/CLionProjects/ServerClient/network_config.sh");

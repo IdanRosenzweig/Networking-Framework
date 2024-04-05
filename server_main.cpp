@@ -46,6 +46,7 @@ int udp_main() {
     udp_client.recv_data(buff, 5);
     cout << "msg: " << buff << endl;
 
+
     cout << "sending data" << endl;
     char* data = "servr";
     udp_client.send_data(data, 5);
@@ -54,9 +55,11 @@ int udp_main() {
     udp_client.recv_data(buff, 5);
     cout << "msg: " << buff << endl;
 
+
     cout << "sending data" << endl;
     data = "toast";
     udp_client.send_data(data, 5);
+
 
     while (true) {
 

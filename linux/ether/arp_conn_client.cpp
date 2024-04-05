@@ -16,28 +16,9 @@ arp_conn_client::arp_conn_client() {
 }
 
 void arp_conn_client::init() {
-//    fd = socket(AF_PACKET,
-//                SOCK_RAW,
-//                htons(ETH_P_ARP));
-//    if (fd == -1) {
-//        cerr << "can't open socket" << endl;
-//        return;
-//    }
-//
-//    mac_addr addr = get_my_mac_address(fd, "enp0s3");
-//    printf("my mac is: %02x:%02x:%02x:%02x:%02x:%02x\n",
-//           (unsigned int) addr.addr[0],
-//           (unsigned int) addr.addr[1],
-//           (unsigned int) addr.addr[2],
-//           (unsigned int) addr.addr[3],
-//           (unsigned int) addr.addr[4],
-//           (unsigned int) addr.addr[5]
-//    );
-
 }
 
 void arp_conn_client::finish() {
-//    close(fd);
 }
 
 #define IP4LEN 4

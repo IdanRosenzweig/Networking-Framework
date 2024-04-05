@@ -54,8 +54,10 @@ int udp_conn_client::recv_data(void* data, int count) {
         int res = ip_client->recv_next_msg(buff, BUFF_LEN);
 
         struct udp_header* udp = (udp_header *) (buff);
-        if (ntohs(udp->dest_port) != my_port)
+        if (ntohs(udp->dest_port) != my_port) {
+            cout << "recevied data not to my port: " << ntohs(udp->dest_port) << endl;
             continue; // keep on receiving
+        }
 
         char* packet_data = (char*) buff + sizeof(udp_header);
 
