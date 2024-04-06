@@ -68,7 +68,7 @@ int udp_conn_client::recv_data(void* data, int count) {
 
 }
 
-void udp_conn_client::send_data(void* data, int cnt) {
+int udp_conn_client::send_data(void* data, int cnt) {
 #define BUFF_LEN 256
     char buff[BUFF_LEN];
     memset(buff, '\x00', BUFF_LEN);
@@ -87,5 +87,5 @@ void udp_conn_client::send_data(void* data, int cnt) {
 
 
     ip_client->setNextProt(IPPROTO_UDP);
-    ip_client->send_next_msg(buff, sizeof(udp_header) + cnt);
+    return ip_client->send_next_msg(buff, sizeof(udp_header) + cnt);
 }

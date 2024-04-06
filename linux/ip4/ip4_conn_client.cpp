@@ -128,7 +128,7 @@ int ip4_conn_client::recv_next_msg( void* data, int count) {
 
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
-    while (protocolQueue.prots[getNextProt()].queue.empty()) {
+    while (protocolQueue.prots[getNextProt()].empty()) {
         memset(buff, '\x00', BUFF_LEN);
 
         ether_client->setNextProt(htons(ETH_P_IP));
@@ -142,15 +142,15 @@ int ip4_conn_client::recv_next_msg( void* data, int count) {
         uint8_t* alloc_msg = new uint8_t[packet_data_sz];
         memcpy(alloc_msg, packet_data, packet_data_sz);
 
-        protocolQueue.prots[iph->protocol].queue.push(
+        protocolQueue.prots[iph->protocol].push(
                 {std::unique_ptr<uint8_t>(alloc_msg), packet_data_sz}
         );
     }
 
     message next_msg = std::move(
-            protocolQueue.prots[getNextProt()].queue.front()
+            protocolQueue.prots[getNextProt()].front()
     );
-    protocolQueue.prots[getNextProt()].queue.pop();
+    protocolQueue.prots[getNextProt()].pop();
 
     int copy_cnt = std::min(count, next_msg.sz);
     memcpy(data, next_msg.data.get(), copy_cnt);

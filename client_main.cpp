@@ -29,8 +29,10 @@
 
 int udp_main() {
 
+    ethernet_conn_client ether_client;
 
     ip4_conn_client ip_client(IP);
+    ip_client.ether_client = &ether_client;
 
     udp_conn_client client(PORT, 1212);
     client.ip_client = &ip_client;
@@ -39,7 +41,7 @@ int udp_main() {
     std::cout << "sending data" << std::endl;
     char *msg = "first";
     int len = strlen(msg);
-    client.send_data(msg, len);
+    cout << "sent " << client.send_data(msg, len) << endl;
 
     char buff[6];
     memset(buff, '\x00', 6);
@@ -154,15 +156,15 @@ int arp_main() {
     arp_client.ether_client = &ether_client;
 
 
-    mac_addr res = arp_client.search_for_device("10.100.102.3");
-    print_mac(res);
-//    string victim = "10.100.102.12";
-//    vector<pair<mac_addr, string>> victim_list = {
+//    mac_addr res = arp_client.search_for_device("10.100.102.3");
+//    print_mac(res);
+    string victim = "10.100.102.2";
+    vector<pair<mac_addr, string>> victim_list = {
 //            {arp_client.search_for_device(victim),victim}
-////            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, victim}
-//    };
-//    arp_client.spoof_as_device("10.100.102.1", // router
-//                               victim_list);
+//            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, victim}
+    };
+    arp_client.spoof_as_device("10.100.102.1", // router
+                               victim_list);
 
 }
 
@@ -223,9 +225,9 @@ int main() {
 
 //    udp_main();
 //    tcp_main();
-    dns_main();
+//    dns_main();
 //    icmp_main();
-//    arp_main();
+    arp_main();
 //    tunnel_main();
 
 //    system("sudo /home/idan/CLionProjects/ServerClient/network_config.sh");

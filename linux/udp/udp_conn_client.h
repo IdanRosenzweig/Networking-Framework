@@ -37,7 +37,7 @@ public:
 
     int recv_data(void* data, int count);
 
-    void send_data(void* buff, int cnt);
+    int send_data(void* buff, int cnt);
 
 };
 

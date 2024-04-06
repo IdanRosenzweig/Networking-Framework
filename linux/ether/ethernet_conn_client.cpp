@@ -59,7 +59,7 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
             uint8_t* alloc_msg = new uint8_t[data_sz];
             memcpy(alloc_msg, data, data_sz);
 
-            protocolQueue.prots[eth_header->ether_type].queue.push(
+            protocolQueue.prots[eth_header->ether_type].push(
                     {std::unique_ptr<uint8_t>(alloc_msg), data_sz}
                     );
 
@@ -86,15 +86,15 @@ void ethernet_conn_client::finish() {
 
 
 int ethernet_conn_client::recv_next_msg( void *data, int count) {
-    while (protocolQueue.prots[getNextProt()].queue.empty()) {
+    while (protocolQueue.prots[getNextProt()].empty()) {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(10ms);
     }
 
     message next_msg = std::move(
-            protocolQueue.prots[getNextProt()].queue.front()
+            protocolQueue.prots[getNextProt()].front()
             );
-    protocolQueue.prots[getNextProt()].queue.pop();
+    protocolQueue.prots[getNextProt()].pop();
 
     int copy_cnt = std::min(count, next_msg.sz);
     memcpy(data, next_msg.data.get(), copy_cnt);

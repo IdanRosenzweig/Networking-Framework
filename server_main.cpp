@@ -133,18 +133,18 @@ void tunnel_main() {
 }
 
 int main() {
-    udp_main();
+//    udp_main();
 //    tcp_main();
 //    tunnel_main();
 
     ethernet_conn_server ether_server;
-#define BUFF_LEN 256
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     while (true) {
         memset(buff, '\x00', BUFF_LEN);
 
         ether_server.setNextProt(htons(ETH_P_IP));
         int len = ether_server.recv_next_msg(buff, BUFF_LEN);
-        cout << "received len: " << len << endl;
+//        cout << "received len: " << len << endl;
     }
 }
