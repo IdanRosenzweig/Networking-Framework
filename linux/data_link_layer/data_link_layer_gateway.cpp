@@ -56,6 +56,6 @@ int data_link_layer_gateway::send_raw(void *buff, int count) {
 
 int data_link_layer_gateway::recv_raw(void *buff, int count) {
     int res = traffic_in_sniff.sniff_next_msg(buff, count);
-    cout << "recived from raw sniffer: " << res << endl;
+//    cout << "recived from raw sniffer: " << res << endl;
     return res;
 }

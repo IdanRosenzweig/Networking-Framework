@@ -260,7 +260,7 @@ void dns_client::query(const std::string &name) {
     // total buffer
 #define BUFF_SZ 65536
     unsigned char buf[BUFF_SZ];
-    memset(&buf, '\x00', sizeof(BUFF_SZ));
+    memset(buf, '\x00', sizeof(BUFF_SZ));
 
     // build the dns request header
     struct dns_header *request = (struct dns_header *) &buf;

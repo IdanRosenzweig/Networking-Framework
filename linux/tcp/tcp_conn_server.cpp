@@ -59,7 +59,7 @@ void tcp_conn_server::setup() {
         return;
     }
 
-    cout << "listening on server_port: " << port << endl;
+    cout << "listening on dest_port: " << port << endl;
 }
 
 void tcp_conn_server::destroy() {

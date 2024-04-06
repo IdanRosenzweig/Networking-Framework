@@ -137,14 +137,14 @@ int main() {
 //    tcp_main();
 //    tunnel_main();
 
-//    ethernet_conn_server ether_server;
-//#define BUFF_LEN 256
-//    char buff[BUFF_LEN];
-//    while (true) {
-//        memset(&buff, '\x00', BUFF_LEN);
-//
-//        ether_server.setNextProt(htons(ETH_P_IP));
-//        int len = ether_server.recv_next_msg(buff, BUFF_LEN);
-//        cout << "received len: " << len << endl;
-//    }
+    ethernet_conn_server ether_server;
+#define BUFF_LEN 256
+    char buff[BUFF_LEN];
+    while (true) {
+        memset(buff, '\x00', BUFF_LEN);
+
+        ether_server.setNextProt(htons(ETH_P_IP));
+        int len = ether_server.recv_next_msg(buff, BUFF_LEN);
+        cout << "received len: " << len << endl;
+    }
 }

@@ -64,7 +64,7 @@ int ip4_conn_server::recv_next_msg( void* data, int count) {
 
 #define BUFF_LEN 256
     char buff[BUFF_LEN];
-    memset(&buff, '\x00', BUFF_LEN);
+    memset(buff, '\x00', BUFF_LEN);
 
     // just before receiving, make sure there is a file descriptor for this protocol
     if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());

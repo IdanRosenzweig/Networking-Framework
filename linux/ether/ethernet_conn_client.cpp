@@ -43,10 +43,10 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
 
 
     worker = std::thread([this]() {
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
         char buff[BUFF_LEN];
         while (true) {
-            memset(&buff, '\x00', BUFF_LEN);
+            memset(buff, '\x00', BUFF_LEN);
 
             int sz = gateway.recv_raw(buff, BUFF_LEN);
             if (sz <= 0) continue;

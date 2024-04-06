@@ -38,7 +38,7 @@ ethernet_conn_server::ethernet_conn_server() {
 #define BUFF_LEN 512
         char buff[BUFF_LEN];
         while (true) {
-            memset(&buff, '\x00', BUFF_LEN);
+            memset(buff, '\x00', BUFF_LEN);
 
             int sz = gateway.recv_raw(buff, BUFF_LEN);
             if (sz <= 0) continue;

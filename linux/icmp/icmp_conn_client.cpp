@@ -49,7 +49,7 @@ struct icmp_packet {
     void setup_echo() {
         type = ICMP_ECHO;
         code = 0;
-        content.echo.id = getpid();
+        content.echo.id = 3333;
         content.echo.sequence = 0;
     }
 
@@ -95,11 +95,6 @@ void icmp_conn_client::ping() {
         std::this_thread::sleep_for(500ms);
         const auto start = std::chrono::high_resolution_clock::now();
 
-//        if (sendto(fd, &packet, sizeof(packet), 0,
-//                   reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 1) {
-//            std::cerr << "Failed to send packet" << std::endl;
-//            continue;
-//        }
         ip_client->setNextProt(IPPROTO_ICMP);
         if (ip_client->send_next_msg(&packet, sizeof(packet)) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
@@ -111,22 +106,14 @@ void icmp_conn_client::ping() {
         char buf[BUFF_LEN];
         memset(buf, '\x00', BUFF_LEN);
 
-//        sockaddr_storage r_addr{};
-//        socklen_t r_len = sizeof(r_addr);
-//        if (recvfrom(fd, buf, BUFF_LEN, 0, reinterpret_cast<sockaddr *>(&r_addr), &r_len) < 0) {
-//            std::cerr << "Cannot receive from socket" << std::endl;
-//            break;
-//        }
         ip_client->setNextProt(IPPROTO_ICMP);
         if (ip_client->recv_next_msg(buf, BUFF_LEN) < 0) {
             std::cerr << "Cannot receive from socket" << std::endl;
             break;
         }
         const auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> rtt = end - start;
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds >(end - start);
 
-//        iphdr *ip = reinterpret_cast<iphdr *>(buf);
-//        icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf + (false ? 0 : (ip->ihl << 2u)));
         icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
 
         bool failed = false;
@@ -148,7 +135,7 @@ void icmp_conn_client::ping() {
             cout << "reply err" << endl;
         } else {
             std::cout << "Received reply: seq=" << packet.content.echo.sequence
-                      << " rrt=" << rtt.count() << "ms" << std::endl;
+                      << " rrt=" << duration.count() << "micro sec" << std::endl;
         }
 
     } while (++packet.content.echo.sequence < 10);

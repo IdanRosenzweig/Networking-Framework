@@ -29,7 +29,7 @@ class udp_conn_server : public basic_cl_server {
 
     int server_port;
 
-    int last_port; // last client's server_port
+    int last_port; // last client's dest_port
 
 public:
     udp_conn_server(int port);

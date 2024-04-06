@@ -17,13 +17,13 @@ class udp_conn_client : public basic_cl_client {
 protected:
 //    std::string ip;
     int my_port = 1212;
-    int server_port;
+    int dest_port;
 
 //    int fd;
 //    struct sockaddr_in addr;
 
 public:
-    udp_conn_client(int port);
+    udp_conn_client(int dest_port, int my_port);
 
     void init() override;
 

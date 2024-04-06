@@ -3,7 +3,7 @@
 #include "udp_header.h"
 using namespace std;
 
-udp_conn_client::udp_conn_client(int port) : server_port(port) {
+udp_conn_client::udp_conn_client(int dest_port, int my_port) : dest_port(dest_port), my_port(my_port) {
 
 }
 
@@ -19,7 +19,7 @@ void udp_conn_client::init() {
 //    }
 //
 //    addr.sin_family = AF_INET;
-//    addr.sin_port = htons(server_port);
+//    addr.sin_port = htons(dest_port);
 //    if (inet_pton(AF_INET,
 //                  ip.c_str(),
 //                  (void *) &addr.sin_addr
@@ -36,8 +36,8 @@ void udp_conn_client::finish() {
 
 int udp_conn_client::recv_data(void* data, int count) {
 //    struct udp_header* udp = static_cast<udp_header *>(data);
-//    if (ntohs(udp->dest_port) != server_port) {
-//        cout << "received udp to server_port not mine" << endl;
+//    if (ntohs(udp->dest_port) != dest_port) {
+//        cout << "received udp to dest_port not mine" << endl;
 //        return;
 //    }
 //    last_port = ntohs(udp->source_port);
@@ -49,7 +49,7 @@ int udp_conn_client::recv_data(void* data, int count) {
     char buff[BUFF_LEN];
     while (true) {
 
-        memset(&buff, '\x00', BUFF_LEN);
+        memset(buff, '\x00', BUFF_LEN);
         ip_client->setNextProt(IPPROTO_UDP);
         int res = ip_client->recv_next_msg(buff, BUFF_LEN);
 
@@ -71,13 +71,13 @@ int udp_conn_client::recv_data(void* data, int count) {
 void udp_conn_client::send_data(void* data, int cnt) {
 #define BUFF_LEN 256
     char buff[BUFF_LEN];
-    memset(&buff, '\x00', BUFF_LEN);
+    memset(buff, '\x00', BUFF_LEN);
 
     // udp header
     struct udp_header* udp = reinterpret_cast<udp_header *>(buff);
 
     udp->source_port = htons (my_port);
-    udp->dest_port = htons (server_port);
+    udp->dest_port = htons (dest_port);
     udp->len = htons(sizeof(udp_header) + cnt);
     udp->checksum = 0; // optional
 

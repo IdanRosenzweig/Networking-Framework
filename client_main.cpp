@@ -32,7 +32,7 @@ int udp_main() {
 
     ip4_conn_client ip_client(IP);
 
-    udp_conn_client client(PORT);
+    udp_conn_client client(PORT, 1212);
     client.ip_client = &ip_client;
 
 
@@ -111,11 +111,15 @@ int dns_main() {
             "walla.co.il",
             "nasa.com",
             "medium.com",
+            "www.scs.stanford.edu",
     };
 
-    ip4_conn_client ip_client("8.8.8.8");
+    ethernet_conn_client ether_client;
 
-    udp_conn_client udp_client(DNS_PORT);
+    ip4_conn_client ip_client("8.8.8.8");
+    ip_client.ether_client = &ether_client;
+
+    udp_conn_client udp_client(DNS_PORT, 1212);
     udp_client.ip_client = &ip_client;
 
     dns_client dns_client;
@@ -131,8 +135,10 @@ int icmp_main() {
     char *str = "172.217.22.46";
 //    char* str = "google.com";
 
+    ethernet_conn_client ether_client;
 
     ip4_conn_client ip_client(str);
+    ip_client.ether_client = &ether_client;
 
     icmp_conn_client icmp_client;
     icmp_client.ip_client = &ip_client;
@@ -194,7 +200,7 @@ int tap_alloc(char *dev)
 void tunnel_main() {
     ip4_conn_client ip_client(IP);
 
-    udp_conn_client udp_client(PORT);
+    udp_conn_client udp_client(PORT, 1212);
     udp_client.ip_client = &ip_client;
 
     data_link_traffic traffic(false); // traffic coming out
@@ -215,9 +221,9 @@ void tunnel_main() {
 int main() {
 
 
-    udp_main();
+//    udp_main();
 //    tcp_main();
-//    dns_main();
+    dns_main();
 //    icmp_main();
 //    arp_main();
 //    tunnel_main();

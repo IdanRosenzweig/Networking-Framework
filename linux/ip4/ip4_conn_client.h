@@ -9,6 +9,7 @@
 #include "../../abstract/connectionless/basic_cl_client.h"
 
 #include "addit_data.h"
+#include "../ether/ethernet_conn_client.h"
 
 
 class ip4_conn_client : public basic_cl_client, public basic_encapsulating_client<int, prot_addit_data> {
@@ -25,6 +26,8 @@ protected:
     struct sockaddr_in dest_addr;
 
     int fd;
+
+    protocol_queue<int> protocolQueue;
 public:
 
     // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.
@@ -40,6 +43,7 @@ public:
 //
 //    int recv_encapsulated_data(void *buff, int count) override;
 
+    ethernet_conn_client *ether_client;
 
     // receive the next msg of the encapsulated protocol
     int recv_next_msg(void *buff, int count) override;

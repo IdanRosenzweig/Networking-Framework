@@ -4,6 +4,7 @@
 #include <cstring>
 #include <linux/if.h>
 #include <sys/fcntl.h>
+#include <linux/if_ether.h>
 
 using namespace std;
 
@@ -100,39 +101,100 @@ void ip4_conn_client::finish() {
 
 
 int ip4_conn_client::recv_next_msg( void* data, int count) {
-    struct sockaddr_in client_addr;
-    socklen_t len = sizeof(client_addr);
+//    struct sockaddr_in client_addr;
+//    socklen_t len = sizeof(client_addr);
+//
+//#define BUFF_LEN 512
+//    char buff[BUFF_LEN];
+//    memset(&buff, '\x00', BUFF_LEN);
+//
+//    // just before receiving, make sure there is a file descriptor for this protocol
+//    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+//
+//    int res = recvfrom(prot_handlers[getNextProt()].addit_data.fd,
+//                       buff, BUFF_LEN,
+//                       0,
+//                       (struct sockaddr *) &client_addr, &len);
+//
+//
+//    struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(buff);
+//
+//    char *packet_data = buff + sizeof(struct iphdr);
+//
+//    int copy_cnt = std::min(BUFF_LEN - (int) sizeof(struct iphdr), count);
+//    memcpy(data, packet_data, copy_cnt);
+//    return copy_cnt;
+
 
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
-    memset(&buff, '\x00', BUFF_LEN);
+    while (protocolQueue.prots[getNextProt()].queue.empty()) {
+        memset(buff, '\x00', BUFF_LEN);
 
-    // just before receiving, make sure there is a file descriptor for this protocol
-    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+        ether_client->setNextProt(htons(ETH_P_IP));
+        int res = ether_client->recv_next_msg(buff, BUFF_LEN);
 
-    int res = recvfrom(prot_handlers[getNextProt()].addit_data.fd,
-                       buff, BUFF_LEN,
-                       0,
-                       (struct sockaddr *) &client_addr, &len);
+        struct iphdr *iph = (struct iphdr *)buff;
 
+        char *packet_data = buff + sizeof(struct iphdr);
+        int packet_data_sz = res - sizeof(struct iphdr);
 
-    struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(buff);
+        uint8_t* alloc_msg = new uint8_t[packet_data_sz];
+        memcpy(alloc_msg, packet_data, packet_data_sz);
 
-    char *packet_data = buff + sizeof(struct iphdr);
+        protocolQueue.prots[iph->protocol].queue.push(
+                {std::unique_ptr<uint8_t>(alloc_msg), packet_data_sz}
+        );
+    }
 
-    int copy_cnt = std::min(BUFF_LEN - (int) sizeof(struct iphdr), count);
-    memcpy(data, packet_data, copy_cnt);
+    message next_msg = std::move(
+            protocolQueue.prots[getNextProt()].queue.front()
+    );
+    protocolQueue.prots[getNextProt()].queue.pop();
+
+    int copy_cnt = std::min(count, next_msg.sz);
+    memcpy(data, next_msg.data.get(), copy_cnt);
     return copy_cnt;
 
 }
 
 int ip4_conn_client::send_next_msg( void *buff, int count) {
-    // just before sending, make sure there is a file descriptor for this protocol
-    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+//    // just before sending, make sure there is a file descriptor for this protocol
+//    if (!prot_handlers.count(getNextProt())) register_filter(getNextProt());
+//
+//    return sendto(prot_handlers[getNextProt()].addit_data.fd,
+//           buff, count,
+//           0,
+//           reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
 
-    return sendto(prot_handlers[getNextProt()].addit_data.fd,
-           buff, count,
-           0,
-           reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
+#define BUFF_LEN 512
+    char packet[BUFF_LEN];
+    memset(packet, '\x00', BUFF_LEN);
 
+    struct iphdr *iph = (struct iphdr *)packet;
+
+    iph->ihl = 5;
+    iph->version = 4;
+    iph->tos = 0;
+    int ip_packet_len = sizeof(struct iphdr) + count;
+    iph->tot_len = htons(ip_packet_len);
+    iph->id = htonl(4444);
+    iph->frag_off = 0;
+    iph->ttl = 255;
+    iph->protocol = getNextProt();
+    iph->check = 0;
+
+    iph->saddr = inet_addr("10.100.102.18");
+    iph->daddr = dest_addr.sin_addr.s_addr;
+
+    iph->check = checksum((unsigned short *)packet, ip_packet_len >> 1);
+
+    char *data = packet + sizeof(struct iphdr);
+    memcpy(data, buff, count);
+
+    ether_client->change_dest_mac(
+            {0xc4,0xeb,0x42,0xed,0xc5,0xb7} // gateway
+            );
+    ether_client->setNextProt(htons(ETH_P_IP));
+    return ether_client->send_next_msg(packet, ip_packet_len);
 }

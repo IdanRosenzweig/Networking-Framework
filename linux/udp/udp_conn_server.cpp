@@ -12,7 +12,7 @@ using namespace std;
 //        printf("Couldn't receive\n");
 //        throw;
 //    }
-//    printf("Received message from IP: %s and server_port: %i\n",
+//    printf("Received message from IP: %s and dest_port: %i\n",
 //           inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 //
 //    return client_addr;
@@ -34,11 +34,11 @@ void udp_conn_server::setup() {
 //        return;
 //    }
 //
-//    // binding a socket with the server_port
+//    // binding a socket with the dest_port
 //    struct sockaddr_in addr;
 //    memset((void *) &addr, '\x00', sizeof(addr));
 //    addr.sin_family = AF_INET;
-//    addr.sin_port = htons(server_port);
+//    addr.sin_port = htons(dest_port);
 //    addr.sin_addr.s_addr = htonl(INADDR_ANY);
 //
 //    if (bind(fd,
@@ -49,7 +49,7 @@ void udp_conn_server::setup() {
 //        return;
 //    }
 //
-//    cout << "waiting on server_port: " << server_port << endl;
+//    cout << "waiting on dest_port: " << dest_port << endl;
 }
 
 void udp_conn_server::destroy() {
@@ -59,8 +59,8 @@ void udp_conn_server::destroy() {
 
 int udp_conn_server::recv_data(void* data, int count) {
 //    struct udp_header* udp = static_cast<udp_header *>(data);
-//    if (ntohs(udp->dest_port) != server_port) {
-//        cout << "received udp to server_port not mine" << endl;
+//    if (ntohs(udp->dest_port) != dest_port) {
+//        cout << "received udp to dest_port not mine" << endl;
 //        return;
 //    }
 //    last_port = ntohs(udp->source_port);
@@ -71,7 +71,7 @@ int udp_conn_server::recv_data(void* data, int count) {
 #define BUFF_LEN 512
     char buff[BUFF_LEN];
     while (true) {
-        memset(&buff, '\x00', BUFF_LEN);
+        memset(buff, '\x00', BUFF_LEN);
         ip_server->setNextProt(IPPROTO_UDP);
         int res = ip_server->recv_next_msg(buff, BUFF_LEN);
 
@@ -93,7 +93,7 @@ int udp_conn_server::recv_data(void* data, int count) {
 void udp_conn_server::send_data(void* data, int cnt) {
 #define BUFF_LEN 256
     char buff[BUFF_LEN];
-    memset(&buff, '\x00', BUFF_LEN);
+    memset(buff, '\x00', BUFF_LEN);
 
     // udp header
     struct udp_header* udp = reinterpret_cast<udp_header *>(buff);
