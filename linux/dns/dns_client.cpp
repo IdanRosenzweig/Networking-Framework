@@ -433,11 +433,3 @@ void dns_client::query(const std::string &name) {
     }
 
 }
-
-void dns_client::init() {
-//    udp_client->init();
-}
-
-void dns_client::finish() {
-//    udp_client->finish();
-}

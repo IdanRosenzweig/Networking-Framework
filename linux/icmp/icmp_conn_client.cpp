@@ -7,22 +7,6 @@
 
 using namespace std;
 
-void icmp_conn_client::init() {
-//    fd = socket(AF_INET,
-//                SOCK_RAW, IPPROTO_ICMP);
-//    if (fd == -1) {
-//        cerr << "can't open socket" << endl;
-//        return;
-//    }
-
-//    ip_client.init();
-}
-
-void icmp_conn_client::finish() {
-//    close(fd);
-
-//    ip_client.finish();
-}
 
 struct icmp_packet {
 //    icmphdr header{}; // the icmp v6 header struct for echo is the same

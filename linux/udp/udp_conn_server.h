@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <cstring>
-#include "../../abstract/connectionless/basic_cl_server.h"
 #include <memory>
 #include <queue>
 #include "../ip4/handler.h"
@@ -13,7 +12,7 @@
 
 #include <arpa/inet.h>
 
-class udp_conn_server : public basic_cl_server {
+class udp_conn_server {
 //protected:
 //    // discover next host trying to send us data
 //    virtual sockaddr_in discover_next_host(); // todo in basic_cl_server with template
@@ -33,11 +32,6 @@ class udp_conn_server : public basic_cl_server {
 
 public:
     udp_conn_server(int port);
-
-    void setup() override;
-
-    void destroy() override;
-
 
     ip4_conn_server* ip_server;
 

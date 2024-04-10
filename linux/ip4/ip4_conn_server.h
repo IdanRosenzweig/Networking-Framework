@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <cstring>
-#include "../../abstract/connectionless/basic_cl_server.h"
 #include "../../abstract/basic_encapsulating_server.h"
 #include <memory>
 #include "handler.h"
@@ -15,6 +14,8 @@
 #include <string>
 
 #include "addit_data.h"
+#include "../../abstract/protocol_multiplexer.h"
+#include "../ether/ethernet_conn_server.h"
 
 struct ip4_addr {
     uint32_t raw;
@@ -26,6 +27,12 @@ private:
 
 public:
     ip4_conn_server();
+
+    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
+
+    ethernet_conn_server *ether_server;
+
+    ip4_addr last_client;
 
     // receive the next msg of the encapsulated protocol
     int recv_next_msg( void* buff, int count) override;

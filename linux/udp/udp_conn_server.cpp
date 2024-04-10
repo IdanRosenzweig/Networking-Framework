@@ -22,40 +22,6 @@ udp_conn_server::udp_conn_server(int port) : server_port(port) {
 
 }
 
-void udp_conn_server::setup() {
-//// opening a file descriptor
-//    fd = socket(
-//            AF_INET, // IPv4
-//            SOCK_DGRAM,
-//            IPPROTO_UDP // UDP
-//    );
-//    if (fd == -1) {
-//        cerr << "socket err" << endl;
-//        return;
-//    }
-//
-//    // binding a socket with the dest_port
-//    struct sockaddr_in addr;
-//    memset((void *) &addr, '\x00', sizeof(addr));
-//    addr.sin_family = AF_INET;
-//    addr.sin_port = htons(dest_port);
-//    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-//
-//    if (bind(fd,
-//             (struct sockaddr *) &addr,
-//             sizeof(addr)
-//    ) == -1) {
-//        cerr << "bind err" << endl;
-//        return;
-//    }
-//
-//    cout << "waiting on dest_port: " << dest_port << endl;
-}
-
-void udp_conn_server::destroy() {
-//    close(fd);
-}
-
 
 int udp_conn_server::recv_data(void* data, int count) {
 //    struct udp_header* udp = static_cast<udp_header *>(data);
@@ -109,6 +75,8 @@ void udp_conn_server::send_data(void* data, int cnt) {
 
 
     ip_server->setNextProt(IPPROTO_UDP);
-    ip_server->send_next_msg(ip_server->prot_handlers[IPPROTO_UDP].last_client,
-                                  buff, sizeof(udp_header) + cnt);
+//    ip_server->send_next_msg(ip_server->prot_handlers[IPPROTO_UDP].last_client,
+//                                  buff, sizeof(udp_header) + cnt);
+    ip_server->send_next_msg(ip_server->last_client,
+                             buff, sizeof(udp_header) + cnt);
 }

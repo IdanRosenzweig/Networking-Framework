@@ -6,7 +6,6 @@
 #include <arpa/inet.h>
 #include <string>
 #include "../../abstract/basic_encapsulating_client.h"
-#include "../../abstract/connectionless/basic_cl_client.h"
 #include "../../abstract/basic_gateway.h"
 
 #include <netpacket/packet.h>

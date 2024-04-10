@@ -7,16 +7,11 @@
 #include <string>
 #include <vector>
 #include "../../abstract/basic_encapsulating_client.h"
-#include "../../abstract/connectionless/basic_cl_client.h"
 #include "ethernet_conn_client.h"
 
-class arp_conn_client : public basic_cl_client {
+class arp_conn_client {
 public:
     arp_conn_client();
-
-    void init() override;
-
-    void finish() override;
 
 //    int send_encapsulated_data(void *buff, int count) override;
 //

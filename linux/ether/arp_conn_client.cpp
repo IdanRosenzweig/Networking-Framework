@@ -15,12 +15,6 @@ arp_conn_client::arp_conn_client() {
 
 }
 
-void arp_conn_client::init() {
-}
-
-void arp_conn_client::finish() {
-}
-
 #define IP4LEN 4
 mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
     struct mac_addr my_mac = get_my_mac_address("enp0s3");

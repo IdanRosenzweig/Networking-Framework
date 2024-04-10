@@ -9,7 +9,7 @@ data_link_traffic::data_link_traffic(bool in) {
     char* dev = "enp0s3";
 
     char errbuf[PCAP_ERRBUF_SIZE]; // Error string
-    traffic = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+    traffic = pcap_open_live(dev, BUFSIZ, 1, 100, errbuf);
     if (traffic == nullptr) {
         cerr << "can't open interface: " << dev << ", err: " << errbuf << endl;
         throw;

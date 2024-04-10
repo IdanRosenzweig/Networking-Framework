@@ -8,6 +8,7 @@
 #include <sys/ioctl.h>
 #include "mac_addr.h"
 #include "ethernet_conn_client.h"
+#include "../udp/udp_header.h"
 using namespace std;
 
 ethernet_conn_server::ethernet_conn_server() {
@@ -66,13 +67,6 @@ ethernet_conn_server::~ethernet_conn_server() {
     worker.detach();
 }
 
-void ethernet_conn_server::setup() {
-}
-
-void ethernet_conn_server::destroy() {
-}
-
-
 int ethernet_conn_server::recv_next_msg( void *data, int count) {
     while (protocolQueue.prots[getNextProt()].empty()) {
         using namespace std::chrono_literals;
@@ -83,6 +77,24 @@ int ethernet_conn_server::recv_next_msg( void *data, int count) {
             protocolQueue.prots[getNextProt()].front()
     );
     protocolQueue.prots[getNextProt()].pop();
+
+//    int sub_prot = ((struct iphdr*) next_msg.data.get())->protocol;
+//    switch (sub_prot) {
+//        case IPPROTO_UDP: {
+//            struct udp_header* udp_h = (struct udp_header*) (next_msg.data.get() + sizeof(struct iphdr));
+//            cout << "udp " << ntohs(udp_h->dest_port) << endl;
+//            cout << (char*) (next_msg.data.get() + sizeof(struct iphdr) + sizeof(struct udp_header)) << endl;
+//            break;
+//        }
+//        case IPPROTO_TCP: {
+//            cout << "tcp" << endl;
+//            break;
+//        }
+//        case IPPROTO_ICMP: {
+//            cout << "icmp" << endl;
+//            break;
+//        }
+//    }
 
     int copy_cnt = std::min(count, next_msg.sz);
     memcpy(data, next_msg.data.get(), copy_cnt);

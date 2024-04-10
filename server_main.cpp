@@ -4,9 +4,6 @@
 #include "abstract/connection_oriented/basic_server.h"
 #include "abstract/connection_oriented/basic_co_client.h"
 
-#include "abstract/connectionless/basic_cl_server.h"
-#include "abstract/connectionless/basic_cl_client.h"
-
 #include "linux/tcp/tcp_conn_server.h"
 #include "linux/udp/udp_conn_server.h"
 #include "linux/ip4/ip4_conn_server.h"
@@ -14,33 +11,17 @@
 //#include "linux/ip4/ip4_conn_server.h"
 #include "linux/ether/ethernet_conn_server.h"
 
-#define PORT 2222
-
-//int main() {
-//    std::cout << "Hello, World!" << std::endl;
-//
-//    ip4_conn_server server;
-//
-//    while (true) {
-//        server.discover_next_client();
-//
-////        char buff[6];
-////        memset(buff, '\x00', 6);
-////        server.clients_q.front()->recv_data(buff, 5);
-////        server.clients_q.pop();
-//
-////        std::cout << "msg: " << buff << std::endl;
-//    }
-//
-//    return 0;
-//}
+#define PORT 4444
 
 int udp_main() {
     std::cout << "Hello, World!" << std::endl;
 
-    ip4_conn_server ip_server;
+    ethernet_conn_server ether_server;
 
-    udp_conn_server udp_client(4444);
+    ip4_conn_server ip_server;
+    ip_server.ether_server = &ether_server;
+
+    udp_conn_server udp_client(PORT);
     udp_client.ip_server = &ip_server;
 
     char buff[6];
@@ -73,7 +54,7 @@ int udp_main() {
 int tcp_main() {
     std::cout << "Hello, World!" << std::endl;
 
-    tcp_conn_server server(4444);
+    tcp_conn_server server(PORT);
     server.setup();
 
     handler client = server.conn_next_host();
@@ -134,17 +115,6 @@ void tunnel_main() {
 
 int main() {
 //    udp_main();
-//    tcp_main();
+    tcp_main();
 //    tunnel_main();
-
-    ethernet_conn_server ether_server;
-#define BUFF_LEN 1024
-    char buff[BUFF_LEN];
-    while (true) {
-        memset(buff, '\x00', BUFF_LEN);
-
-        ether_server.setNextProt(htons(ETH_P_IP));
-        int len = ether_server.recv_next_msg(buff, BUFF_LEN);
-//        cout << "received len: " << len << endl;
-    }
 }

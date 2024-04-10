@@ -6,13 +6,12 @@
 #include <arpa/inet.h>
 #include <string>
 #include "../../abstract/basic_encapsulating_client.h"
-#include "../../abstract/connectionless/basic_cl_client.h"
 
 #include "addit_data.h"
 #include "../ether/ethernet_conn_client.h"
 
 
-class ip4_conn_client : public basic_cl_client, public basic_encapsulating_client<int, prot_addit_data> {
+class ip4_conn_client : public basic_encapsulating_client<int, prot_addit_data> {
 //    network_layer_gateway
 private:
 // instead of listening and filtering encapsulated protocols ourselves,
@@ -27,21 +26,13 @@ protected:
 
     int fd;
 
-    protocol_queue<int> protocolQueue;
+    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
 public:
 
     // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.
     // you must specify beforehand the type of protocol you would encapsulate
     // in the ip packets, and can't change that type
     ip4_conn_client(const std::string &str);
-
-    void init() override;
-
-    void finish() override;
-
-//    int send_encapsulated_data(void *buff, int count) override;
-//
-//    int recv_encapsulated_data(void *buff, int count) override;
 
     ethernet_conn_client *ether_client;
 

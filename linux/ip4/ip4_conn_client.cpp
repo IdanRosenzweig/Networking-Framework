@@ -5,17 +5,11 @@
 #include <linux/if.h>
 #include <sys/fcntl.h>
 #include <linux/if_ether.h>
+#include "checksum.h"
 
 using namespace std;
 
-unsigned short checksum(unsigned short *buf, int nwords) {
-    unsigned long sum;
-    for (sum = 0; nwords > 0; nwords--)
-        sum += *buf++;
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum += (sum >> 16);
-    return ~sum;
-}
+
 
 void ip4_conn_client::register_filter(int prot) {
     int fd = socket(
@@ -47,11 +41,6 @@ ip4_conn_client::ip4_conn_client(const string &ip) : ip(ip) {
 
 }
 
-void ip4_conn_client::init() {
-}
-
-void ip4_conn_client::finish() {
-}
 
 //int ip4_conn_client::send_encapsulated_data(void *buff, int count) {
 //

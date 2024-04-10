@@ -7,33 +7,27 @@
 #include <string>
 #include <queue>
 #include "../../abstract/basic_encapsulating_client.h"
-#include "../../abstract/connectionless/basic_cl_client.h"
 
 #include <netpacket/packet.h>
 #include <linux/if.h>
 #include "../ip4/addit_data.h"
 #include "mac_addr.h"
 #include "../data_link_layer/data_link_layer_gateway.h"
-#include "../../abstract/protocol_queue.h"
-#include "../../abstract/connectionless/basic_cl_server.h"
+#include "../../abstract/protocol_multiplexer.h"
 
-class ethernet_conn_server : public basic_cl_server {
+class ethernet_conn_server {
 private:
     data_link_layer_gateway gateway;
 
     std::thread worker;
 
-    protocol_queue<int> protocolQueue;
+    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
 
 public:
 
     ethernet_conn_server();
 
     virtual ~ethernet_conn_server();
-
-    void setup() override;
-
-    void destroy() override;
 
 private:
     int next_prot; // indicated the protocol used in the next encapsulated message

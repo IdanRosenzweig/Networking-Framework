@@ -23,7 +23,8 @@
 #include <sys/ioctl.h>
 
 
-#define IP "127.0.0.1"
+//#define IP "127.0.0.1"
+#define IP "10.100.102.18"
 #define PORT 4444
 
 
@@ -37,11 +38,11 @@ int udp_main() {
     udp_conn_client client(PORT, 1212);
     client.ip_client = &ip_client;
 
+        std::cout << "sending data" << std::endl;
+        char *msg = "first";
+        int len = strlen(msg);
+        cout << "sent " << client.send_data(msg, len) << endl;
 
-    std::cout << "sending data" << std::endl;
-    char *msg = "first";
-    int len = strlen(msg);
-    cout << "sent " << client.send_data(msg, len) << endl;
 
     char buff[6];
     memset(buff, '\x00', 6);
@@ -224,10 +225,10 @@ int main() {
 
 
 //    udp_main();
-//    tcp_main();
+    tcp_main();
 //    dns_main();
 //    icmp_main();
-    arp_main();
+//    arp_main();
 //    tunnel_main();
 
 //    system("sudo /home/idan/CLionProjects/ServerClient/network_config.sh");
