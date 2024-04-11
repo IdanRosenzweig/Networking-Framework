@@ -21,7 +21,7 @@ private:
 
     std::thread worker;
 
-    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
+    protocol_multiplexer<int, circular_buffer<message, MAX_NO_MSG>> protocolQueue;
 
 public:
 

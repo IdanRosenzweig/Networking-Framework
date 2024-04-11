@@ -19,9 +19,11 @@ int udp_main() {
     ethernet_conn_server ether_server;
 
     ip4_conn_server ip_server;
+    ip_server.setNextClient(ip4_addr{inet_network("10.100.102.18")});
     ip_server.ether_server = &ether_server;
 
     udp_conn_server udp_client(PORT);
+    udp_client.setNextPort(1212);
     udp_client.ip_server = &ip_server;
 
     char buff[6];
@@ -84,37 +86,59 @@ int tcp_main() {
 }
 
 void tunnel_main() {
+    // tunenl using udp
+    ethernet_conn_server ether_server;
+
     ip4_conn_server ip_server;
+    ip_server.ether_server = &ether_server;
+    ip_server.setNextClient(ip4_addr{inet_network("10.100.102.18")});
 
-    udp_conn_server udp_client(4444);
-    udp_client.ip_server = &ip_server;
+    udp_conn_server udp_server(PORT);
+    udp_server.setNextPort(1212);
+    udp_server.ip_server = &ip_server;
 
+    // gateway to forward packets
     data_link_layer_gateway gateway;
 
-    while (true) {
-#define BUFF_LEN 512
-        char buff[BUFF_LEN];
-        memset(buff, 0, BUFF_LEN);
+//    std::thread from_host([&]() {
+//#define BUFF_LEN 1024
+//        char buff[BUFF_LEN];
+//        while (true) {
+//            memset(buff, 0, BUFF_LEN);
+//
+//            int cnt = udp_server.recv_data(buff, BUFF_LEN);
+//            cout << "received tunneled packet, size " << cnt << endl;
+//
+//            if (cnt == 0) continue;
+//
+//            cout << "sending raw bytes to data link layer" << endl;
+//            gateway.send_raw(buff, cnt);
+//
+//        }
+//    });
 
-        int cnt = udp_client.recv_data(buff, BUFF_LEN);
-        cout << "received tunneled packet, size " << cnt << endl;
-
-        cout << "sending raw bytes to data link layer" << endl;
-        gateway.send_raw(buff, cnt);
-
-        // todo now send through different interface
-        cout << "waiting for response" << endl;
-#define BUFF_LEN 512
+    std::thread to_host([&]() {
+#define BUFF_LEN 1024
         char reply[BUFF_LEN];
-        memset(reply, 0, BUFF_LEN);
-        int reply_len = gateway.recv_raw(reply, cnt);
-        cout << "received reply with len " << reply_len << endl << endl;
-    }
+        while (true) {
+            memset(reply, 0, BUFF_LEN);
 
+            int reply_len = gateway.recv_raw(reply, BUFF_LEN);
+            cout << "received reply with len " << reply_len << endl;
+
+            if (reply_len == 0) continue;
+
+            cout << "sending raw bytes back in the tunnel" << endl;
+            udp_server.send_data(reply, reply_len);
+        }
+    });
+
+//    from_host.join();
+    to_host.join();
 }
 
 int main() {
 //    udp_main();
-    tcp_main();
-//    tunnel_main();
+//    tcp_main();
+    tunnel_main();
 }

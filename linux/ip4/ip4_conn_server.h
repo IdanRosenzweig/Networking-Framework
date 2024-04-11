@@ -28,17 +28,17 @@ private:
 public:
     ip4_conn_server();
 
-    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
+    protocol_multiplexer<int, circular_buffer<message, MAX_NO_MSG>> protocolQueue;
 
     ethernet_conn_server *ether_server;
 
-    ip4_addr last_client;
+    ip4_addr last_client; // last client that sent packet
 
     // receive the next msg of the encapsulated protocol
     int recv_next_msg( void* buff, int count) override;
 
     // send message to the last client that sent message with the protocol
-    int send_next_msg( ip4_addr client, void* buff, int count) override;
+    int send_next_msg( void* buff, int count) override;
 
 };
 

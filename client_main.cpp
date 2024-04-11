@@ -21,7 +21,7 @@
 #include <sys/fcntl.h>
 #include <linux/if_tun.h>
 #include <sys/ioctl.h>
-
+#include "linux/tunnel/tunnel_client.h"
 
 //#define IP "127.0.0.1"
 #define IP "10.100.102.18"
@@ -30,7 +30,10 @@
 
 int udp_main() {
 
+    data_link_layer_gateway data_link_gateway;
+
     ethernet_conn_client ether_client;
+    ether_client.gateway = &data_link_gateway;
 
     ip4_conn_client ip_client(IP);
     ip_client.ether_client = &ether_client;
@@ -38,10 +41,10 @@ int udp_main() {
     udp_conn_client client(PORT, 1212);
     client.ip_client = &ip_client;
 
-        std::cout << "sending data" << std::endl;
-        char *msg = "first";
-        int len = strlen(msg);
-        cout << "sent " << client.send_data(msg, len) << endl;
+    std::cout << "sending data" << std::endl;
+    char *msg = "first";
+    int len = strlen(msg);
+    cout << "sent " << client.send_data(msg, len) << endl;
 
 
     char buff[6];
@@ -117,7 +120,10 @@ int dns_main() {
             "www.scs.stanford.edu",
     };
 
+    data_link_layer_gateway data_link_gateway;
+
     ethernet_conn_client ether_client;
+    ether_client.gateway = &data_link_gateway;
 
     ip4_conn_client ip_client("8.8.8.8");
     ip_client.ether_client = &ether_client;
@@ -138,7 +144,10 @@ int icmp_main() {
     char *str = "172.217.22.46";
 //    char* str = "google.com";
 
+    data_link_layer_gateway data_link_gateway;
+
     ethernet_conn_client ether_client;
+    ether_client.gateway = &data_link_gateway;
 
     ip4_conn_client ip_client(str);
     ip_client.ether_client = &ether_client;
@@ -150,73 +159,64 @@ int icmp_main() {
 }
 
 int arp_main() {
+    data_link_layer_gateway data_link_gateway;
 
     ethernet_conn_client ether_client;
+    ether_client.gateway = &data_link_gateway;
 
     arp_conn_client arp_client;
     arp_client.ether_client = &ether_client;
 
 
-//    mac_addr res = arp_client.search_for_device("10.100.102.3");
+//    mac_addr res = arp_client.search_for_device("10.100.102.27");
 //    print_mac(res);
-    string victim = "10.100.102.2";
+    string victim = "10.100.102.28";
     vector<pair<mac_addr, string>> victim_list = {
-//            {arp_client.search_for_device(victim),victim}
-//            {{0x20, 0x7b, 0xd2, 0xaf, 0xdb, 0xc9}, victim}
+            {arp_client.search_for_device(victim),victim}
     };
     arp_client.spoof_as_device("10.100.102.1", // router
-                               victim_list);
+                               victim_list, false);
 
 }
 
-int tap_alloc(char *dev)
-{
-    struct ifreq ifr;
-    int fd, err;
-
-    if ((fd = open("/dev/net/tun", O_RDWR)) < 0)
-    {
-        return fd;
-    }
-
-    /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
-     *        IFF_TAP   - TAP device
-     *
-     *        IFF_NO_PI - Do not provide packet information
-     */
-    memset(&ifr, 0, sizeof(ifr));
-    ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-    if (*dev)
-    {
-        strncpy(ifr.ifr_name, dev, IFNAMSIZ);
-    }
-
-    if ((err = ioctl(fd, TUNSETIFF, (void *)&ifr)) < 0)
-    {
-        close(fd);
-        return err;
-    }
-//    strncpy(dev, ifr.ifr_name, IFNAMSIZ);
-    return fd;
-}
 
 void tunnel_main() {
-    ip4_conn_client ip_client(IP);
+    // tunnel using udp
+    data_link_layer_gateway data_link_gateway;
 
-    udp_conn_client udp_client(PORT, 1212);
-    udp_client.ip_client = &ip_client;
+    ethernet_conn_client _ether_client;
+    _ether_client.gateway = &data_link_gateway;
 
-    data_link_traffic traffic(false); // traffic coming out
+    ip4_conn_client _ip_client(IP);
+    _ip_client.ether_client = &_ether_client;
+
+    udp_conn_client _udp_client(PORT, 1212);
+    _udp_client.ip_client = &_ip_client;
+
+    tunnel_client tunnel;
+    tunnel.client = &_udp_client;
+
+
+    // typical icmp
+    char *str = "172.217.22.46";
+
+    ethernet_conn_client ether_client;
+    ether_client.gateway = &tunnel; // setup tunnel as gateway
+//    ether_client.gateway = &data_link_gateway; // setup tunnel as gateway
+
+    ip4_conn_client ip_client(str);
+    ip_client.ether_client = &ether_client;
+
+    icmp_conn_client icmp_client;
+    icmp_client.ip_client = &ip_client;
+
+
+    // start communicate
+    icmp_client.ping();
+
+
     while (true) {
-#define BUFF_LEN 512
-        char buff[BUFF_LEN];
-        memset(buff, 0, BUFF_LEN);
 
-        int len = traffic.sniff_next_msg(buff, BUFF_LEN); // next message
-
-        // tunnel through udp
-        cout << "packet read. tunneling in udp len " << len << endl;
-        udp_client.send_data(buff, len);
     }
 }
 
@@ -225,9 +225,9 @@ int main() {
 
 
 //    udp_main();
-    tcp_main();
+//    tcp_main();
 //    dns_main();
-//    icmp_main();
+    icmp_main();
 //    arp_main();
 //    tunnel_main();
 

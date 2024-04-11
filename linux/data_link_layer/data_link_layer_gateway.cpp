@@ -48,14 +48,21 @@ data_link_layer_gateway::~data_link_layer_gateway() {
 }
 
 int data_link_layer_gateway::send_raw(void *buff, int count) {
-    return sendto(fd,
-                  buff, count,
-                  0,
-                  reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
+    if (tunnel != nullptr) {
+        return tunnel->send_data(buff, count);
+    } else
+        return sendto(fd,
+                      buff, count,
+                      0,
+                      reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
 }
 
 int data_link_layer_gateway::recv_raw(void *buff, int count) {
-    int res = traffic_in_sniff.sniff_next_msg(buff, count);
+    if (tunnel != nullptr) {
+        return tunnel->recv_data(buff, count);
+    } else {
+        int res = traffic_in_sniff.sniff_next_msg(buff, count);
 //    cout << "recived from raw sniffer: " << res << endl;
-    return res;
+        return res;
+    }
 }

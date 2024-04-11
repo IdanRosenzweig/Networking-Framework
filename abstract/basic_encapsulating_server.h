@@ -26,6 +26,13 @@ public:
 
     void setNextProt(PROT_T nextProt) {next_prot = nextProt;}
 
+private:
+    ADDR_T next_client = {0}; // indicates the client to send the next packet to
+public:
+    ADDR_T getNextClient() const {return next_client;}
+
+    void setNextClient(ADDR_T nextClient) {next_client = nextClient;}
+
 
     // receive the next msg of the encapsulated protocol.
     // put the data in port_handlers[prot].data,
@@ -33,7 +40,7 @@ public:
     virtual int recv_next_msg(void* buff, int count) = 0;
 
     // send message of protocol prot to client
-    virtual int send_next_msg(ADDR_T client, void* buff, int count) = 0;
+    virtual int send_next_msg(void* buff, int count) = 0;
 };
 
 #endif //SERVERCLIENT_BASIC_ENCAPSULATING_SERVER_H

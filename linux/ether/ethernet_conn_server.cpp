@@ -36,7 +36,7 @@ ethernet_conn_server::ethernet_conn_server() {
     close(temp_fd);
 
     worker = std::thread([this]() {
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
         char buff[BUFF_LEN];
         while (true) {
             memset(buff, '\x00', BUFF_LEN);
@@ -52,7 +52,7 @@ ethernet_conn_server::ethernet_conn_server() {
             uint8_t* alloc_msg = new uint8_t[data_sz];
             memcpy(alloc_msg, data, data_sz);
 
-            protocolQueue.prots[eth_header->ether_type].push(
+            protocolQueue.prots[eth_header->ether_type].push_back(
                     {std::unique_ptr<uint8_t>(alloc_msg), data_sz}
             );
 
@@ -76,7 +76,7 @@ int ethernet_conn_server::recv_next_msg( void *data, int count) {
     message next_msg = std::move(
             protocolQueue.prots[getNextProt()].front()
     );
-    protocolQueue.prots[getNextProt()].pop();
+    protocolQueue.prots[getNextProt()].pop_front();
 
 //    int sub_prot = ((struct iphdr*) next_msg.data.get())->protocol;
 //    switch (sub_prot) {
@@ -102,7 +102,7 @@ int ethernet_conn_server::recv_next_msg( void *data, int count) {
 }
 
 int ethernet_conn_server::send_next_msg( void *data, int count) {
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, 0, BUFF_LEN);
 

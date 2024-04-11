@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_PROTOCOL_MULTIPLEXER_H
 #define SERVERCLIENT_PROTOCOL_MULTIPLEXER_H
 
-#include "ring_buffer.h"
+#include "circular_buffer.h"
 #include "message.h"
 #include <map>
 

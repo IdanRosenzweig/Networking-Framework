@@ -32,6 +32,8 @@ public:
 
     ~data_link_layer_gateway() override;
 
+    basic_conn* tunnel = nullptr;
+
     int send_raw(void *buff, int count) override;
 
     int recv_raw(void *buff, int count) override;

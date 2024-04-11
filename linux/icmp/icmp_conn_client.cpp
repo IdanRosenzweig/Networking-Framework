@@ -86,40 +86,46 @@ void icmp_conn_client::ping() {
         }
 
 
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
         char buf[BUFF_LEN];
-        memset(buf, '\x00', BUFF_LEN);
 
-        ip_client->setNextProt(IPPROTO_ICMP);
-        if (ip_client->recv_next_msg(buf, BUFF_LEN) < 0) {
-            std::cerr << "Cannot receive from socket" << std::endl;
-            break;
-        }
-        const auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds >(end - start);
+        while (true) {
+            memset(buf, '\x00', BUFF_LEN);
 
-        icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
-
-        bool failed = false;
-        if (reply->content.echo.id != packet.content.echo.id) failed = true;
-        switch (reply->type) {
-            case ICMP_TIME_EXCEEDED: {
-                std::cout << "Time Exceeded" << std::endl;
-                failed = true;
+            cout << "waiting for icmp reply" << endl;
+            ip_client->setNextProt(IPPROTO_ICMP);
+            if (ip_client->recv_next_msg(buf, BUFF_LEN) < 0) {
+                std::cerr << "Cannot receive from socket" << std::endl;
                 break;
             }
-            case ICMP_DEST_UNREACH: {
-                std::cout << "Destination Unreachable" << std::endl;
-                failed = true;
-                break;
-            }
-        }
+            const auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-        if (failed) {
-            cout << "reply err" << endl;
-        } else {
-            std::cout << "Received reply: seq=" << packet.content.echo.sequence
+            icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
+
+            bool failed = false;
+            if (reply->content.echo.id != packet.content.echo.id) failed = true;
+            switch (reply->type) {
+                case ICMP_TIME_EXCEEDED: {
+                    std::cout << "Time Exceeded" << std::endl;
+                    failed = true;
+                    break;
+                }
+                case ICMP_DEST_UNREACH: {
+                    std::cout << "Destination Unreachable" << std::endl;
+                    failed = true;
+                    break;
+                }
+            }
+
+            if (failed) {
+                cout << "icmp reply err" << endl;
+                continue;
+            }
+
+            std::cout << "Received icmp reply: seq=" << packet.content.echo.sequence
                       << " rrt=" << duration.count() << "micro sec" << std::endl;
+            break;
         }
 
     } while (++packet.content.echo.sequence < 10);

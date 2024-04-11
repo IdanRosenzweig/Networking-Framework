@@ -21,12 +21,12 @@ data_link_traffic::data_link_traffic(bool in) {
 
     struct bpf_program fp;
     if (pcap_compile(traffic, &fp, filter_exp, 0, PCAP_NETMASK_UNKNOWN) == PCAP_ERROR) {
-        fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(traffic));
+        fprintf(stderr, "Couldn't parse filter_send %s: %s\n", filter_exp, pcap_geterr(traffic));
         return;
     }
 
     if (pcap_setfilter(traffic, &fp) == PCAP_ERROR) {
-        fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(traffic));
+        fprintf(stderr, "Couldn't install filter_send %s: %s\n", filter_exp, pcap_geterr(traffic));
         return;
     }
 

@@ -78,7 +78,7 @@ void send_request(int sock_fd, const sockaddr_storage &addr, int cnt = 100) {
         while (buffer == nullptr || buffer->header.type != (ICMP_ECHOREPLY) ||
                buffer->header.un.echo.id != packet.header.un.echo.id) {
 
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
             char buf[BUFF_LEN];
             memset(buf, '\x00', BUFF_LEN);
             if (recvfrom(sock_fd, buf, BUFF_LEN, 0, reinterpret_cast<sockaddr *>(&r_addr), &r_len) < 0) {

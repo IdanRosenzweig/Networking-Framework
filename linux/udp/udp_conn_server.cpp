@@ -34,7 +34,7 @@ int udp_conn_server::recv_data(void* data, int count) {
 //    char* buff = (char*) data + sizeof(udp_header);
 //    cout << "buff: " << buff << endl;
 
-#define BUFF_LEN 512
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     while (true) {
         memset(buff, '\x00', BUFF_LEN);
@@ -46,7 +46,8 @@ int udp_conn_server::recv_data(void* data, int count) {
             cout << "server recieved to wrong port: " << ntohs(udp->dest_port) << endl;
             continue; // keep on receiving
         }
-        last_port = ntohs(udp->source_port);
+        cout << "server recieved port: " << ntohs(udp->dest_port) << endl;
+//        last_port = ntohs(udp->source_port);
 
         char* packet_data = (char*) buff + sizeof(udp_header);
 
@@ -57,7 +58,7 @@ int udp_conn_server::recv_data(void* data, int count) {
 }
 
 void udp_conn_server::send_data(void* data, int cnt) {
-#define BUFF_LEN 256
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, '\x00', BUFF_LEN);
 
@@ -65,7 +66,7 @@ void udp_conn_server::send_data(void* data, int cnt) {
     struct udp_header* udp = reinterpret_cast<udp_header *>(buff);
 
     udp->source_port = htons (server_port);
-    udp->dest_port = htons (last_port);
+    udp->dest_port = htons (next_port);
     udp->len = htons(sizeof(udp_header) + cnt);
     udp->checksum = 0; // optional
 
@@ -77,6 +78,5 @@ void udp_conn_server::send_data(void* data, int cnt) {
     ip_server->setNextProt(IPPROTO_UDP);
 //    ip_server->send_next_msg(ip_server->prot_handlers[IPPROTO_UDP].last_client,
 //                                  buff, sizeof(udp_header) + cnt);
-    ip_server->send_next_msg(ip_server->last_client,
-                             buff, sizeof(udp_header) + cnt);
+    ip_server->send_next_msg(buff, sizeof(udp_header) + cnt);
 }

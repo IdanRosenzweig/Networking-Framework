@@ -18,8 +18,9 @@
 
 
 class ethernet_conn_client : public basic_encapsulating_client<int, prot_addit_data> {
-private:
-    data_link_layer_gateway gateway;
+public:
+//    data_link_layer_gateway gateway;
+    basic_conn* gateway = nullptr;
 
     std::thread worker;
 
@@ -44,6 +45,6 @@ public:
     // send message to the last client that sent message with the protocol
     int send_next_msg( void* buff, int count) override;
 
-    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
+    protocol_multiplexer<int, circular_buffer<message, MAX_NO_MSG>> protocolQueue;
 };
 #endif //SERVERCLIENT_ETHERNET_CONN_CLIENT_H

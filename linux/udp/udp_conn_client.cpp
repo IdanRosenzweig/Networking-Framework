@@ -19,7 +19,7 @@ int udp_conn_client::recv_data(void* data, int count) {
 //    char* buff = (char*) data + sizeof(udp_header);
 //    cout << "buff: " << buff << endl;
 
-#define BUFF_LEN 256
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     while (true) {
 
@@ -29,7 +29,7 @@ int udp_conn_client::recv_data(void* data, int count) {
 
         struct udp_header* udp = (udp_header *) (buff);
         if (ntohs(udp->dest_port) != my_port) {
-            cout << "recevied data not to my port: " << ntohs(udp->dest_port) << endl;
+//            cout << "recevied data not to my port: " << ntohs(udp->dest_port) << endl;
             continue; // keep on receiving
         }
 
@@ -43,7 +43,7 @@ int udp_conn_client::recv_data(void* data, int count) {
 }
 
 int udp_conn_client::send_data(void* data, int cnt) {
-#define BUFF_LEN 256
+#define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, '\x00', BUFF_LEN);
 

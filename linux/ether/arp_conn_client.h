@@ -23,7 +23,7 @@ public:
 
     // spoof the victim devices into thinking that the private ip addr
     // is associated with our mac addr (empty victim list means broadcast)
-    void spoof_as_device(std::string device, std::vector<std::pair<mac_addr, std::string>>& victim_devices);
+    void spoof_as_device(std::string device, std::vector<std::pair<mac_addr, std::string>>& victim_devices, bool block_traffic);
 };
 
 #endif //SERVERCLIENT_ARP_CONN_CLIENT_H

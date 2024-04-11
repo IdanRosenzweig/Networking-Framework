@@ -28,12 +28,18 @@ class udp_conn_server {
 
     int server_port;
 
-    int last_port; // last client's dest_port
-
 public:
     udp_conn_server(int port);
 
     ip4_conn_server* ip_server;
+
+
+    int next_port;
+
+    int getNextPort() const {return next_port;}
+
+    void setNextPort(int nextPort) {next_port = nextPort;}
+
 
     int recv_data(void* data, int count);
 

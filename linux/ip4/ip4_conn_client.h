@@ -26,7 +26,7 @@ protected:
 
     int fd;
 
-    protocol_multiplexer<int, ring_buffer<message, MAX_NO_MSG>> protocolQueue;
+    protocol_multiplexer<int, circular_buffer<message, MAX_NO_MSG>> protocolQueue;
 public:
 
     // linux won't allow to receive raw packets of any type IPPROTO_RAW, only to send ones.

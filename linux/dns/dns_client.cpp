@@ -291,12 +291,12 @@ void dns_client::query(const std::string &name) {
 
     // send dns_query
 //    this->udp_conn_client::send_data((char *) buf, sizeof(struct dns_header) + query.size());
-//    udp_client.send_encapsulated_data((char *) buf, sizeof(struct dns_header) + query.size());
+//    client.send_encapsulated_data((char *) buf, sizeof(struct dns_header) + query.size());
     udp_client->send_data((char *) buf, sizeof(struct dns_header) + query.size());
 
     // receive answer
 //    this->udp_conn_client::recv_data(buf, BUFF_SZ);
-//    udp_client.recv_encapsulated_data(buf, BUFF_SZ);
+//    client.recv_encapsulated_data(buf, BUFF_SZ);
     udp_client->recv_data(buf, BUFF_SZ);
 
 
