@@ -47,7 +47,7 @@ data_link_layer_gateway::~data_link_layer_gateway() {
     close(fd);
 }
 
-int data_link_layer_gateway::send_raw(void *buff, int count) {
+int data_link_layer_gateway::send_data(void *buff, int count) {
     if (tunnel != nullptr) {
         return tunnel->send_data(buff, count);
     } else
@@ -57,7 +57,7 @@ int data_link_layer_gateway::send_raw(void *buff, int count) {
                       reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
 }
 
-int data_link_layer_gateway::recv_raw(void *buff, int count) {
+int data_link_layer_gateway::recv_data(void *buff, int count) {
     if (tunnel != nullptr) {
         return tunnel->recv_data(buff, count);
     } else {

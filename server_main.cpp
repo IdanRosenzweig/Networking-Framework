@@ -112,7 +112,7 @@ void tunnel_main() {
 //            if (cnt == 0) continue;
 //
 //            cout << "sending raw bytes to data link layer" << endl;
-//            gateway.send_raw(buff, cnt);
+//            gateway.send_data(buff, cnt);
 //
 //        }
 //    });
@@ -123,7 +123,7 @@ void tunnel_main() {
         while (true) {
             memset(reply, 0, BUFF_LEN);
 
-            int reply_len = gateway.recv_raw(reply, BUFF_LEN);
+            int reply_len = gateway.recv_data(reply, BUFF_LEN);
             cout << "received reply with len " << reply_len << endl;
 
             if (reply_len == 0) continue;
@@ -138,7 +138,7 @@ void tunnel_main() {
 }
 
 int main() {
-//    udp_main();
+    udp_main();
 //    tcp_main();
-    tunnel_main();
+//    tunnel_main();
 }

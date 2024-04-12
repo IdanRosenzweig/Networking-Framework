@@ -14,7 +14,6 @@
 #include "linux/ether/ethernet_conn_client.h"
 #include "linux/ether/arp_conn_client.h"
 
-#include "abstract/basic_gateway.h"
 #include "abstract/basic_encapsulating_client.h"
 #include "linux/data_link_layer/data_link_layer_gateway.h"
 #include <linux/if.h>
@@ -175,10 +174,9 @@ int arp_main() {
             {arp_client.search_for_device(victim),victim}
     };
     arp_client.spoof_as_device("10.100.102.1", // router
-                               victim_list, false);
+                               victim_list, true);
 
 }
-
 
 void tunnel_main() {
     // tunnel using udp
@@ -220,14 +218,13 @@ void tunnel_main() {
     }
 }
 
-
 int main() {
 
 
-//    udp_main();
+    udp_main();
 //    tcp_main();
 //    dns_main();
-    icmp_main();
+//    icmp_main();
 //    arp_main();
 //    tunnel_main();
 
@@ -236,5 +233,4 @@ int main() {
 
     return (0);
 }
-
 

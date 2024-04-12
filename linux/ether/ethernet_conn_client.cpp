@@ -1,12 +1,13 @@
 #include "ethernet_conn_client.h"
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netpacket/packet.h>
+#include <unistd.h>
 #include <iostream>
-#include <netinet/ip.h>
 #include <cstring>
-#include <linux/if.h>
 #include <netinet/if_ether.h>
 #include <sys/ioctl.h>
-#include "mac_addr.h"
 #include <pcap.h>
 
 using namespace std;

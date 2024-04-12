@@ -7,18 +7,8 @@
 // a basic protocol that supports identifying sub protocols
 // (ethernet has ethertype field, ip has protocol field)
 
-template <typename ADDR_T, typename PROT_T, typename PROT_DATA>
+template <typename PROT_T, typename ADDR_T>
 class basic_encapsulating_server {
-public:
-    struct prot_data {
-        ADDR_T last_client;
-//        std::unique_ptr<char> data;
-
-        PROT_DATA addit_data; // additional data
-    };
-    std::map<PROT_T, prot_data> prot_handlers;
-
-
 private:
     PROT_T next_prot; // indicated the protocol used in the next encapsulated message
 public:
@@ -34,12 +24,10 @@ public:
     void setNextClient(ADDR_T nextClient) {next_client = nextClient;}
 
 
-    // receive the next msg of the encapsulated protocol.
-    // put the data in port_handlers[prot].data,
-    // and the client's data in port_handlers[prot].last_client
+    // receive the next msg (depending on the marked encapsulated protocol and client).
     virtual int recv_next_msg(void* buff, int count) = 0;
 
-    // send message of protocol prot to client
+    // send message of protocol prot to next_client
     virtual int send_next_msg(void* buff, int count) = 0;
 };
 

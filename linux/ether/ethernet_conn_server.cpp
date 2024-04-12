@@ -1,17 +1,18 @@
 #include <cstring>
 #include "ethernet_conn_server.h"
 #include <iostream>
-#include <netinet/ip.h>
-#include <cstring>
-#include <linux/if.h>
 #include <netinet/if_ether.h>
 #include <sys/ioctl.h>
 #include "mac_addr.h"
 #include "ethernet_conn_client.h"
-#include "../udp/udp_header.h"
+#include <unistd.h>
+#include <netinet/in.h>
+
 using namespace std;
 
 ethernet_conn_server::ethernet_conn_server() {
+    setNextClient(BROADCAST_MAC);
+
     char *INTERFACE = "enp0s3";
 
     my_mac = get_my_mac_address(INTERFACE);
@@ -41,7 +42,7 @@ ethernet_conn_server::ethernet_conn_server() {
         while (true) {
             memset(buff, '\x00', BUFF_LEN);
 
-            int sz = gateway.recv_raw(buff, BUFF_LEN);
+            int sz = gateway.recv_data(buff, BUFF_LEN);
             if (sz <= 0) continue;
 
             struct ether_header *eth_header = (struct ether_header *) buff;
@@ -78,24 +79,6 @@ int ethernet_conn_server::recv_next_msg( void *data, int count) {
     );
     protocolQueue.prots[getNextProt()].pop_front();
 
-//    int sub_prot = ((struct iphdr*) next_msg.data.get())->protocol;
-//    switch (sub_prot) {
-//        case IPPROTO_UDP: {
-//            struct udp_header* udp_h = (struct udp_header*) (next_msg.data.get() + sizeof(struct iphdr));
-//            cout << "udp " << ntohs(udp_h->dest_port) << endl;
-//            cout << (char*) (next_msg.data.get() + sizeof(struct iphdr) + sizeof(struct udp_header)) << endl;
-//            break;
-//        }
-//        case IPPROTO_TCP: {
-//            cout << "tcp" << endl;
-//            break;
-//        }
-//        case IPPROTO_ICMP: {
-//            cout << "icmp" << endl;
-//            break;
-//        }
-//    }
-
     int copy_cnt = std::min(count, next_msg.sz);
     memcpy(data, next_msg.data.get(), copy_cnt);
     return copy_cnt;
@@ -110,6 +93,8 @@ int ethernet_conn_server::send_next_msg( void *data, int count) {
     struct ether_header *eth_header = (struct ether_header *) buff;
 
     // dest mac addr
+
+    mac_addr dest_device = getNextClient();
     memcpy(eth_header->ether_dhost, &dest_device, ETH_ALEN);
 //    memset(eth_header->ether_dhost, 0xff, ETH_ALEN); // send to broadcast
 
@@ -123,10 +108,6 @@ int ethernet_conn_server::send_next_msg( void *data, int count) {
     char* frame_data = buff + sizeof(struct ether_header);
     memcpy(frame_data, data, count);
 
-    return gateway.send_raw(buff, sizeof(struct ether_header) + count);
+    return gateway.send_data(buff, sizeof(struct ether_header) + count);
 
-}
-
-void ethernet_conn_server::change_dest_mac(mac_addr mac) {
-    dest_device = mac;
 }

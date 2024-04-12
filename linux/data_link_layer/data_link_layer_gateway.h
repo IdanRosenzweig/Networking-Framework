@@ -7,17 +7,16 @@
 #include <arpa/inet.h>
 #include <string>
 #include "../../abstract/basic_encapsulating_client.h"
-#include "../../abstract/basic_gateway.h"
+#include "../../abstract/basic_conn.h"
 
 #include <netpacket/packet.h>
 #include <linux/if.h>
 #include <pcap/pcap.h>
 #include <thread>
-#include "../ip4/addit_data.h"
 #include "../ether/mac_addr.h"
 #include "data_link_traffic.h"
 
-class data_link_layer_gateway : public basic_gateway {
+class data_link_layer_gateway : public basic_conn {
 private:
     int fd;
     struct ifreq if_idx;
@@ -27,16 +26,15 @@ private:
 
 public:
 
-
     data_link_layer_gateway();
 
     ~data_link_layer_gateway() override;
 
     basic_conn* tunnel = nullptr;
 
-    int send_raw(void *buff, int count) override;
+    int send_data(void *buff, int count) override;
 
-    int recv_raw(void *buff, int count) override;
+    int recv_data(void *buff, int count) override;
 
 
 };

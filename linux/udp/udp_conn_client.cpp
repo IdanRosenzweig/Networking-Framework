@@ -1,6 +1,10 @@
 #include "udp_conn_client.h"
 #include <iostream>
 #include "udp_header.h"
+#include <netinet/in.h>
+#include <cstring>
+#include <string>
+
 using namespace std;
 
 udp_conn_client::udp_conn_client(int dest_port, int my_port) : dest_port(dest_port), my_port(my_port) {
@@ -9,16 +13,6 @@ udp_conn_client::udp_conn_client(int dest_port, int my_port) : dest_port(dest_po
 
 
 int udp_conn_client::recv_data(void* data, int count) {
-//    struct udp_header* udp = static_cast<udp_header *>(data);
-//    if (ntohs(udp->dest_port) != dest_port) {
-//        cout << "received udp to dest_port not mine" << endl;
-//        return;
-//    }
-//    last_port = ntohs(udp->source_port);
-//
-//    char* buff = (char*) data + sizeof(udp_header);
-//    cout << "buff: " << buff << endl;
-
 #define BUFF_LEN 1024
     char buff[BUFF_LEN];
     while (true) {

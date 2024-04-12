@@ -13,7 +13,6 @@
 #include <queue>
 #include <string>
 
-#include "addit_data.h"
 #include "../../abstract/protocol_multiplexer.h"
 #include "../ether/ethernet_conn_server.h"
 
@@ -21,18 +20,13 @@ struct ip4_addr {
     uint32_t raw;
 };
 
-class ip4_conn_server : public basic_encapsulating_server<ip4_addr, int, prot_addit_data> {
-private:
-    void register_filter(int prot);
-
+class ip4_conn_server : public basic_encapsulating_server<int, ip4_addr> {
 public:
     ip4_conn_server();
 
     protocol_multiplexer<int, circular_buffer<message, MAX_NO_MSG>> protocolQueue;
 
     ethernet_conn_server *ether_server;
-
-    ip4_addr last_client; // last client that sent packet
 
     // receive the next msg of the encapsulated protocol
     int recv_next_msg( void* buff, int count) override;

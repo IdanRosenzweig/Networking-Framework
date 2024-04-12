@@ -1,9 +1,8 @@
 #include "icmp_conn_client.h"
 #include <iostream>
 #include <linux/icmp.h>
-#include <thread>
-#include <netinet/ip.h>
-#include <netdb.h>
+#include <netinet/in.h>
+#include <cstring>
 
 using namespace std;
 

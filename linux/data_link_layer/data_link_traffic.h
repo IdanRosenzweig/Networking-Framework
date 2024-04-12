@@ -6,12 +6,10 @@
 #include <arpa/inet.h>
 #include <string>
 #include "../../abstract/basic_encapsulating_client.h"
-#include "../../abstract/basic_gateway.h"
 
 #include <netpacket/packet.h>
 #include <linux/if.h>
 #include <pcap/pcap.h>
-#include "../ip4/addit_data.h"
 #include "../ether/mac_addr.h"
 
 class data_link_traffic {

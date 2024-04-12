@@ -1,21 +1,15 @@
 #ifndef SERVERCLIENT_ETHERNET_CONN_SERVER_H
 #define SERVERCLIENT_ETHERNET_CONN_SERVER_H
 
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string>
-#include <queue>
-#include "../../abstract/basic_encapsulating_client.h"
-
-#include <netpacket/packet.h>
 #include <linux/if.h>
-#include "../ip4/addit_data.h"
+
 #include "mac_addr.h"
 #include "../data_link_layer/data_link_layer_gateway.h"
+#include "../../abstract/basic_encapsulating_server.h"
 #include "../../abstract/protocol_multiplexer.h"
+#include "../../abstract/message.h"
 
-class ethernet_conn_server {
+class ethernet_conn_server : public basic_encapsulating_server<int, mac_addr> {
 private:
     data_link_layer_gateway gateway;
 
@@ -29,20 +23,8 @@ public:
 
     virtual ~ethernet_conn_server();
 
-private:
-    int next_prot; // indicated the protocol used in the next encapsulated message
-public:
-    int getNextProt() const {return next_prot;}
-
-    void setNextProt(int nextProt) {next_prot = nextProt;}
-
-
     mac_addr my_mac;
     struct ifreq my_priv_ip;
-
-    mac_addr dest_device = BROADCAST_MAC;
-    void change_dest_mac(mac_addr mac);
-
 
     // receive the next msg of the encapsulated protocol
     int recv_next_msg( void* buff, int count);

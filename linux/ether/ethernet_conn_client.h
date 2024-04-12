@@ -1,23 +1,17 @@
 #ifndef SERVERCLIENT_ETHERNET_CONN_CLIENT_H
 #define SERVERCLIENT_ETHERNET_CONN_CLIENT_H
 
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string>
-#include <queue>
-#include "../../abstract/basic_encapsulating_client.h"
-
-#include <netpacket/packet.h>
 #include <linux/if.h>
-#include "../ip4/addit_data.h"
+#include <thread>
+
 #include "mac_addr.h"
-#include "../data_link_layer/data_link_layer_gateway.h"
+#include "../../abstract/basic_encapsulating_client.h"
 #include "../../abstract/protocol_multiplexer.h"
+#include "../../abstract/basic_conn.h"
+#include "../../abstract/message.h"
 
 
-
-class ethernet_conn_client : public basic_encapsulating_client<int, prot_addit_data> {
+class ethernet_conn_client : public basic_encapsulating_client<int> {
 public:
 //    data_link_layer_gateway gateway;
     basic_conn* gateway = nullptr;

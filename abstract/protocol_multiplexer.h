@@ -2,7 +2,6 @@
 #define SERVERCLIENT_PROTOCOL_MULTIPLEXER_H
 
 #include "circular_buffer.h"
-#include "message.h"
 #include <map>
 
 #define MAX_NO_MSG 1024
