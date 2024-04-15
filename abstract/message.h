@@ -7,7 +7,6 @@
 struct message {
     std::unique_ptr<uint8_t> data;
     int sz;
-
 };
 
 #endif //SERVERCLIENT_MESSAGE_H

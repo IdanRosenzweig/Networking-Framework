@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "../../abstract/connection_oriented/basic_co_client.h"
-#include "../../abstract/basic_encapsulating_client.h"
+
 
 #include <iostream>
 

@@ -5,49 +5,66 @@
 #include "abstract/connection_oriented/basic_co_client.h"
 
 #include "linux/tcp/tcp_conn_server.h"
-#include "linux/udp/udp_conn_server.h"
-#include "linux/ip4/ip4_conn_server.h"
+#include "protocols/udp/udp_conn_server.h"
+#include "protocols/ip4/ip4_conn_server.h"
 #include "linux/data_link_layer/data_link_layer_gateway.h"
 //#include "linux/ip4/ip4_conn_server.h"
-#include "linux/ether/ethernet_conn_server.h"
+#include "protocols/ether/ethernet_conn_server.h"
+#include "protocols/ether/ethernet_conn_client.h"
+#include "linux/network_layer_gateway/network_layer_gateway_client.h"
+#include "abstract/basic_recv_conn.h"
+#include "linux/network_layer_gateway/network_layer_gateway_server.h"
+#include <netinet/ip.h>
+#include <set>
 
 #define PORT 4444
 
-int udp_main() {
-    std::cout << "Hello, World!" << std::endl;
+class udp_app : public basic_recv_conn {
+public:
+    basic_send_conn *gateway;
 
-    ethernet_conn_server ether_server;
+    void print() {
+        msg_protocol_stack msg = std::move(recv_data());
+        cout << "client: " << (char *) (msg.msg.data.get() + msg.curr_offset) << endl;
+    }
+
+    void send(string str) {
+        gateway->send_data((void *) str.c_str(), str.size());
+    }
+};
+
+int udp_main() {
+    udp_app udpApp;
+
+    // protocol stack
+    network_layer_gateway_server networkLayerGateway;
 
     ip4_conn_server ip_server;
-    ip_server.setNextClient(ip4_addr{inet_network("10.100.102.18")});
-    ip_server.ether_server = &ether_server;
+    udp_conn_server udp_client;
 
-    udp_conn_server udp_client(PORT);
-    udp_client.setNextPort(1212);
-    udp_client.ip_server = &ip_server;
+    // setup send flow
+    ip_server.gateway = &networkLayerGateway;
+    ip_server.next_external_protocol.set_next_choice(IPPROTO_UDP);
+    ip_server.next_client_addr.set_next_choice(convert_to_ip4_addr("10.100.102.18"));
 
-    char buff[6];
-    memset(buff, '\x00', 6);
-    udp_client.recv_data(buff, 5);
-    cout << "msg: " << buff << endl;
+    udp_client.gateway = &ip_server;
+    udp_client.server_port.set_next_choice(PORT);
+    udp_client.next_external_port.set_next_choice(1212);
 
+    // setup recv flow
+    networkLayerGateway.add_listener(&ip_server);
 
-    cout << "sending data" << endl;
-    char* data = "servr";
-    udp_client.send_data(data, 5);
+    ip_server.prot_handlers[IPPROTO_UDP] = &udp_client;
 
+    // setup app
+    udpApp.gateway = &udp_client; // send
+    udp_client.port_handlers[PORT] = &udpApp; // recv
 
-    udp_client.recv_data(buff, 5);
-    cout << "msg: " << buff << endl;
-
-
-    cout << "sending data" << endl;
-    data = "toast";
-    udp_client.send_data(data, 5);
-
+    // communicate
 
     while (true) {
-
+        udpApp.print();
+        udpApp.send("servr");
     }
 
     return 0;
@@ -85,60 +102,115 @@ int tcp_main() {
     return 0;
 }
 
-void tunnel_main() {
-    // tunenl using udp
-    ethernet_conn_server ether_server;
+class to_client_sys : public basic_send_conn, public basic_recv_conn {
+public:
+    basic_send_conn *gateway;
+
+    int send_data(void *buff, int count) override {
+        return gateway->send_data(buff, count);
+    }
+};
+
+class from_internet_sys : public basic_recv_conn {
+public:
+};
+
+void proxy_main() {
+    // proxy at the ip level
+
+    // connection to the client using udp
+    network_layer_gateway_server networkLayerGateway;
 
     ip4_conn_server ip_server;
-    ip_server.ether_server = &ether_server;
-    ip_server.setNextClient(ip4_addr{inet_network("10.100.102.18")});
+    udp_conn_server udp_client;
 
-    udp_conn_server udp_server(PORT);
-    udp_server.setNextPort(1212);
-    udp_server.ip_server = &ip_server;
+    // setup send flow
+    ip_server.gateway = &networkLayerGateway;
+    ip_server.next_external_protocol.set_next_choice(IPPROTO_UDP);
+    ip_server.next_client_addr.set_next_choice(convert_to_ip4_addr("10.100.102.18"));
 
-    // gateway to forward packets
-    data_link_layer_gateway gateway;
+    udp_client.gateway = &ip_server;
+    udp_client.server_port.set_next_choice(PORT);
+    udp_client.next_external_port.set_next_choice(1212);
 
-//    std::thread from_host([&]() {
-//#define BUFF_LEN 1024
-//        char buff[BUFF_LEN];
-//        while (true) {
-//            memset(buff, 0, BUFF_LEN);
-//
-//            int cnt = udp_server.recv_data(buff, BUFF_LEN);
-//            cout << "received tunneled packet, size " << cnt << endl;
-//
-//            if (cnt == 0) continue;
-//
-//            cout << "sending raw bytes to data link layer" << endl;
-//            gateway.send_data(buff, cnt);
-//
-//        }
-//    });
+    // setup recv flow
+    networkLayerGateway.add_listener(&ip_server);
 
-    std::thread to_host([&]() {
+    ip_server.prot_handlers[IPPROTO_UDP] = &udp_client;
+
+
+    // gateway to ip level
+    network_layer_gateway_client gateway;
+
+    // to_client_sys
+    class to_client_sys sys;
+    sys.gateway = &udp_client;
+    udp_client.port_handlers[PORT] = &sys;
+
+    // from_inernet_sys
+    class from_internet_sys fromInternetSys;
+    gateway.add_listener(&fromInternetSys);
+
+    // proxy mappings
+    set<ip4_addr> mapping;
+
+    std::thread from_host([&]() {
 #define BUFF_LEN 1024
-        char reply[BUFF_LEN];
+        char buff[BUFF_LEN];
         while (true) {
-            memset(reply, 0, BUFF_LEN);
+            memset(buff, 0, BUFF_LEN);
 
-            int reply_len = gateway.recv_data(reply, BUFF_LEN);
-            cout << "received reply with len " << reply_len << endl;
+            msg_protocol_stack msg = std::move(sys.recv_data());
+            uint8_t * buff = msg.msg.data.get() + msg.curr_offset;
+            int cnt = msg.msg.sz - msg.curr_offset;
 
-            if (reply_len == 0) continue;
+            cout << "received proxied packet, size " << cnt << endl;
+            if (cnt <= 0) continue;
 
-            cout << "sending raw bytes back in the tunnel" << endl;
-            udp_server.send_data(reply, reply_len);
+            // change source ip address
+            ((struct iphdr *) buff)->saddr = inet_addr("10.100.102.18");
+
+            // add dest ip addr to mapping
+            mapping.insert(ip4_addr{((struct iphdr *) buff)->daddr});
+
+            cout << "sending raw bytes to ip level" << endl;
+//        ether_client.send_next_msg(buff, cnt);
+            gateway.send_data(buff, cnt);
         }
     });
 
-//    from_host.join();
+    std::thread to_host([&]() {
+#define BUFF_LEN 1024
+        char buff[BUFF_LEN];
+        while (true) {
+            memset(buff, 0, BUFF_LEN);
+
+            msg_protocol_stack msg = std::move(fromInternetSys.recv_data());
+            uint8_t * buff = msg.msg.data.get() + msg.curr_offset;
+            int cnt = msg.msg.sz - msg.curr_offset;
+
+            if (cnt <= 0) continue;
+            cout << "proxied reply, size " << cnt << endl;
+
+            // ensure ip is in mapping
+            ip4_addr addr{((struct iphdr *) buff)->saddr};
+            if (!mapping.count(addr)) continue;
+
+            cout << "sending reply back to client" << endl;
+
+            // change dest ip address
+            ((struct iphdr *) buff)->daddr = inet_addr("10.100.102.18");
+
+            sys.send_data(buff, cnt);
+        }
+    });
+
+    from_host.join();
     to_host.join();
 }
 
 int main() {
-    udp_main();
+//    udp_main();
 //    tcp_main();
-//    tunnel_main();
+    proxy_main();
 }

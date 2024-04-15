@@ -1,6 +1,7 @@
 #ifndef SERVERCLIENT_CIRCULAR_BUFFER_H
 #define SERVERCLIENT_CIRCULAR_BUFFER_H
 
+#include <utility>
 
 template <typename T, int BUFF_SZ>
 struct circular_buffer {
