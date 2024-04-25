@@ -3,7 +3,7 @@
 
 #include <utility>
 
-template <typename T, int BUFF_SZ>
+template <typename T, int BUFF_SZ = 1024>
 struct circular_buffer {
 private:
     T buff[BUFF_SZ];
@@ -15,6 +15,8 @@ private:
 
 public:
 
+    circular_buffer() {}
+
     inline bool empty() {
         return count == 0;
     }
@@ -24,11 +26,11 @@ public:
     }
 
 
-    inline T& front() {
+    inline T front() {
         return buff[base_in];
     }
 
-    inline T& rear() {
+    inline T rear() {
         return buff[(base_in + count - 1) % BUFF_SZ];
     }
 

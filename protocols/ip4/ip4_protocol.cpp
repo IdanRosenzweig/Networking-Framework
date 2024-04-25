@@ -1,0 +1,64 @@
+#include "ip4_protocol.h"
+#include <iostream>
+#include <netinet/ip.h>
+#include <cstring>
+#include <arpa/inet.h>
+#include "internet_checksum.h"
+
+using namespace std;
+
+ip4_protocol::ip4_protocol() {
+    next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.18"));
+}
+
+
+int ip4_protocol::send_data(send_msg msg) {
+    if (next_dest_addr.get_next_choice().raw == 0) {
+        cout << "client is null" << endl;
+        return 0;
+    }
+
+#define BUFF_LEN 1024
+    char packet[BUFF_LEN];
+    memset(packet, '\x00', BUFF_LEN);
+
+    struct iphdr *iph = (struct iphdr *) packet;
+
+    iph->ihl = 5;
+    iph->version = 4;
+    iph->tos = 0;
+    int ip_packet_len = sizeof(struct iphdr) + msg.count;
+    iph->tot_len = htons(ip_packet_len);
+    iph->id = htonl(4444);
+    iph->frag_off = 0;
+    iph->ttl = 255;
+    iph->protocol = next_protocol.get_next_choice();
+    iph->check = 0;
+
+    iph->saddr = htonl(next_source_addr.get_next_choice().raw);
+    iph->daddr = htonl(next_dest_addr.get_next_choice().raw);
+
+    iph->check = internet_checksum((uint16_t *) packet, ip_packet_len);
+
+    char *data = packet + sizeof(struct iphdr);
+    memcpy(data, msg.buff, msg.count);
+
+    return gateway->send_data({packet, ip_packet_len});
+}
+
+void ip4_protocol::handle_received_event(received_msg msg) {
+//    cout << "ip server handler called" << endl;
+    uint8_t *buff = msg.data.get() + msg.curr_offset;
+
+    struct iphdr *iph = (struct iphdr *) buff;
+    uint8_t protocol = iph->protocol;
+
+    msg.protocol_offsets.push_back({msg.curr_offset, IP});
+    msg.curr_offset += sizeof(struct iphdr);
+
+    if (protocol_handlers.is_key_assigned(protocol)) {
+        protocol_handlers.get_val_of_key(protocol)->handle_received_event(std::move(msg));
+    }
+
+}
+

@@ -178,16 +178,13 @@ void dns_client::query(const std::string &name) {
 
 
     // send dns_query
-//    this->udp_conn_client::send_data((char *) buf, sizeof(struct dns_header) + query.size());
-//    client.send_encapsulated_data((char *) buf, sizeof(struct dns_header) + query.size());
-    gateway->send_data((char *) buf, sizeof(struct dns_header) + query.size());
+    gateway->send_data({(char *) buf, (int) sizeof(struct dns_header) + query.size()});
 
     // receive answer
-//    this->udp_conn_client::recv_data(buf, BUFF_SZ);
-//    client.recv_encapsulated_data(buf, BUFF_SZ);
-//    gateway->recv_data(buf, BUFF_SZ);
-    auto reply = std::move(recv_data());
-    uint8_t *reply_buff = reply.msg.data.get() + reply.curr_offset;
+    while (message_q.empty()) {}
+    received_msg reply = message_q.front();
+    message_q.pop_front();
+    uint8_t *reply_buff = reply.data.get() + reply.curr_offset;
 
 
     struct dns_header *response = (struct dns_header *) reply_buff;
@@ -333,3 +330,6 @@ void dns_client::query(const std::string &name) {
 
 }
 
+void dns_client::handle_received_event(received_msg msg) {
+    message_q.push_back(msg);
+}

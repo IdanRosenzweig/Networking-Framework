@@ -6,14 +6,14 @@
 #include <pcap/pcap.h>
 
 #include "../../abstract/basic_gateway.h"
+#include "data_link_sniffer.h"
 
 class data_link_layer_gateway : public basic_gateway {
 private:
     int fd;
     struct sockaddr_ll dest_addr; // used only for hardware interface
 
-    pcap_t *traffic_in;
-    std::thread worker;
+    data_link_sniffer sniffer;
 
 public:
 
@@ -21,7 +21,7 @@ public:
 
     virtual ~data_link_layer_gateway();
 
-    int send_data(void *buff, int count) override;
+    int send_data(send_msg msg) override;
 
 };
 

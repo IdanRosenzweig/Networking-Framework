@@ -3,7 +3,7 @@
 
 // generic class for choosing the next option (could be next protocol to receive, next client to send data to, next port to listen on...)
 template <typename CHOICE>
-class next_choice {
+struct next_choice {
 private:
     CHOICE next_choice;
 
