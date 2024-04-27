@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_UDP_CLIENT_H
 #define SERVERCLIENT_UDP_CLIENT_H
 
-#include "../../abstract/basic_connection.h"
+#include "../../abstract/connection/basic_connection.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../linux/network_layer_gateway/network_layer_gateway.h"

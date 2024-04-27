@@ -28,7 +28,6 @@ add_executable(Server
 
         protocols/icmp/icmp_protocol.cpp
 
-        protocols/dns/dns_client.cpp
 
         linux/data_link_layer/data_link_layer_gateway.cpp
         linux/data_link_layer/data_link_sniffer.cpp
@@ -42,6 +41,8 @@ add_executable(Server
         temp_connections/icmp/icmp_connection_client.cpp
         temp_connections/icmp/icmp_connection_server.cpp
 
+        temp_connections/dns_server/dns_server.cpp
+        temp_connections/dns_server/dns.cpp
 
 )
 
@@ -69,7 +70,6 @@ add_executable(Client
 
         protocols/icmp/icmp_protocol.cpp
 
-        protocols/dns/dns_client.cpp
 
         linux/data_link_layer/data_link_layer_gateway.cpp
         linux/data_link_layer/data_link_sniffer.cpp
@@ -82,9 +82,9 @@ add_executable(Client
 
         temp_connections/icmp/icmp_connection_client.cpp
         temp_connections/icmp/icmp_connection_server.cpp
-        abstract/receiving/msg_receiver.h
-        abstract/sending/basic_sender.h
-        abstract/sending/send_msg.h
+
+        temp_connections/dns_server/dns_client.cpp
+        temp_connections/dns_server/dns.cpp
 
 )
 target_link_libraries(Client ${PCAP_LIBRARY})

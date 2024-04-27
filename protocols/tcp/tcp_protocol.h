@@ -5,7 +5,7 @@
 #include <cstring>
 #include <thread>
 
-#include "../../abstract/basic_session.h"
+#include "../../abstract/connection/basic_session.h"
 #include "../../abstract/next_choice.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"

@@ -20,7 +20,7 @@ int udp_protocol::send_data(send_msg msg) {
     udp->len = htons(sizeof(udp_header) + msg.count);
     udp->checksum = 0; // optional
 
-    // data
+    // msg
     char *packet_data = buff + sizeof(udp_header);
     memcpy(packet_data, msg.buff, msg.count);
 
@@ -44,7 +44,7 @@ void udp_protocol::handle_received_event(received_msg msg) {
 //    cout << "udp server handler called on port " << port << endl;
 
     if (port_handlers.is_key_assigned(port)) {
-        cout << "found assigned port: " << port << endl;
+//        cout << "found assigned port: " << port << endl;
          port_handlers.get_val_of_key(port)->handle_received_event(std::move(msg));
     }
 

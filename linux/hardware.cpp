@@ -25,13 +25,13 @@ mac_addr get_my_mac_address(const char *interface_name) {
 }
 
 void print_mac(mac_addr addr) {
-    printf("mac addr is: %02x:%02x:%02x:%02x:%02x:%02x\n",
-           (unsigned int) addr.addr[0],
-           (unsigned int) addr.addr[1],
-           (unsigned int) addr.addr[2],
-           (unsigned int) addr.addr[3],
-           (unsigned int) addr.addr[4],
-           (unsigned int) addr.addr[5]
+    printf("mac octets is: %02x:%02x:%02x:%02x:%02x:%02x\n",
+           (unsigned int) addr.octets[0],
+           (unsigned int) addr.octets[1],
+           (unsigned int) addr.octets[2],
+           (unsigned int) addr.octets[3],
+           (unsigned int) addr.octets[4],
+           (unsigned int) addr.octets[5]
     );
 }
 

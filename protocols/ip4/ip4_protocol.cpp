@@ -8,12 +8,13 @@
 using namespace std;
 
 ip4_protocol::ip4_protocol() {
-    next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.18"));
+    ip4_addr addr = convert_to_ip4_addr("10.100.102.18");
+    next_source_addr.set_next_choice(addr);
 }
 
 
 int ip4_protocol::send_data(send_msg msg) {
-    if (next_dest_addr.get_next_choice().raw == 0) {
+    if (next_dest_addr.get_next_choice() == ip4_addr{0}) {
         cout << "client is null" << endl;
         return 0;
     }
@@ -35,8 +36,10 @@ int ip4_protocol::send_data(send_msg msg) {
     iph->protocol = next_protocol.get_next_choice();
     iph->check = 0;
 
-    iph->saddr = htonl(next_source_addr.get_next_choice().raw);
-    iph->daddr = htonl(next_dest_addr.get_next_choice().raw);
+//    iph->saddr = htonl(next_source_addr.get_next_choice().raw);
+//    iph->daddr = htonl(next_dest_addr.get_next_choice().raw);
+    write_in_network_order((uint8_t*) &iph->saddr, &next_source_addr.get_next_choice());
+    write_in_network_order((uint8_t*) &iph->daddr, &next_dest_addr.get_next_choice());
 
     iph->check = internet_checksum((uint16_t *) packet, ip_packet_len);
 

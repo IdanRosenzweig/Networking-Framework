@@ -5,7 +5,7 @@
 #include <thread>
 #include <pcap/pcap.h>
 
-#include "../../abstract/basic_gateway.h"
+#include "../../abstract/connection/basic_gateway.h"
 #include "data_link_sniffer.h"
 
 class data_link_layer_gateway : public basic_gateway {

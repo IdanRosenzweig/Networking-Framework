@@ -57,8 +57,10 @@ tcp_protocol::tcp_protocol() {
                 continue;
             }
 
+            ip4_addr addr;
+            extract_from_network_order(&addr, (uint8_t*) &client_addr.sin_addr.s_addr);
             as_server_sessions.push_back(std::make_unique<tcp_session>(
-                    client_sd, ip4_addr{ntohl(client_addr.sin_addr.s_addr)}, 5678, ntohs(client_addr.sin_port)
+                    client_sd, addr, 5678, ntohs(client_addr.sin_port)
             ));
 
         }
@@ -83,7 +85,8 @@ void tcp_protocol::start_session() {
     memset(&my_addr, '\x00', sizeof(struct sockaddr_in));
     my_addr.sin_family = AF_INET;
     my_addr.sin_port = htons(next_dest_port.get_next_choice());
-    my_addr.sin_addr.s_addr = htonl(next_addr.get_next_choice().raw);
+//    my_addr.sin_addr.s_addr = htonl(next_addr.get_next_choice().raw);
+    write_in_network_order((uint8_t*) &my_addr.sin_addr.s_addr, &next_addr.get_next_choice());
 
     // bind to local port
     {
@@ -109,7 +112,7 @@ void tcp_protocol::start_session() {
     std::cout << "connected to the server" << std::endl;
 
     as_client_sessions.push_back(std::make_unique<tcp_session>(
-            session_sd, ip4_addr{next_addr.get_next_choice().raw}, next_source_port.get_next_choice(),
+            session_sd, ip4_addr{next_addr.get_next_choice()}, next_source_port.get_next_choice(),
             next_dest_port.get_next_choice()));
 
 }

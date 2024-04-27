@@ -4,7 +4,7 @@
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../linux/network_layer_gateway/network_layer_gateway.h"
 #include "../../protocols/udp/udp_protocol.h"
-#include "../../abstract/basic_connection.h"
+#include "../../abstract/connection/basic_connection.h"
 #include "../../protocols/udp/udp_header.h"
 #include <linux/ip.h>
 
@@ -12,7 +12,7 @@ struct socket_data {
     ip4_addr client_addr;
     int client_source_port;
     int dest_port;
-    received_msg data;
+    received_msg msg;
 };
 
 class udp_server : public msg_receiver, public listenable<socket_data> {
@@ -43,19 +43,19 @@ public:
 
     void handle_received_event(received_msg event) override {
         socket_data data;
-        data.data = event;
+        data.msg = event;
         data.client_source_port =
                 ntohs( ((struct udp_header*) (event.data.get() + event.protocol_offsets.rbegin()->first))->source_port );
         data.dest_port =
                 ntohs( ((struct udp_header*) (event.data.get() + event.protocol_offsets.rbegin()->first))->dest_port );
-        data.client_addr = ip4_addr{
-                ntohl(((struct iphdr*) (event.data.get() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr)        };
+        extract_from_network_order(&data.client_addr,
+                                   (uint8_t*) &((struct iphdr*) (event.data.get() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
         this->listenable::handle_received_event(data);
     }
 
-    int send_data_to_client(const string& client_ip, int dest_port, send_msg msg) {
-        ip_server.next_dest_addr.set_next_choice(convert_to_ip4_addr(client_ip));
+    int send_data_to_client(ip4_addr client_addr, int dest_port, send_msg msg) {
+        ip_server.next_dest_addr.set_next_choice(client_addr);
         _udp_server.next_dest_port.set_next_choice(dest_port);
 
         return _udp_server.send_data(msg);

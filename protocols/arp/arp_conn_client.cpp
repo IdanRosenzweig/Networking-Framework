@@ -32,13 +32,13 @@ mac_addr arp_conn_client::search_for_mac_addr(std::string priv_ip, mac_addr sour
 
     // setup arp
     struct ether_arp *arp_header = (struct ether_arp *) request; // arp_header header
-    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
-    arp_header->arp_pro = htons(ETH_P_IP); // first arp addr type: ip
-    arp_header->arp_hln = ETH_ALEN; // len of mac addr
-    arp_header->arp_pln = IP4LEN; // len of ip addr
+    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp octets type: mac
+    arp_header->arp_pro = htons(ETH_P_IP); // first arp octets type: ip
+    arp_header->arp_hln = ETH_ALEN; // len of mac octets
+    arp_header->arp_pln = IP4LEN; // len of ip octets
     arp_header->arp_op = htons(ARPOP_REQUEST); // type of arp (request)
 
-    memcpy(arp_header->arp_sha, &source_mac, sizeof(arp_header->arp_sha)); // my spoofed mac addr
+    memcpy(arp_header->arp_sha, &source_mac, sizeof(arp_header->arp_sha)); // my spoofed mac octets
     memcpy(arp_header->arp_spa, &source_ip, sizeof(arp_header->arp_spa)); // device ip
 //    memset(arp_header->arp_spa, 0, sizeof(arp_header->arp_spa));
 
@@ -73,7 +73,7 @@ mac_addr arp_conn_client::search_for_mac_addr(std::string priv_ip, mac_addr sour
         }
 
         mac_addr res{};
-        memcpy(res.addr, arp_reply->arp_sha, sizeof(res.addr));
+        memcpy(res.octets, arp_reply->arp_sha, sizeof(res.octets));
         return res;
     }
 
@@ -96,13 +96,13 @@ void arp_conn_client::spoof_as_device(std::string target_ip, mac_addr source_mac
 
     // prepare arp
     struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
-    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp addr type: mac
-    arp_header->arp_pro = htons(ETH_P_IP); // first arp addr type: ip
-    arp_header->arp_hln = ETH_ALEN; // len of mac addr
-    arp_header->arp_pln = IP4LEN; // len of ip addr
+    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first arp octets type: mac
+    arp_header->arp_pro = htons(ETH_P_IP); // first arp octets type: ip
+    arp_header->arp_hln = ETH_ALEN; // len of mac octets
+    arp_header->arp_pln = IP4LEN; // len of ip octets
     arp_header->arp_op = htons(ARPOP_REPLY); // type of arp (forged reply)
 
-    memcpy(arp_header->arp_sha, &src_mac, sizeof(arp_header->arp_sha)); // my spoofed mac addr
+    memcpy(arp_header->arp_sha, &src_mac, sizeof(arp_header->arp_sha)); // my spoofed mac octets
     memcpy(arp_header->arp_spa, &device_ip, sizeof(arp_header->arp_spa)); // target_ip ip
 
     // block/allow traffic (linux)

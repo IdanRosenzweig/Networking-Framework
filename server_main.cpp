@@ -9,10 +9,9 @@
 #include "linux/network_layer_gateway/network_layer_gateway.h"
 #include "abstract/receiving/recv_queue.h"
 #include "linux/network_layer_gateway/network_layer_gateway.h"
-#include "proxy/ip_proxy.h"
+#include "proxy/network_layer/ip_proxy_server.h"
 #include "temp_connections/udp/udp_server.h"
-
-#define PORT 4444
+#include "temp_connections/dns_server/dns_server.h"
 
 class udp_app_server : public recv_queue<received_msg> {
 public:
@@ -30,6 +29,10 @@ public:
 
 int udp_main() {
 
+    constexpr int hosting_port = 4444;
+    constexpr int client_port = 1212;
+    string client_addr{"10.100.102.18"};
+
     // protocol stack
     network_layer_gateway networkLayerGateway;
 
@@ -41,11 +44,11 @@ int udp_main() {
     // setup send flow
     ip_server.gateway = &networkLayerGateway;
     ip_server.next_protocol.set_next_choice(IPPROTO_UDP);
-    ip_server.next_dest_addr.set_next_choice(convert_to_ip4_addr("10.100.102.18"));
+    ip_server.next_dest_addr.set_next_choice(convert_to_ip4_addr(client_addr));
 
     udp_client.gateway = &ip_server;
-    udp_client.next_source_port.set_next_choice(PORT);
-    udp_client.next_dest_port.set_next_choice(1212);
+    udp_client.next_source_port.set_next_choice(hosting_port);
+    udp_client.next_dest_port.set_next_choice(client_port);
 
     udpApp.gateway = &udp_client;
 
@@ -54,7 +57,7 @@ int udp_main() {
 
     ip_server.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
 
-    udp_client.port_handlers.assign_to_key(PORT, &udpApp);
+    udp_client.port_handlers.assign_to_key(hosting_port, &udpApp);
 
     // communicate
     for (int i = 0; i < 40; i++) {
@@ -109,14 +112,14 @@ public:
     }
 
     void handle_received_event(socket_data event) override {
-        cout << "received from " << inet_ntoa(in_addr{htonl(event.client_addr.raw)}) << endl;
+//        cout << "received from " << inet_ntoa(in_addr{htonl(event.client_addr)}) << endl;
         cout << "source port " << event.client_source_port << endl;
         cout << "dest port " << event.dest_port << endl;
-        this->listenable::handle_received_event(event.data);
+        this->listenable::handle_received_event(event.msg);
     }
 
     int send_data(send_msg val) override {
-        return udpServer->send_data_to_client("10.100.102.18", 1001, val);
+        return udpServer->send_data_to_client(convert_to_ip4_addr("10.100.102.18"), 1001, val);
     }
 };
 
@@ -130,7 +133,7 @@ void proxy_main1() {
 
     // the proxy itself
 //    network_layer_gateway ipNetworkGateway; // gateway to ip network
-    ip_proxy proxy(&conn);
+    ip_proxy_server proxy(&conn);
 
     while (true) {
 
@@ -145,7 +148,7 @@ void proxy_main2() {
 
     proxy_app_server conn(&udpConnServer);
 
-    ip_proxy proxy(&conn, &ipNetworkGateway);
+    ip_proxy_server proxy(&conn, &ipNetworkGateway);
 
     while (true) {
 
@@ -160,7 +163,7 @@ void proxy_main3() {
 
     proxy_app_server conn(&udpConnServer);
 
-    ip_proxy proxy(&conn, &ipNetworkGateway);
+    ip_proxy_server proxy(&conn, &ipNetworkGateway);
 
     while (true) {
 
@@ -184,8 +187,17 @@ void proxy_main() {
 //    proxy3.join();
 }
 
+void dns_main() {
+    dns_server server;
+
+    while (true) {
+
+    }
+}
+
 int main() {
 //    udp_main();
 //    tcp_main();
-    proxy_main();
+//    proxy_main();
+    dns_main();
 }

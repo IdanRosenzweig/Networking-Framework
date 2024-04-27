@@ -5,7 +5,7 @@
 #include <queue>
 #include <thread>
 
-// basic use of receiving interrupted data: storing them in a queue
+// basic use of receiving interrupted msg: storing them in a queue
 template <typename T>
 class recv_queue : public basic_receiver<T> {
 private:

@@ -7,7 +7,7 @@
 #include <sys/ioctl.h>
 
 #include "protocols/udp/udp_protocol.h"
-#include "protocols/dns/dns_client.h"
+#include "temp_connections/dns_server/dns_client.h"
 #include "protocols/ip4/ip4_protocol.h"
 #include "protocols/icmp/icmp_protocol.h"
 #include "protocols/ether/ethernet_protocol.h"
@@ -15,15 +15,14 @@
 
 #include "linux/data_link_layer/data_link_layer_gateway.h"
 #include "protocols/udp/udp_protocol.h"
-#include "proxy/proxy_gateway_client.h"
+#include "proxy/network_layer/ip_proxy_client.h"
 #include "abstract/circular_buffer.h"
 #include "abstract/receiving/recv_queue.h"
 #include "temp_connections/udp/udp_client.h"
 #include "protocols/tcp/tcp_protocol.h"
 
-//#define IP "127.0.0.1"
-#define IP "10.100.102.18"
-#define PORT 4444
+#include "abstract/firewall/firewall.h"
+#include "firewalls/network_layer/only_udp_filter.h"
 
 class udp_app_client : public recv_queue<received_msg> {
 public:
@@ -40,11 +39,19 @@ public:
 };
 
 
-int udp_main() {
+void udp_main() {
+
+    constexpr int my_port = 1212;
+    constexpr int server_port = 4444;
+    string server_addr{"10.100.102.18"};
+
+    // network layer gateway protected by firewall
+    network_layer_gateway networkLayerGateway;
+
+//    firewall fw(&networkLayerGateway);
+//    fw.filters.push_back(new only_udp_filter<my_port>());
 
     // protocol stack
-    network_layer_gateway networkLayerGateway; // instead of providing the router's mac address, this calls wraps it for us
-
     ip4_protocol ip_client;
     udp_protocol udp_client;
 
@@ -53,11 +60,11 @@ int udp_main() {
     // setup send flow
     ip_client.gateway = &networkLayerGateway;
     ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
-    ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr(IP));
+    ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr(server_addr));
 
     udp_client.gateway = &ip_client;
-    udp_client.next_source_port.set_next_choice(1212);
-    udp_client.next_dest_port.set_next_choice(PORT);
+    udp_client.next_source_port.set_next_choice(my_port);
+    udp_client.next_dest_port.set_next_choice(server_port);
 
     app_system.gateway = &udp_client;
 
@@ -66,7 +73,7 @@ int udp_main() {
 
     ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
 
-    udp_client.port_handlers.assign_to_key(1212, &app_system);
+    udp_client.port_handlers.assign_to_key(my_port, &app_system);
 
     // communicate
     for (int i = 0; i < 40; i++) {
@@ -77,11 +84,9 @@ int udp_main() {
     while (true) {
 
     }
-
-    return 0;
 }
 
-int tcp_main() {
+void tcp_main() {
     std::cout << "Hello, World!" << std::endl;
 
     // protocol stack
@@ -106,11 +111,15 @@ int tcp_main() {
 
     sleep(3);
 
-    std::cout << "sending data" << std::endl;
+    std::cout << "sending msg" << std::endl;
     char *msg = "hello";
     cout << "sent " << session->send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
+    sleep(1);
+
     msg = "thisis test msg";
     cout << "sent " << session->send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
+    sleep(1);
+
     msg = "another one";
     cout << "sent " << session->send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
 
@@ -118,63 +127,69 @@ int tcp_main() {
 
     }
 
-    return 0;
 }
 
-namespace dns {
+void dns_main() {
+    string server_addr = "10.100.102.18";
+//    string server_addr = "8.8.8.8";
 
-    int dns_main() {
-        vector<string> hosts = {
-                "wiki.osdev.org",
-                "www.wix.com",
-                "docs.google.com",
-                "www.scs.stanford.edu",
-                "yahho.com",
-                "google.com",
-                "youtube.com",
-                "tradingview.com",
-                "walla.co.il",
-                "nasa.com",
-                "medium.com",
-                "www.scs.stanford.edu",
-        };
+    vector<string> hosts = {
+//            "wiki.osdev.org",
+//            "www.wix.com",
+//            "docs.google.com",
+//            "www.scs.stanford.edu",
+//            "yahoo.com",
+            "google.com",
+//            "youtube.com",
+//            "tradingview.com",
+//            "walla.co.il",
+//            "nasa.com",
+//            "medium.com",
+//            "www.scs.stanford.edu",
+//            "docs.google.com",
+//            "slides.google.com",
+//            "sheets.google.com",
+//            "podcasts.google.com",
+//            "gmail.google.com",
+//            "account.google.com",
+    };
 
-        // protocol stack
-        network_layer_gateway networkLayerGateway;
+    // protocol stack
+    network_layer_gateway networkLayerGateway;
 
-        ip4_protocol ip_client;
-        udp_protocol udp_client;
-        dns_client dns_client;
+    ip4_protocol ip_client;
+    udp_protocol udp_client;
+    dns_client dns_client;
 
-        // setup send flow
-        ip_client.gateway = &networkLayerGateway;
-        ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr("8.8.8.8"));
-        ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
+    // setup send flow
+    ip_client.gateway = &networkLayerGateway;
+    ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr(server_addr));
+    ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
 
-        udp_client.gateway = &ip_client;
-        udp_client.next_source_port.set_next_choice(1212);
-        udp_client.next_dest_port.set_next_choice(DNS_PORT);
+    udp_client.gateway = &ip_client;
+    udp_client.next_source_port.set_next_choice(1212);
+    udp_client.next_dest_port.set_next_choice(DNS_SERVER_PORT);
 
-        dns_client.gateway = &udp_client;
+    dns_client.gateway = &udp_client;
 
-        // setup recv flow
-        networkLayerGateway.add_listener(&ip_client);
+    // setup recv flow
+    networkLayerGateway.add_listener(&ip_client);
 
-        ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
+    ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
 
-        udp_client.port_handlers.assign_to_key(1212, &dns_client);
+    udp_client.port_handlers.assign_to_key(1212, &dns_client);
 
-        // communicate
-        for (string &str: hosts) {
-            dns_client.query(str);
-        }
-
-        while (true) {}
-
-        return 0;
+    // communicate
+    for (string &str: hosts) {
+        dns_client.query({str});
+        cout << endl << endl << endl;
     }
+
+//    while (true) {}
+
 }
-int icmp_main() {
+
+void icmp_main() {
     char *str = "172.217.22.46";
 //    char* str = "google.com";
 
@@ -200,7 +215,7 @@ int icmp_main() {
     icmp_client.ping();
 }
 
-int arp_main() {
+void arp_main() {
 
     mac_addr my_mac = get_my_mac_address("enp0s3");
     ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
@@ -245,45 +260,45 @@ void proxy_main() {
     // first node
     udp_client udp_1("10.100.102.18", 4001, 1001);
 //    icmp_connection icmpConnection;
-    proxy_gateway_client proxy_1(&udp_1);
+    ip_proxy_client proxy_1(&udp_1);
 
     // second node
-//    udp_client udp_2("10.100.102.18", 4002, 1002, &proxy_1);
+//    udp_prot udp_2("10.100.102.18", 4002, 1002, &proxy_1);
 ////    icmp_connection icmpConnection;
-//    proxy_gateway_client proxy_2(&udp_2);
+//    ip_proxy_client proxy_2(&udp_2);
 
     // third node
 //    _udp_client udp_3("10.100.102.18", 4003, 1003, &proxy_2);
 ////    icmp_connection icmpConnection;
-//    proxy_gateway_client proxy_3(&udp_3);
+//    ip_proxy_client proxy_3(&udp_3);
 
 //     regular dns communication
 //    {
 //
-//        ip4_protocol ip_client;
-//        udp_protocol udp_client;
+//        ip4_protocol ip_prot;
+//        udp_protocol udp_prot;
 //        dns_client dns_client;
 //
 //        // setup send flow
-//        ip_client.gateway = &proxy_1;
-//        ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr("8.8.8.8"));
-//        ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
+//        ip_prot.gateway = &proxy_1;
+//        ip_prot.next_dest_addr.set_next_choice(convert_to_ip4_addr("8.8.8.8"));
+//        ip_prot.next_protocol.set_next_choice(IPPROTO_UDP);
 //
-//        udp_client.gateway = &ip_client;
-//        udp_client.next_source_port.set_next_choice(4545);
-//        udp_client.next_dest_port.set_next_choice(DNS_PORT);
+//        udp_prot.gateway = &ip_prot;
+//        udp_prot.next_source_port.set_next_choice(4545);
+//        udp_prot.next_dest_port.set_next_choice(DNS_PORT);
 //
-//        dns_client.gateway = &udp_client;
+//        dns_client.gateway = &udp_prot;
 //
 //        // setup recv flow
-//        proxy_1.add_listener(&ip_client);
+//        proxy_1.add_listener(&ip_prot);
 //
-//        ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
+//        ip_prot.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_prot);
 //
-//        udp_client.port_handlers.assign_to_key(4545, &dns_client);
+//        udp_prot.port_handlers.assign_to_key(4545, &dns_client);
 //
 //        // communicate
-//        // send data
+//        // send msg
 //        vector<string> hosts = {
 //                "wiki.osdev.org",
 //                "www.wix.com",
@@ -335,9 +350,9 @@ int main() {
 
 //    udp_main();
 //    tcp_main();
-//    dns::dns_main();
+    dns_main();
 //    icmp_main();
-    arp_main();
+//    arp_main();
 //    proxy_main();
 
     return (0);

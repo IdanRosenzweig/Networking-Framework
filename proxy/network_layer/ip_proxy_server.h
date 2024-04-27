@@ -1,8 +1,8 @@
-#ifndef SERVERCLIENT_IP_PROXY_H
-#define SERVERCLIENT_IP_PROXY_H
+#ifndef SERVERCLIENT_IP_PROXY_SERVER_H
+#define SERVERCLIENT_IP_PROXY_SERVER_H
 
 #include <netinet/in.h>
-#include "../abstract/basic_connection.h"
+#include "../../abstract/connection/basic_connection.h"
 
 #include <set>
 #include <cstring>
@@ -11,14 +11,14 @@
 #include <linux/ip.h>
 
 
-class ip_proxy;
+class ip_proxy_server;
 
 class conn_side_handler;
 class network_side_handler;
 
 class conn_side_handler : public msg_sender, public msg_receiver {
 public:
-    ip_proxy *server;
+    ip_proxy_server *server;
 
     int send_data(send_msg msg) override; // send to the client
 
@@ -27,7 +27,7 @@ public:
 
 class network_side_handler : public msg_sender, public msg_receiver {
 public:
-    ip_proxy *server;
+    ip_proxy_server *server;
 
     int send_data(send_msg msg) override; // send to the network
 
@@ -36,7 +36,7 @@ public:
 
 
 // proxy at the ip level (changes ip header)
-class ip_proxy {
+class ip_proxy_server {
 public:
     // connection to be proxied
     basic_connection *connection;
@@ -50,24 +50,24 @@ public:
     // proxy mappings
     set<ip4_addr> mappings;
 
-    ip_proxy() = delete;
+    ip_proxy_server() = delete;
 
-    ip_proxy(basic_connection *conn, basic_gateway *gw = nullptr) : connection(conn) {
+    ip_proxy_server(basic_connection *conn, basic_gateway *gw = nullptr) : connection(conn) {
+        client_handler.server = this;
+        network_handler.server = this;
+
         if (gw == nullptr) {
             network_gateway = new network_layer_gateway;
         } else
             network_gateway = gw;
 
-        // setup send to client flow
-        // client handler would automatically use _udp_server.
+        // client side
+        connection->add_listener(&client_handler); // recv
+        // no need to assign class for send, conn_side_handler would just use this class's reference
 
-        // setup recv from client flow
-        connection->add_listener(&client_handler);
-
-        // give handlers a reference
-        client_handler.server = this;
-        network_handler.server = this;
+        // recv from network
         network_gateway->add_listener(&network_handler);
+        // no need to assign class for send, network_side_handler would just use this class's reference
     }
 
 };
@@ -85,11 +85,16 @@ void conn_side_handler::handle_received_event(received_msg msg) {
     if (cnt <= 0) return;
 
     // change source ip address
-    ((struct iphdr *) buff)->saddr = inet_addr("10.100.102.18");
+    ip4_addr new_source = convert_to_ip4_addr("10.100.102.18");
+    write_in_network_order((uint8_t*) &((struct iphdr *) buff)->saddr, &new_source);
+//    ((struct iphdr *) buff)->saddr = inet_addr("10.100.102.18");
 
-    // add dest ip addr to mapping
+    // add dest ip octets to mapping
     // todo this can also store the original ip address is case of many clients using the proxy server
-    server->mappings.insert(ip4_addr{((struct iphdr *) buff)->daddr});
+    ip4_addr dest_addr;
+    extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->daddr);
+//    server->mappings.insert(ip4_addr{((struct iphdr *) buff)->daddr});
+    server->mappings.insert(dest_addr);
 
     cout << "sending raw bytes to ip level" << endl;
     server->network_handler.send_data({buff, cnt});
@@ -106,8 +111,11 @@ void network_side_handler::handle_received_event(received_msg msg) {
     if (cnt <= 0) return;
 
     // ensure ip is in mapping
-    ip4_addr addr{((struct iphdr *) buff)->saddr};
-    if (!server->mappings.count(addr)) return;
+    ip4_addr dest_addr;
+    extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->saddr);
+//    ip4_addr addr{((struct iphdr *) buff)->saddr};
+//    if (!server->mappings.count(addr)) return;
+    if (!server->mappings.count(dest_addr)) return;
 
     cout << "sending reply back to client" << endl;
 
@@ -118,4 +126,4 @@ void network_side_handler::handle_received_event(received_msg msg) {
     server->client_handler.send_data({buff, cnt});
 }
 
-#endif //SERVERCLIENT_IP_PROXY_H
+#endif //SERVERCLIENT_IP_PROXY_SERVER_H

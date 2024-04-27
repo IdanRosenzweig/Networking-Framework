@@ -52,7 +52,7 @@ data_link_layer_gateway::data_link_layer_gateway() : sniffer(true) {
         perror("SIOCGIFINDEX");
     close(temp_fd);
 
-    // set ll socket data
+    // set ll socket msg
     dest_addr.sll_ifindex = if_idx.ifr_ifindex;
 
 

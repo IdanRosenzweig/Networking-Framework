@@ -19,7 +19,7 @@ int ethernet_protocol::send_data(send_msg msg) {
     // setup ethernet
     struct ether_header *eth_header = (struct ether_header *) buff;
 
-    // dest mac addr
+    // dest mac octets
 
     mac_addr dest_device = next_dest_addr.get_next_choice();
     memcpy(eth_header->ether_dhost, &dest_device, ETH_ALEN);

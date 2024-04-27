@@ -17,21 +17,21 @@
 //        return {0};
 //    close(temp_fd);
 //
-//    mac_addr addr;
-//    memset(&addr, 0, sizeof(addr));
-//    memcpy(&addr, ifr.ifr_hwaddr.sa_data, sizeof(addr));
+//    mac_addr octets;
+//    memset(&octets, 0, sizeof(octets));
+//    memcpy(&octets, ifr.ifr_hwaddr.sa_data, sizeof(octets));
 //
-//    return addr;
+//    return octets;
 //}
 //
-//void print_mac(mac_addr addr) {
-//    printf("mac addr is: %02x:%02x:%02x:%02x:%02x:%02x\n",
-//           (unsigned int) addr.addr[0],
-//           (unsigned int) addr.addr[1],
-//           (unsigned int) addr.addr[2],
-//           (unsigned int) addr.addr[3],
-//           (unsigned int) addr.addr[4],
-//           (unsigned int) addr.addr[5]
+//void print_mac(mac_addr octets) {
+//    printf("mac octets is: %02x:%02x:%02x:%02x:%02x:%02x\n",
+//           (unsigned int) octets.octets[0],
+//           (unsigned int) octets.octets[1],
+//           (unsigned int) octets.octets[2],
+//           (unsigned int) octets.octets[3],
+//           (unsigned int) octets.octets[4],
+//           (unsigned int) octets.octets[5]
 //    );
 //}
 //

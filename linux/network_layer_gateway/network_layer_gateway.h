@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_NETWORK_LAYER_GATEWAY_H
 #define SERVERCLIENT_NETWORK_LAYER_GATEWAY_H
 
-#include "../../abstract/basic_gateway.h"
+#include "../../abstract/connection/basic_gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
 #include "../data_link_layer/data_link_layer_gateway.h"
 #include "../hardware.h"

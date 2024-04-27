@@ -4,7 +4,7 @@
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
 #include "../../linux/network_layer_gateway/network_layer_gateway.h"
-#include "../../abstract/basic_connection.h"
+#include "../../abstract/connection/basic_connection.h"
 
 class icmp_connection_server : public basic_connection {
 public:

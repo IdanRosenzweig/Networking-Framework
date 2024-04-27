@@ -11,12 +11,16 @@ struct received_msg {
     int sz = 0;
 
     std::vector<std::pair<int, protocol_t>> protocol_offsets; // previous offsets of encapsulating protocols
-    int curr_offset; // offset to the current data
+    int curr_offset; // offset to the current msg
 
     received_msg() {}
 
     received_msg(const received_msg& other) {
         operator=(other);
+    }
+
+    ~received_msg() {
+
     }
 
     received_msg& operator=(const received_msg& other) {

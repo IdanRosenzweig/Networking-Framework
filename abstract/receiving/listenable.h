@@ -4,7 +4,7 @@
 #include "basic_receiver.h"
 #include <vector>
 
-// basic use of receiving interrupted data: forwarding them to sub receivers
+// basic use of receiving interrupted msg: forwarding them to sub receivers
 template <typename T>
 class listenable : public basic_receiver<T> {
     std::vector<basic_receiver<T>*> listeners;
