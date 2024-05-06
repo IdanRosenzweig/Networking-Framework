@@ -58,7 +58,7 @@ public:
     }
 
     ~client_session() {
-        worker.detach();
+        if (worker.joinable()) worker.detach();
 
         ssh_channel_send_eof(raw_channel);
         ssh_channel_close(raw_channel);
@@ -80,7 +80,7 @@ class ssh_server {
 
 public:
 
-    std::vector<std::unique_ptr<basic_session>> as_server_sessions; // sessions where i am the daemon
+    std::vector<std::unique_ptr<basic_session>> as_server_sessions; // tcpSession where i am the aggregator
 
     ssh_server(int port) {
         sshbind = ssh_bind_new();

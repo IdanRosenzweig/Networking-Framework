@@ -21,13 +21,12 @@ void handler(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes
     sniffer->handle_received_event(msg);
 }
 
-data_link_sniffer::data_link_sniffer(bool in) {
-    char* dev = "enp0s3";
+data_link_sniffer::data_link_sniffer(const string& interface, bool in) {
 
     char errbuf[PCAP_ERRBUF_SIZE]; // Error string
-    traffic = pcap_open_live(dev, BUFSIZ, 1, 10, errbuf);
+    traffic = pcap_open_live(interface.c_str(), BUFSIZ, 1, 10, errbuf);
     if (traffic == nullptr) {
-        cerr << "can't open interface: " << dev << ", err: " << errbuf << endl;
+        cerr << "can't open interface: " << interface << ", err: " << errbuf << endl;
         throw;
     }
 
@@ -56,5 +55,5 @@ data_link_sniffer::data_link_sniffer(bool in) {
 
 data_link_sniffer::~data_link_sniffer() {
     pcap_close(traffic);
-    worker.detach();
+    if (worker.joinable()) worker.detach();
 }

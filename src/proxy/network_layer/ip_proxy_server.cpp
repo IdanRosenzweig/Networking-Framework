@@ -46,7 +46,7 @@ void network_side_handler::handle_received_event(received_msg& msg) {
     extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->saddr);
     if (!server->mappings.count(dest_addr)) return;
 
-    cout << "sending reply back to client" << endl;
+    cout << "sending reply back to tcpSession" << endl;
 
     // change dest ip address
     write_in_network_order((uint8_t*) &((struct iphdr *) buff)->daddr, &server->source);

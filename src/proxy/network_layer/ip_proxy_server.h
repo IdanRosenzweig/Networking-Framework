@@ -23,9 +23,9 @@ class conn_side_handler : public msg_sender, public msg_receiver {
 public:
     ip_proxy_server *server;
 
-    int send_data(send_msg msg) override; // send to the client
+    int send_data(send_msg msg) override; // send to the tcpSession
 
-    void handle_received_event(received_msg& msg) override; // recv from the client
+    void handle_received_event(received_msg& msg) override; // recv from the tcpSession
 };
 
 class network_side_handler : public msg_sender, public msg_receiver {
@@ -67,11 +67,11 @@ public:
         network_handler.server = this;
 
         if (gw == nullptr) {
-            network_layer_gateway = new class network_layer_gateway;
+            network_layer_gateway = new class network_layer_gateway("enp0s3");
         } else
             network_layer_gateway = gw;
 
-        // client side
+        // tcpSession side
         connection->add_listener(&client_handler); // recv
         // no need to assign class for send, conn_side_handler would just use this class's reference
 

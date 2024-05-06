@@ -1,4 +1,4 @@
-#ifndef SERVERCLIENT_BASIC_SENDER_H
+#ifndef SERVERCLIENT_BASIC_SENDER_H(int)
 #define SERVERCLIENT_BASIC_SENDER_H
 
 template <typename T>

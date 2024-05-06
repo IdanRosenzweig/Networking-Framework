@@ -26,7 +26,7 @@ class analyzer : public msg_receiver {
     packet_displayer displayer;
 
 public:
-    analyzer();
+    analyzer(const string& interface);
 
     void handle_received_event(received_msg& event) override;
 };

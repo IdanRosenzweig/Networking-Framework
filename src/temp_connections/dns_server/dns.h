@@ -57,7 +57,7 @@ struct dns_header { // all fields stored in network byte order
 #define DNS_TYPE_CNAME 5
 #define DNS_TYPE_SOA 6
 #define DNS_TYPE_PTR 12 // ipv4 to domain name
-#define DNS_TYPE_MX 15 // domain name to ipv4 of mail daemon
+#define DNS_TYPE_MX 15 // domain name to ipv4 of mail aggregator
 
 struct dns_query {
     ustring q_name; // stored in normal form (unencoded)

@@ -41,7 +41,7 @@ void udp_protocol::handle_received_event(received_msg& msg) {
     msg.protocol_offsets.push_back({msg.curr_offset, UDP});
     msg.curr_offset += sizeof(struct udp_header);
 
-//    cout << "udp daemon handler called on port " << port << endl;
+//    cout << "udp aggregator handler called on port " << port << endl;
 
     if (port_handlers.is_key_assigned(port)) {
 //        cout << "found assigned port: " << port << endl;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <linux/if_ether.h>
 #include <linux/if.h>
+#include <linux/socket.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -27,8 +28,7 @@ void recv_packet(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *b
 
 }
 
-data_link_layer_gateway::data_link_layer_gateway() : sniffer(true) {
-    char *dev = "enp0s3";
+data_link_layer_gateway::data_link_layer_gateway(const string& interface) : sniffer(interface, true) {
 
     // open sd
     fd = socket(
@@ -42,19 +42,30 @@ data_link_layer_gateway::data_link_layer_gateway() : sniffer(true) {
         throw;
     }
 
+
     // get if_req
     struct ifreq if_idx;
     memset(&if_idx, 0, sizeof(struct ifreq));
-    strncpy(if_idx.ifr_name, dev, IFNAMSIZ - 1);
+    strncpy(if_idx.ifr_name, interface.c_str(), IFNAMSIZ - 1);
 
-    int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (ioctl(temp_fd, SIOCGIFINDEX, &if_idx) < 0)
+    if (ioctl(fd, SIOCGIFINDEX, &if_idx) < 0)
         perror("SIOCGIFINDEX");
-    close(temp_fd);
 
-    // set ll socket msg
-    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
+    struct sockaddr_ll outputServer;
+    memset(&outputServer, 0, sizeof (struct sockaddr_ll));
 
+    outputServer.sll_family = AF_PACKET;
+    outputServer.sll_protocol = htons(ETH_P_ALL);
+    outputServer.sll_ifindex = if_idx.ifr_ifindex;
+    outputServer.sll_halen = ETH_ALEN;  // 6
+
+    // is this needed for writing RAW ethernet out, even as tcpSession???
+    if (bind(fd, (struct sockaddr *) & outputServer, sizeof (outputServer)) == -1)
+        perror("bind");
+
+
+//    // set ll socket msg
+//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
 
     sniffer.add_listener(this);
 }
@@ -65,8 +76,7 @@ data_link_layer_gateway::~data_link_layer_gateway() {
 }
 
 int data_link_layer_gateway::send_data(send_msg msg) {
-    return sendto(fd,
+    return send(fd,
                   msg.buff, msg.count,
-                  0,
-                  reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
+                  0);
 }

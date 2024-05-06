@@ -64,12 +64,13 @@ void icmp_protocol::ping() {
 
     int i = 0;
     do {
+//        using namespace std::chrono_literals;
+//        std::this_thread::sleep_for(100ms);
+
         packet->checksum = 0; // must reset the value before calculating the checksum again
         packet->checksum = internet_checksum(reinterpret_cast<uint16_t *>(buff), sizeof(icmp_packet) + data_sz); // update checksum
 
         // count start time
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(500ms);
         const auto start = std::chrono::high_resolution_clock::now();
 
         if (gateway->send_data({buff, (int) sizeof(icmp_packet) + data_sz}) < 1) {
@@ -84,7 +85,7 @@ void icmp_protocol::ping() {
             uint8_t * buf = msg.data.get() + msg.curr_offset;
 
             const auto end = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
             icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
 
@@ -109,11 +110,11 @@ void icmp_protocol::ping() {
             }
 
             std::cout << "Received icmp reply: seq=" << packet->content.echo.sequence
-                      << " rrt=" << duration.count() << " microsec" << std::endl;
+                      << " rrt=" << duration.count() << " millisecs" << std::endl;
             break;
         }
 
-    } while (++packet->content.echo.sequence < 10);
+    } while (++packet->content.echo.sequence < 1000);
 //    } while (++i < 10);
 
 }

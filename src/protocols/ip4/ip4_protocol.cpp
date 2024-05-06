@@ -14,7 +14,7 @@ ip4_protocol::ip4_protocol() {
 
 int ip4_protocol::send_data(send_msg msg) {
     if (next_dest_addr.get_next_choice() == ip4_addr{0}) {
-        cout << "client is null" << endl;
+        cout << "tcpSession is null" << endl;
         return 0;
     }
 
@@ -49,7 +49,7 @@ int ip4_protocol::send_data(send_msg msg) {
 }
 
 void ip4_protocol::handle_received_event(received_msg& msg) {
-//    cout << "ip daemon handler called" << endl;
+//    cout << "ip aggregator handler called" << endl;
     uint8_t *buff = msg.data.get() + msg.curr_offset;
 
     struct iphdr *iph = (struct iphdr *) buff;

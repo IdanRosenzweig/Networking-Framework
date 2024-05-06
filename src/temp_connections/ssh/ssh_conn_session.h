@@ -89,7 +89,7 @@ public:
     }
 
     ~ssh_conn_session() {
-        worker.detach();
+        if (worker.joinable()) worker.detach();
 
         ssh_channel_send_eof(raw_channel);
         ssh_channel_close(raw_channel);

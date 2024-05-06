@@ -13,7 +13,7 @@ public:
     ip4_protocol ip_server;
     icmp_protocol icmp_server;
 
-    icmp_connection_server(const string& dest_ip) {
+    icmp_connection_server(const string& dest_ip) : gateway("enp0s3") {
 
         // setup send to client flow
         ip_server.gateway = &gateway;

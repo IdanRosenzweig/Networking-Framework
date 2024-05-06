@@ -1,22 +1,25 @@
 #ifndef SERVERCLIENT_VPN_CLIENT_H
 #define SERVERCLIENT_VPN_CLIENT_H
 
-#include "../temp_connections/udp/udp_client.h"
+#include "../temp_connections/tcp/tcp_client.h"
+#include "../protocols/msg_boundary/msg_boundary_seperator.h"
 
 #include "common.h"
 
 class vpn_client : public basic_gateway {
-    udp_client udp;
-
+    tcp_client tcp;
+    msg_boundary_seperator<> client;
 
 public:
     vpn_client(const string &vpn_daemon_ip) :
-            udp(vpn_daemon_ip, VPN_DAEMON_PORT, VPN_CLIENT_PORT) {
-        udp.add_listener(this);
+            tcp(vpn_daemon_ip, 5678, 1212), client(&tcp) {
+        client.add_listener(this);
+//tcp.add_listener(this);
     }
 
     int send_data(send_msg val) override {
-        return udp.send_data(val);
+        return client.send_data(val);
+//        return tcp.send_data(val);
     }
 };
 

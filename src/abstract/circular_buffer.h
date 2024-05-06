@@ -31,7 +31,7 @@ public:
         if constexpr (WAIT_FOR_NON_EMPTY) {
             while (empty()) { // todo this can be optimized by interrupting
                 using namespace std::chrono_literals;
-                std::this_thread::sleep_for(10ms);
+                std::this_thread::sleep_for(5ms);
             }
             return buff[base_in];
         } else
@@ -43,7 +43,7 @@ public:
         if constexpr (WAIT_FOR_NON_EMPTY) {
             while (empty()) { // todo this can be optimized by interrupting
                 using namespace std::chrono_literals;
-                std::this_thread::sleep_for(10ms);
+                std::this_thread::sleep_for(5ms);
             }
             return buff[(base_in + count - 1) % BUFF_SZ];
         } else

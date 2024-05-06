@@ -12,19 +12,20 @@
 #include "proxy/network_layer/ip_proxy_server.h"
 #include "temp_connections/udp/udp_server.h"
 #include "temp_connections/dns_server/dns_server.h"
-#include "abstract/connection/basic_forwarder_daemon.h"
+#include "abstract/connection/conn_aggregator.h"
 #include "temp_connections/ssh/ssh_server.h"
 #include "vpn/vpn_daemon.h"
+#include "protocols/msg_boundary/msg_boundary_seperator.h"
 
 #define MY_IP "10.100.102.31"
 
-class udp_app_server : public recv_queue<received_msg> {
+class server_app_udp : public recv_queue<received_msg> {
 public:
     msg_sender *gateway;
 
     void print() {
         received_msg msg = front_data();
-        cout << "client: " << (char *) (msg.data.get() + msg.curr_offset) << endl;
+        cout << "tcpSession: " << (char *) (msg.data.get() + msg.curr_offset) << endl;
     }
 
     void send(string str) {
@@ -39,12 +40,12 @@ int udp_main() {
     string client_addr{"10.100.102.18"};
 
     // protocol stack
-    network_layer_gateway networkLayerGateway;
+    network_layer_gateway networkLayerGateway("enp0s3");
 
     ip4_protocol ip_server;
     udp_protocol udp_client;
 
-    udp_app_server udpApp;
+    server_app_udp udpApp;
 
     // setup send flow
     ip_server.gateway = &networkLayerGateway;
@@ -78,29 +79,38 @@ int udp_main() {
     return 0;
 }
 
-class test_handler : public msg_receiver {
+class server_app_tcp : public basic_receiver<std::unique_ptr<tcp_session>>, public msg_receiver {
 public:
-    void handle_received_event(received_msg& msg) override {
-        cout << "received: " << msg.data.get() + msg.curr_offset << endl;
+    unique_ptr<tcp_session> tcpSession = nullptr;
+    unique_ptr<msg_boundary_seperator<>> client;
+
+    void handle_received_event(unique_ptr<tcp_session> &event) override {
+//        tcpSession = std::move(event);
+//        tcpSession->add_listener(this);
+        tcpSession = std::move(event);
+        client = std::make_unique<msg_boundary_seperator<>>(tcpSession.get());
+        client->add_listener(this);
+    }
+
+    void handle_received_event(received_msg &event) override {
+        cout << "tcpSession session: " << event.data.get() + event.curr_offset << endl;
     }
 };
 
 int tcp_main() {
-    std::cout << "Hello, World!" << std::endl;
 
-    tcp_protocol tcp_server;
+    tcp_server server(5678);
 
-    while (tcp_server.as_server_sessions.empty()) {
+    server_app_tcp testHandler;
+    server.add_listener(&testHandler);
+
+    while (testHandler.tcpSession == nullptr) {
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(10ms);
     }
 
     // has session
     cout << "has session" << endl;
-    std::unique_ptr<basic_session>& session = tcp_server.as_server_sessions[0];
-
-    test_handler testHandler;
-    session->add_listener(&testHandler);
 
     while (true) {
 
@@ -136,7 +146,7 @@ void proxy_main1() {
 //    icmp_connection_server icmpConnectionServer;
     proxy_app_server conn(&udpConnServer); // automatically sets up send and recv control
 
-    network_layer_gateway ipNetworkGateway; // gateway to ip network
+    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
 
     ip_proxy_server proxy(&conn, &ipNetworkGateway);
 
@@ -147,11 +157,11 @@ void proxy_main1() {
 }
 
 void proxy_main2() {
-    udp_server udpConnServer(4002); // connection to the client
+    udp_server udpConnServer(4002); // connection to the tcpSession
 //    icmp_connection_server icmpConnectionServer;
     proxy_app_server conn(&udpConnServer);
 
-    network_layer_gateway ipNetworkGateway; // gateway to ip network
+    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
 
     ip_proxy_server proxy(&conn, &ipNetworkGateway);
 
@@ -162,11 +172,11 @@ void proxy_main2() {
 }
 
 void proxy_main3() {
-    udp_server udpConnServer(4003); // connection to the client
+    udp_server udpConnServer(4003); // connection to the tcpSession
 //    icmp_connection_server icmpConnectionServer;
     proxy_app_server conn(&udpConnServer);
 
-    network_layer_gateway ipNetworkGateway; // gateway to ip network
+    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
 
     ip_proxy_server proxy(&conn, &ipNetworkGateway);
 
@@ -202,7 +212,7 @@ void dns_main() {
 
 
 void vpn_main() {
-    vpn_daemon vpnDaemon;
+    vpn_daemon vpnDaemon("enp0s3");
 
     while (true) {}
 }
@@ -219,7 +229,7 @@ void vpn_main() {
 //    cout << "has session" << endl;
 //    std::unique_ptr<basic_session>& session = server.as_server_sessions[0];
 //
-//    test_handler testHandler;
+//    server_app_tcp testHandler;
 //    session->add_listener(&testHandler);
 //
 //    while (true) {
@@ -229,9 +239,9 @@ void vpn_main() {
 
 int main() {
 //    udp_main();
-//    tcp_main();
+    tcp_main();
 //    proxy_main();
 //    dns_main();
-    vpn_main();
+//    vpn_main();
 
 }

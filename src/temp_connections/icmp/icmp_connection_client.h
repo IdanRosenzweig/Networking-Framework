@@ -13,7 +13,7 @@ public:
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
 
-    icmp_connection_client(const string& dest_ip) {
+    icmp_connection_client(const string& dest_ip) : gateway("enp0s3"){
         system("echo 1 | sudo tee /proc/sys/net/ipv4/icmp_echo_ignore_all");
 
         // setup send flow

@@ -15,7 +15,7 @@ private:
     ethernet_protocol ether_prot;
 
 public:
-    network_layer_gateway();
+    network_layer_gateway(const string& interface);
 
     int send_data(send_msg msg) override;
 

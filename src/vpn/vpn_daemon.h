@@ -1,40 +1,46 @@
 #ifndef SERVERCLIENT_VPN_DAEMON_H
 #define SERVERCLIENT_VPN_DAEMON_H
 
-#include "../abstract/connection/basic_forwarder_daemon.h"
+#include "../abstract/connection/conn_aggregator.h"
 #include "../temp_connections/udp/udp_server.h"
-
+#include "../protocols/msg_boundary/msg_boundary_seperator.h"
 #include "common.h"
+#include "../temp_connections/tcp/tcp_server.h"
 
 class vpn_daemon {
 
-    class server_handler : public basic_receiver<socket_msg>, public basic_connection {
+    class sessions_handler : public basic_receiver<std::unique_ptr<tcp_session>> {
+        vpn_daemon* master;
+        tcp_server tcpServer;
     public:
-        udp_server udpConnServer;
 
-        server_handler() : udpConnServer(VPN_DAEMON_PORT) {
-            udpConnServer.add_listener(this);
+        explicit sessions_handler(vpn_daemon *master) : master(master), tcpServer(5678) {
+            tcpServer.add_listener(this);
         }
 
-        void handle_received_event(socket_msg& event) override {
-            this->listenable::handle_received_event(event.msg);
+        void handle_received_event(std::unique_ptr<tcp_session>& event) override {
+            master->tcpSession.push_back(std::move(event));
+
+            master->sessions.emplace_back(master->tcpSession.back().get());
+            master->aggregator.add_connection(&master->sessions.back());
+//            master->aggregator.add_connection(master->tcpSession.back().get());
         }
 
-        string client_addr = "10.100.102.18";
-        int send_data(send_msg val) override {
-            return udpConnServer.send_data_to_client(convert_to_ip4_addr(client_addr), 1001, val);
-        }
     };
-    server_handler conn;
+    sessions_handler handler;
 
     data_link_layer_gateway dataLinkLayerGateway;
+    vector<std::unique_ptr<tcp_session>> tcpSession;
+    vector<msg_boundary_seperator<>> sessions;
 
-    basic_forwarder_daemon daemon;
+    conn_aggregator aggregator;
 
 public:
-    vpn_daemon() : daemon(&conn, &dataLinkLayerGateway) {
-
+    vpn_daemon(const string& local_interface) : dataLinkLayerGateway(local_interface), handler(this) {
+        aggregator.add_connection(&dataLinkLayerGateway);
     }
+
+
 };
 
 

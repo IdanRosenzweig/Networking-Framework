@@ -4,7 +4,7 @@
 using namespace std;
 
 
-analyzer::analyzer() : raw_sniffer(true) {
+analyzer::analyzer(const string& interface) : raw_sniffer(interface, true) {
     raw_sniffer.add_listener(this);
 
     ethernetProtocol.protocol_handlers.assign_to_key(htons(ETH_P_IP), &ip4Protocol);

@@ -18,7 +18,7 @@ class data_link_sniffer : public listenable<received_msg> {
     std::thread worker;
 
 public:
-    data_link_sniffer(bool in);
+    data_link_sniffer(const string& interface, bool in);
 
     ~data_link_sniffer();
 

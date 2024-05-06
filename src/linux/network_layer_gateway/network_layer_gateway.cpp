@@ -1,7 +1,7 @@
 #include "network_layer_gateway.h"
 #include <linux/if_ether.h>
 
-network_layer_gateway::network_layer_gateway() {
+network_layer_gateway::network_layer_gateway(const string& interface) : data_link_gateway(interface) {
     // send
     ether_prot.gateway = &data_link_gateway;
     ether_prot.next_protocol.set_next_choice(htons(ETH_P_IP));

@@ -7,7 +7,7 @@ using namespace std;
 
 // a proxy for ip, providing a gateway api
 class ip_proxy_client : public basic_gateway {
-    basic_connection* conn_to_proxy_server; // connection to the proxy daemon
+    basic_connection* conn_to_proxy_server; // connection to the proxy aggregator
 
 public:
     explicit ip_proxy_client(basic_connection *connToServer) : conn_to_proxy_server(connToServer) {

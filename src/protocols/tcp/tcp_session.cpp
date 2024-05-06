@@ -3,29 +3,33 @@
 #include <sys/socket.h>
 
 #include <iostream>
+
 using namespace std;
 
-tcp_session::tcp_session(int sd, ip4_addr destAddr, int sourcePort, int destPort) : sd(sd), dest_addr(destAddr),
-                                                                                           source_port(sourcePort),
-                                                                                           dest_port(destPort) {
+tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(data) {
+    alive = true;
 
     worker = std::thread([&]() -> void {
         while (true) {
             using namespace std::chrono_literals;
-            std::this_thread::sleep_for(300ms);
+            std::this_thread::sleep_for(10ms);
 
 #define BUFF_SZ 1024
             char buff[BUFF_SZ];
             memset(buff, 0, BUFF_SZ);
 
-            int data_sz = recv(this->sd, buff, BUFF_SZ, 0);;
-            if (data_sz == 0) {
-                cerr << "tcp session ended" << endl;
+            int data_sz = recv(this->sd, buff, BUFF_SZ, 0);
+            if (data_sz == -1) {
+                alive = false;
+//                cerr << "tcp seseion couldn't read" << endl;
                 break;
-            } else if (data_sz == -1) {
-                cerr << "tcp seseion couldn't read" << endl;
-                continue;
+            } else if (data_sz == 0) {
+                alive = false;
+//                cerr << "tcp session ended" << endl;
+                break;
             }
+
+//            cout << "tcp session read size " << data_sz << endl;
 
             uint8_t *alloc_msg = new uint8_t[data_sz];
             memcpy(alloc_msg, buff, data_sz);
@@ -40,15 +44,35 @@ tcp_session::tcp_session(int sd, ip4_addr destAddr, int sourcePort, int destPort
 }
 
 tcp_session::~tcp_session() {
-    worker.detach();
+//    cout << "tcp_session deconsturcotor" << endl;
+    if (worker.joinable()) worker.detach();
     close(sd);
 }
 
 int tcp_session::send_data(send_msg msg) {
+    if (!alive) return -1;
+
+    int error = 0;
+    socklen_t len = sizeof(error);
+    if (getsockopt(sd, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
+        perror("getsockopt");
+        throw;
+    }
+    if (error != 0) {
+        switch (error) {
+            case EPIPE: { // connection was closed
+                alive = false;
+                break;
+            }
+            default: throw "socket err";
+        }
+        return 0;
+    }
+
     return send(sd, msg.buff, msg.count, 0);
 }
 
-void tcp_session::handle_received_event(received_msg& event) {
+void tcp_session::handle_received_event(received_msg &event) {
     listenable::handle_received_event(event);
 }
 

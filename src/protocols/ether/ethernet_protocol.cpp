@@ -41,7 +41,7 @@ int ethernet_protocol::send_data(send_msg msg) {
 }
 
 void ethernet_protocol::handle_received_event(received_msg& msg) {
-//    cout << "ethernet daemon handler called" << endl;
+//    cout << "ethernet aggregator handler called" << endl;
     uint8_t *buff = msg.data.get() + msg.curr_offset;
 
     struct ether_header *eth_header = (struct ether_header *) buff;

@@ -14,7 +14,7 @@ public:
 
     udp_client(const string& dest_ip, int dest_port, int my_port, basic_gateway* gw = nullptr) {
         if (gw == nullptr) {
-            gateway = new network_layer_gateway;
+            gateway = new network_layer_gateway("enp0s3");
         } else
             gateway = gw;
 
@@ -31,7 +31,7 @@ public:
         // setup recv flow
         gateway->add_listener(&ip_client);
 
-        // todo change to both udp and client matching
+        // todo change to both udp and tcpSession matching
         ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_client);
 
         _udp_client.port_handlers.assign_to_key(my_port, this);

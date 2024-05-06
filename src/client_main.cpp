@@ -30,6 +30,8 @@
 #include "temp_connections/ssh/ssh_conn_session.h"
 #include "vpn/common.h"
 #include "vpn/vpn_client.h"
+#include "temp_connections/tcp/tcp_client.h"
+#include "protocols/msg_boundary/msg_boundary_seperator.h"
 
 #define MY_IP "10.100.102.18"
 
@@ -39,7 +41,7 @@ public:
 
     void print() {
         received_msg msg = front_data();
-        cout << "daemon: " << (char *) (msg.data.get() + msg.curr_offset) << endl;
+        cout << "aggregator: " << (char *) (msg.data.get() + msg.curr_offset) << endl;
     }
 
     void send(string str) {
@@ -55,7 +57,7 @@ void udp_main() {
     string server_addr{"10.100.102.31"};
 
     // network layer gateway protected by firewall
-    network_layer_gateway networkLayerGateway;
+    network_layer_gateway networkLayerGateway("enp0s3");
 
 //    firewall fw(&networkLayerGateway);
 //    fw.filters.push_back(new only_udp_filter<my_port>());
@@ -97,41 +99,32 @@ void udp_main() {
 }
 
 void tcp_main() {
-    std::cout << "Hello, World!" << std::endl;
+    constexpr int my_port = 1212;
+    constexpr int server_port = 5678;
+    string server_addr{"10.100.102.18"};
 
-    // protocol stack
-    tcp_protocol tcp_client;
+    tcp_client tcpClient(server_addr, server_port, my_port);
 
-    // setup send flow
-    tcp_client.next_addr.set_next_choice(convert_to_ip4_addr("127.0.0.1"));
-    tcp_client.next_dest_port.set_next_choice(5678);
-    tcp_client.next_source_port.set_next_choice(6666);
-
-
-    // comm
-    tcp_client.start_session();
-
-    while (tcp_client.as_client_sessions.empty()) {
-
-    }
-
-    // has session
-    cout << "has session" << endl;
-    std::unique_ptr<basic_session> &session = tcp_client.as_client_sessions[0];
+    msg_boundary_seperator client(&tcpClient);
 
     sleep(3);
-
     std::cout << "sending msg" << std::endl;
-    char *msg = "hello";
-    cout << "sent " << session->send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-    sleep(1);
+    char* msg;
+
+    msg = "hello";
+    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
 
     msg = "thisis test msg";
-    cout << "sent " << session->send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-    sleep(1);
+    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
 
     msg = "another one";
-    cout << "sent " << session->send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
+    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
+
+    msg = "another one2";
+    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
+
+    msg = "another one3";
+    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
 
     while (true) {
 
@@ -144,28 +137,28 @@ void dns_main() {
     string server_addr = "8.8.8.8";
 
     vector<string> hosts = {
-            "wiki.osdev.org",
-            "www.wix.com",
-            "docs.google.com",
-            "www.scs.stanford.edu",
-            "yahoo.com",
+//            "wiki.osdev.org",
+//            "www.wix.com",
+//            "docs.google.com",
+//            "www.scs.stanford.edu",
+//            "yahoo.com",
             "google.com",
-            "youtube.com",
-            "tradingview.com",
-            "walla.co.il",
-            "nasa.com",
-            "medium.com",
-            "www.scs.stanford.edu",
-            "docs.google.com",
-            "slides.google.com",
-            "sheets.google.com",
-            "podcasts.google.com",
-            "gmail.google.com",
-            "account.google.com",
+//            "youtube.com",
+//            "tradingview.com",
+//            "walla.co.il",
+//            "nasa.com",
+//            "medium.com",
+//            "www.scs.stanford.edu",
+//            "docs.google.com",
+//            "slides.google.com",
+//            "sheets.google.com",
+//            "podcasts.google.com",
+//            "gmail.google.com",
+//            "account.google.com",
     };
 
     // protocol stack
-    network_layer_gateway networkLayerGateway;
+    network_layer_gateway networkLayerGateway("enp0s3");
 
     ip4_protocol ip_client;
     udp_protocol udp_client;
@@ -205,7 +198,7 @@ void icmp_main() {
 //    char* str = "google.com";
 
     // protocol stack
-    network_layer_gateway networkLayerGateway;
+    network_layer_gateway networkLayerGateway("enp0s3");
 
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
@@ -233,7 +226,7 @@ void arp_main() {
     ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
 
     // protocol stack
-    data_link_layer_gateway dataLinkLayerGateway;
+    data_link_layer_gateway dataLinkLayerGateway("enp0s3");
 
     ethernet_protocol ether_client;
     arp_protocol arp_client;
@@ -363,7 +356,7 @@ void proxy_main() {
 }
 
 void sniffer_main() {
-    analyzer packetAnalyzer;
+    analyzer packetAnalyzer("enp0s3");
 
     while (true) {
 
@@ -371,123 +364,19 @@ void sniffer_main() {
 }
 
 
-void vpn_main() {
-    string vpn_server = "10.100.102.31";
-    vpn_client vpn(vpn_server);
-
-    char dev[6] = "virt0";
-    linux_virtual_iface iface(&vpn, dev);
-    while (true) {
-
-    }
-
-    // icmp
-//    {
-//        char *str = "172.217.22.46";
-//        //    char* str = "google.com";
-//
-//        ethernet_protocol ether_client;
-//        ip4_protocol ip_client;
-//        icmp_protocol icmp_client;
-//
-//        // setup send flow
-//        ether_client.gateway = &client;
-//        ether_client.next_protocol.set_next_choice(htons(ETH_P_IP));
-//        ether_client.next_dest_addr.set_next_choice(
-//                {0xc4, 0xeb, 0x42, 0xed, 0xc5, 0xb7} // gateway
-//        );
-//        ether_client.next_source_addr.set_next_choice(get_my_mac_address("enp0s3"));
-//
-//        ip_client.gateway = &ether_client;
-//        ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
-//        ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr(str));
-////        ip_client.next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.31"));
-//        ip_client.next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.18"));
-//
-//        icmp_client.gateway = &ip_client;
-//
-//        // setup recv flow
-//        client.add_listener(&ether_client);
-//
-//        ether_client.protocol_handlers.assign_to_key(htons(ETH_P_IP), &ip_client);
-//
-//        ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
-//
-//        // ping
-//        icmp_client.ping();
-//    }
-
-//        regular dns communication
-//    {
-//        ethernet_protocol ether_prot;
-//        ip4_protocol ip_prot;
-//        udp_protocol udp_prot;
-//        dns_client dns_client;
-//
-//        // setup send flow
-//        ether_prot.gateway = &client;
-//        ether_prot.next_protocol.set_next_choice(htons(ETH_P_IP));
-//        ether_prot.next_dest_addr.set_next_choice(
-//                {0xc4, 0xeb, 0x42, 0xed, 0xc5, 0xb7} // gateway
-//        );
-//        ether_prot.next_source_addr.set_next_choice(get_my_mac_address("enp0s3"));
-//
-//        ip_prot.gateway = &ether_prot;
-//        ip_prot.next_protocol.set_next_choice(IPPROTO_UDP);
-//        ip_prot.next_dest_addr.set_next_choice(convert_to_ip4_addr("8.8.8.8"));
-//        ip_prot.next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.31"));
-//
-//        udp_prot.gateway = &ip_prot;
-//        udp_prot.next_source_port.set_next_choice(4545);
-//        udp_prot.next_dest_port.set_next_choice(DNS_SERVER_PORT);
-//
-//        dns_client.gateway = &udp_prot;
-//
-//        // setup recv flow
-//        client.add_listener(&ether_prot);
-//
-//        ether_prot.protocol_handlers.assign_to_key(htons(ETH_P_IP), &ip_prot);
-//
-//        ip_prot.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_prot);
-//
-//        udp_prot.port_handlers.assign_to_key(4545, &dns_client);
-//
-//        // communicate
-//        // send msg
-//        vector<string> hosts = {
-//                "wiki.osdev.org",
-//                "www.wix.com",
-//                "docs.google.com",
-//                "www.scs.stanford.edu",
-//                "yahho.com",
-//                "google.com",
-//                "youtube.com",
-//                "tradingview.com",
-//                "walla.co.il",
-//                "nasa.com",
-//                "medium.com",
-//                "www.scs.stanford.edu",
-//        };
-//
-//        for (string& str : hosts)
-//            dns_client.query(str);
-//
-//    }
-
-}
 
 //void ssh_main() {
-//    ssh_conn_session client("10.100.102.18", "idan", "123", 1234);
+//    ssh_conn_session tcpSession("10.100.102.18", "idan", "123", 1234);
 //
-//    cout << "ssh client started" << endl;
+//    cout << "ssh tcpSession started" << endl;
 //
-////    client.execute_remote_cli_command("ls -la");
-////    client.execute_remote_cli_command("id");
+////    tcpSession.execute_remote_cli_command("ls -la");
+////    tcpSession.execute_remote_cli_command("id");
 //    send_msg msg;
 //    char buff[10] = "hello";
 //    msg.buff = buff;
 //    msg.count = 10;
-//    cout << "sent " << client.send_data(msg) << endl;
+//    cout << "sent " << tcpSession.send_data(msg) << endl;
 //
 //    while (true) {
 //
@@ -497,13 +386,12 @@ void vpn_main() {
 int main() {
 
 //    udp_main();
-//    tcp_main();
+    tcp_main();
 //    dns_main();
 //    icmp_main();
 //    arp_main();
 //    proxy_main();
 //    sniffer_main();
-    vpn_main();
 
     return (0);
 }

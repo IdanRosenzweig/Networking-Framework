@@ -118,7 +118,7 @@ void dns_client::query(const string &name) {
         } else if (answers[i].type == DNS_TYPE_MX) {
             struct mx_rdata_t rdata;
             mx_rdata_t::extract(&rdata, (uint8_t*) answers[i].rdata.c_str(), buff);
-            cout << "has mail daemon : " << rdata.domain.c_str();
+            cout << "has mail aggregator : " << rdata.domain.c_str();
         }
 
         cout << endl;

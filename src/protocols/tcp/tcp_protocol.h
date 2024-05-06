@@ -13,27 +13,22 @@
 
 #include "tcp_session.h"
 
-class tcp_protocol {
+class tcp_protocol : public listenable<std::unique_ptr<tcp_session>> {
 
     int sd;
     std::thread worker;
 
 public:
 
-    std::vector<std::unique_ptr<basic_session>> as_server_sessions; // sessions where i am the daemon
-
-    tcp_protocol();
+    tcp_protocol(bool SERVER);
 
     ~tcp_protocol();
-
-
-    std::vector<std::unique_ptr<basic_session>> as_client_sessions; // sessions where i am the client
 
     next_choice<ip4_addr> next_addr;
     next_choice<int> next_dest_port;
     next_choice<int> next_source_port;
 
-    void start_session();
+    std::unique_ptr<tcp_session> start_session();
 
 };
 

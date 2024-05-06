@@ -20,9 +20,9 @@ public:
 
     int server_port;
 
-    udp_server(int serverPort) : server_port(serverPort) {
+    udp_server(int serverPort) : server_port(serverPort), gateway("enp0s3") {
 
-        // setup send to client flow
+        // setup send to tcpSession flow
         ip_server.gateway = &gateway;
         ip_server.next_protocol.set_next_choice(IPPROTO_UDP);
         ip_server.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
@@ -31,7 +31,7 @@ public:
         _udp_server.next_source_port.set_next_choice(server_port);
 
 
-        // setup recv from client flow
+        // setup recv from tcpSession flow
         gateway.add_listener(&ip_server);
 
         ip_server.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_server);

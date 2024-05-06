@@ -11,15 +11,14 @@
 class data_link_layer_gateway : public basic_gateway {
 private:
     int fd;
-    struct sockaddr_ll dest_addr; // used only for hardware interface
 
     data_link_sniffer sniffer;
 
 public:
 
-    data_link_layer_gateway();
+    data_link_layer_gateway(const string& interface);
 
-    virtual ~data_link_layer_gateway();
+    ~data_link_layer_gateway();
 
     int send_data(send_msg msg) override;
 
