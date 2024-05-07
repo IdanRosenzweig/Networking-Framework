@@ -2,7 +2,7 @@
 #define SERVERCLIENT_RECV_QUEUE_H
 
 #include "basic_receiver.h"
-#include "../circular_buffer.h"
+#include "../utils/circular_buffer.h"
 #include <queue>
 #include <thread>
 

@@ -6,7 +6,7 @@
 #include <thread>
 
 #include "../../abstract/connection/basic_session.h"
-#include "../../abstract/next_choice.h"
+#include "../../abstract/utils/next_choice.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"
 

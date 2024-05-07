@@ -5,8 +5,8 @@
 
 #include "../../abstract/sending/msg_sender.h"
 #include "../../abstract/receiving/msg_receiver.h"
-#include "../../abstract/next_choice.h"
-#include "../../abstract/multiplexer.h"
+#include "../../abstract/utils/next_choice.h"
+#include "../../abstract/utils/multiplexer.h"
 
 class udp_protocol : public msg_sender, public msg_receiver {
 public:

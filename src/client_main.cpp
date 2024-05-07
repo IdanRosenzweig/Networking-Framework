@@ -7,7 +7,7 @@
 #include <sys/ioctl.h>
 
 #include "protocols/udp/udp_protocol.h"
-#include "temp_connections/dns_server/dns_client.h"
+#include "temp_connections/dns_server_client/dns_client.h"
 #include "protocols/ip4/ip4_protocol.h"
 #include "protocols/icmp/icmp_protocol.h"
 #include "protocols/ether/ethernet_protocol.h"
@@ -16,12 +16,12 @@
 #include "linux/data_link_layer/data_link_layer_gateway.h"
 #include "protocols/udp/udp_protocol.h"
 #include "proxy/network_layer/ip_proxy_client.h"
-#include "abstract/circular_buffer.h"
+#include "abstract/utils/circular_buffer.h"
 #include "abstract/receiving/recv_queue.h"
-#include "temp_connections/udp/udp_client.h"
+#include "temp_connections/udp_client_server/udp_client.h"
 #include "protocols/tcp/tcp_protocol.h"
 
-#include "abstract/firewall/firewall.h"
+#include "firewalls/firewall.h"
 #include "firewalls/network_layer/only_udp_filter.h"
 #include "analyzer/analyzer.h"
 
@@ -30,10 +30,10 @@
 #include "temp_connections/ssh/ssh_conn_session.h"
 #include "vpn/common.h"
 #include "vpn/vpn_client.h"
-#include "temp_connections/tcp/tcp_client.h"
+#include "temp_connections/tcp_client_server/tcp_client.h"
 #include "protocols/msg_boundary/msg_boundary_seperator.h"
 
-#define MY_IP "10.100.102.18"
+#define MY_IP "10.100.102.31"
 
 class udp_app_client : public recv_queue<received_msg> {
 public:
@@ -252,7 +252,7 @@ void arp_main() {
 
     string victim = "10.100.102.15";
     vector<pair<mac_addr, string>> victim_list = {
-//            {arp_client.search_for_mac_addr(victim, my_mac, my_ip), victim}
+//            {arp_client.search_for_mac_addr(victim, my_mac, server_ip), victim}
     };
     arp_client.spoof_as_device("10.100.102.1", // router
                                my_mac,
@@ -265,7 +265,7 @@ void proxy_main() {
     string proxy_server = "10.100.102.18";
 
     // first node
-    udp_client udp_1(proxy_server, 4001, 1001);
+    udp_client udp_1(convert_to_ip4_addr(proxy_server), 4001, 1001);
 //    icmp_connection icmpConnection;
     ip_proxy_client proxy_1(&udp_1);
 
@@ -386,8 +386,8 @@ void sniffer_main() {
 int main() {
 
 //    udp_main();
-    tcp_main();
-//    dns_main();
+//    tcp_main();
+    dns_main();
 //    icmp_main();
 //    arp_main();
 //    proxy_main();

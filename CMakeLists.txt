@@ -53,26 +53,27 @@ add_executable(Server
 
         src/server_main.cpp
 
-        src/temp_connections/udp/udp_client.cpp
-        src/temp_connections/udp/udp_server.cpp
+        src/temp_connections/udp_client_server/udp_client.cpp
+        src/temp_connections/udp_client_server/udp_server.cpp
 
         src/temp_connections/icmp/icmp_connection_client.cpp
         src/temp_connections/icmp/icmp_connection_server.cpp
 
-        src/temp_connections/dns_server/dns_server.cpp
-        src/temp_connections/dns_server/dns.cpp
+        src/temp_connections/dns_server_client/dns_server.cpp
+        src/temp_connections/dns_server_client/dns.cpp
 
         src/analyzer/analyzer.cpp
         src/analyzer/packet_displayer.cpp
 
-        src/proxy/network_layer/ip_proxy_server.cpp
 
         src/temp_connections/ssh/ssh_server.cpp
 
-        src/temp_connections/tcp/tcp_server.cpp
+        src/temp_connections/tcp_client_server/tcp_server.cpp
         src/main/echo_server/echo_server.cpp
-        src/temp_connections/tcp/tcp_boundary_preserving_server.cpp
-        src/temp_connections/tcp/tcp_boundary_preserving_server.h
+        src/temp_connections/tcp_client_server/tcp_boundary_preserving_server.cpp
+        src/temp_connections/tcp_client_server/tcp_boundary_preserving_server.h
+        src/onion_network/onion_network_node.cpp
+        src/onion_network/onion_network_node.h
 
 )
 target_link_libraries(Server ${PCAP_LIBRARY})
@@ -85,14 +86,14 @@ add_executable(Client
 
         src/client_main.cpp
 
-        src/temp_connections/udp/udp_client.cpp
-        src/temp_connections/udp/udp_server.cpp
+        src/temp_connections/udp_client_server/udp_client.cpp
+        src/temp_connections/udp_client_server/udp_server.cpp
 
         src/temp_connections/icmp/icmp_connection_client.cpp
         src/temp_connections/icmp/icmp_connection_server.cpp
 
-        src/temp_connections/dns_server/dns_client.cpp
-        src/temp_connections/dns_server/dns.cpp
+        src/temp_connections/dns_server_client/dns_client.cpp
+        src/temp_connections/dns_server_client/dns.cpp
 
         src/analyzer/analyzer.cpp
         src/analyzer/packet_displayer.cpp
@@ -102,10 +103,10 @@ add_executable(Client
 
         src/temp_connections/ssh/ssh_conn_session.cpp
 
-        src/temp_connections/tcp/tcp_client.cpp
-        src/temp_connections/tcp/tcp_client.h
-        src/main/echo_server/echo_client.cpp
-        src/temp_connections/tcp/tcp_boundary_preserving_client.cpp
+        src/temp_connections/tcp_client_server/tcp_client.cpp
+        src/temp_connections/tcp_client_server/tcp_client.h
+        src/temp_connections/tcp_client_server/tcp_boundary_preserving_client.cpp
+        src/onion_network/client.h
 
 )
 target_link_libraries(Client ${PCAP_LIBRARY})
@@ -129,8 +130,8 @@ add_executable(vpn_client
 
         src/main/vpn/vpn_client_main.cpp
 
-        src/temp_connections/dns_server/dns_client.cpp
-        src/temp_connections/dns_server/dns.cpp
+        src/temp_connections/dns_server_client/dns_client.cpp
+        src/temp_connections/dns_server_client/dns.cpp
 )
 target_link_libraries(vpn_client ${PCAP_LIBRARY})
 target_link_libraries(vpn_client ${LIBSSH_LIBRARIES})
@@ -141,7 +142,7 @@ add_executable(echo_server
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/temp_connections/tcp/tcp_server.cpp
+        src/temp_connections/tcp_client_server/tcp_server.cpp
         src/main/echo_server/echo_server.cpp
 )
 target_link_libraries(echo_server ${PCAP_LIBRARY})
@@ -152,8 +153,32 @@ add_executable(echo_client
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/temp_connections/tcp/tcp_client.cpp
+        src/temp_connections/tcp_client_server/tcp_client.cpp
         src/main/echo_server/echo_client.cpp
 )
 target_link_libraries(echo_client ${PCAP_LIBRARY})
 target_link_libraries(echo_client ${LIBSSH_LIBRARIES})
+
+
+add_executable(onion_network_node
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/onion_network/node.cpp
+        src/proxy/network_layer/ip_proxy_server.cpp
+)
+target_link_libraries(onion_network_node ${PCAP_LIBRARY})
+target_link_libraries(onion_network_node ${LIBSSH_LIBRARIES})
+
+add_executable(onion_network_client
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/onion_network/client.cpp
+        src/temp_connections/dns_server_client/dns_client.cpp
+        src/temp_connections/dns_server_client/dns.cpp
+)
+target_link_libraries(onion_network_client ${PCAP_LIBRARY})
+target_link_libraries(onion_network_client ${LIBSSH_LIBRARIES})

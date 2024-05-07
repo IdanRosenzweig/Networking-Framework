@@ -21,15 +21,15 @@ tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(
             int data_sz = recv(this->sd, buff, BUFF_SZ, 0);
             if (data_sz == -1) {
                 alive = false;
-//                cerr << "tcp seseion couldn't read" << endl;
+//                cerr << "tcp_client_server seseion couldn't read" << endl;
                 break;
             } else if (data_sz == 0) {
                 alive = false;
-//                cerr << "tcp session ended" << endl;
+//                cerr << "tcp_client_server session ended" << endl;
                 break;
             }
 
-//            cout << "tcp session read size " << data_sz << endl;
+//            cout << "tcp_client_server session read size " << data_sz << endl;
 
             uint8_t *alloc_msg = new uint8_t[data_sz];
             memcpy(alloc_msg, buff, data_sz);

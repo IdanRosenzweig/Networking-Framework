@@ -12,7 +12,7 @@ public:
     ip4_protocol ip_client;
     udp_protocol _udp_client;
 
-    udp_client(const string& dest_ip, int dest_port, int my_port, basic_gateway* gw = nullptr) {
+    udp_client(ip4_addr dest_ip, int dest_port, int my_port, basic_gateway* gw = nullptr) {
         if (gw == nullptr) {
             gateway = new network_layer_gateway("enp0s3");
         } else
@@ -21,7 +21,7 @@ public:
         // setup send flow
         ip_client.gateway = gateway;
         ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
-        ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr(dest_ip));
+        ip_client.next_dest_addr.set_next_choice(dest_ip);
         ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
 
         _udp_client.gateway = &ip_client;
@@ -31,7 +31,7 @@ public:
         // setup recv flow
         gateway->add_listener(&ip_client);
 
-        // todo change to both udp and tcpSession matching
+        // todo change to both udp_client_server and tcpSession matching
         ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_client);
 
         _udp_client.port_handlers.assign_to_key(my_port, this);

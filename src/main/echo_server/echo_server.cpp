@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include <memory>
-#include "../../temp_connections/tcp/tcp_server.h"
-#include "../../temp_connections/tcp/tcp_boundary_preserving_server.h"
+#include "../../temp_connections/tcp_client_server/tcp_server.h"
+#include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_server.h"
 
 #define MY_IP "10.100.102.31"
 #define HOSTING_PORT 5678

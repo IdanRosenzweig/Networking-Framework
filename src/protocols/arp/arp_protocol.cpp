@@ -27,9 +27,9 @@ void arp_protocol::handle_received_event(received_msg& msg) {
 
 mac_addr arp_protocol::search_for_mac_addr(std::string priv_ip, mac_addr source_mac, ip4_addr source_ip) {
 //    struct mac_addr my_mac = get_my_mac_address("enp0s3");
-//    struct ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
+//    struct ip4_addr server_ip = get_my_priv_ip_addr("enp0s3");
 
-//    struct in_addr my_ip = ((struct sockaddr_in *)&ether_client->my_priv_ip.ifr_addr)->sin_addr;
+//    struct in_addr server_ip = ((struct sockaddr_in *)&ether_client->my_priv_ip.ifr_addr)->sin_addr;
 
     struct in_addr target_ip = {0};
     if (!inet_aton(priv_ip.c_str(), &target_ip))

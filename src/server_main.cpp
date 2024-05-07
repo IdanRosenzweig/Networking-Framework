@@ -120,87 +120,87 @@ int tcp_main() {
 }
 
 
-class proxy_app_server : public basic_receiver<socket_msg>, public basic_connection {
-public:
-    udp_server* udpServer;
-
-    proxy_app_server(udp_server* udpServer) : udpServer(udpServer) {
-        udpServer->add_listener(this);
-    }
-
-    void handle_received_event(socket_msg& event) override {
-//        cout << "received from " << inet_ntoa(in_addr{htonl(event.source_addr)}) << endl;
-        cout << "source port " << event.source_port << endl;
-        cout << "dest port " << event.dest_port << endl;
-        this->listenable::handle_received_event(event.msg);
-    }
-
-    string client_addr = "10.100.102.18";
-    int send_data(send_msg val) override {
-        return udpServer->send_data_to_client(convert_to_ip4_addr(client_addr), 1001, val);
-    }
-};
-
-void proxy_main1() {
-    udp_server udpConnServer(4001);
-//    icmp_connection_server icmpConnectionServer;
-    proxy_app_server conn(&udpConnServer); // automatically sets up send and recv control
-
-    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
-
-    ip_proxy_server proxy(&conn, &ipNetworkGateway);
-
-    while (true) {
-
-    }
-
-}
-
-void proxy_main2() {
-    udp_server udpConnServer(4002); // connection to the tcpSession
-//    icmp_connection_server icmpConnectionServer;
-    proxy_app_server conn(&udpConnServer);
-
-    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
-
-    ip_proxy_server proxy(&conn, &ipNetworkGateway);
-
-    while (true) {
-
-    }
-
-}
-
-void proxy_main3() {
-    udp_server udpConnServer(4003); // connection to the tcpSession
-//    icmp_connection_server icmpConnectionServer;
-    proxy_app_server conn(&udpConnServer);
-
-    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
-
-    ip_proxy_server proxy(&conn, &ipNetworkGateway);
-
-    while (true) {
-
-    }
-
-}
-
-void proxy_main() {
-    std::thread proxy1([]() -> void {
-        proxy_main1();
-    });
-//    std::thread proxy2([]() -> void {
-//        proxy_main2();
+//class server_app_handler : public basic_receiver<socket_msg>, public basic_connection {
+//public:
+//    udp_server* udpServer;
+//
+//    server_app_handler(udp_server* udpServer) : udpServer(udpServer) {
+//        udpServer->add_listener(this);
+//    }
+//
+//    void handle_received_event(socket_msg& event) override {
+////        cout << "received from " << inet_ntoa(in_addr{htonl(event.source_addr)}) << endl;
+//        cout << "source port " << event.source_port << endl;
+//        cout << "dest port " << event.dest_port << endl;
+//        this->listenable::handle_received_event(event.msg);
+//    }
+//
+//    string client_addr = "10.100.102.18";
+//    int send_data(send_msg val) override {
+//        return udpServer->send_data_to_client(convert_to_ip4_addr(client_addr), 1001, val);
+//    }
+//};
+//
+//void proxy_main1() {
+//    udp_server udp_server(4001);
+////    icmp_connection_server icmpConnectionServer;
+//    server_app_handler conn(&udp_server); // automatically sets up send and recv control
+//
+//    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
+//
+//    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
+//
+//    while (true) {
+//
+//    }
+//
+//}
+//
+//void proxy_main2() {
+//    udp_server udp_server(4002); // connection to the tcpSession
+////    icmp_connection_server icmpConnectionServer;
+//    server_app_handler conn(&udp_server);
+//
+//    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
+//
+//    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
+//
+//    while (true) {
+//
+//    }
+//
+//}
+//
+//void proxy_main3() {
+//    udp_server udp_server(4003); // connection to the tcpSession
+////    icmp_connection_server icmpConnectionServer;
+//    server_app_handler conn(&udp_server);
+//
+//    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
+//
+//    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
+//
+//    while (true) {
+//
+//    }
+//
+//}
+//
+//void proxy_main() {
+//    std::thread proxy1([]() -> void {
+//        proxy_main1();
 //    });
-//    std::thread proxy3([]() -> void {
-//        proxy_main3();
-//    });
-
-    proxy1.join();
-//    proxy2.join();
-//    proxy3.join();
-}
+////    std::thread proxy2([]() -> void {
+////        proxy_main2();
+////    });
+////    std::thread proxy3([]() -> void {
+////        proxy_main3();
+////    });
+//
+//    proxy1.join();
+////    proxy2.join();
+////    proxy3.join();
+//}
 
 void dns_main() {
     dns_server server;

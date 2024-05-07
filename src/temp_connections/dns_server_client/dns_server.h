@@ -8,7 +8,7 @@
 #include "../../linux/network_layer_gateway/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
-#include "../udp/udp_server.h"
+#include "../udp_client_server/udp_server.h"
 
 
 class dns_server : public basic_receiver<socket_msg> {

@@ -2,10 +2,10 @@
 #define SERVERCLIENT_VPN_DAEMON_H
 
 #include "../abstract/connection/conn_aggregator.h"
-#include "../temp_connections/udp/udp_server.h"
+#include "../temp_connections/udp_client_server/udp_server.h"
 #include "../protocols/msg_boundary/msg_boundary_seperator.h"
 #include "common.h"
-#include "../temp_connections/tcp/tcp_server.h"
+#include "../temp_connections/tcp_client_server/tcp_server.h"
 
 class vpn_daemon {
 

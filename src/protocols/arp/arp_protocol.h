@@ -7,7 +7,7 @@
 
 #include "../../abstract/sending/msg_sender.h"
 #include "../../abstract/receiving/msg_receiver.h"
-#include "../../abstract/circular_buffer.h"
+#include "../../abstract/utils/circular_buffer.h"
 #include "../ether/mac_addr.h"
 #include "../ether/ethernet_protocol.h"
 

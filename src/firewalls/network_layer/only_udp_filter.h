@@ -4,8 +4,8 @@
 #include <netinet/in.h>
 #include <linux/if_ether.h>
 
-#include "../../abstract/firewall/basic_firewall_filter.h"
-#include "../../abstract/firewall/data_counter.h"
+#include "../basic_firewall_filter.h"
+#include "../data_counter.h"
 
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"

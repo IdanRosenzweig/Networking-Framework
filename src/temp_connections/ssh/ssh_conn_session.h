@@ -11,7 +11,7 @@
 
 #include <thread>
 
-// ssh runs over ip and tcp
+// ssh runs over ip and tcp_client_server
 class ssh_conn_session : public basic_connection {
     ssh_session session;
     ssh_channel raw_channel;

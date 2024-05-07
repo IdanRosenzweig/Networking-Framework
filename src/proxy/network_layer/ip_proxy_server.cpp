@@ -1,9 +1,10 @@
 #include "ip_proxy_server.h"
+#include "../../protocols/ip4/internet_checksum.h"
 #include <iostream>
 using namespace std;
 
 int conn_side_handler::send_data(send_msg msg) {
-    return server->connection->send_data(msg);
+    return my_conn->send_data(msg);
 }
 
 void conn_side_handler::handle_received_event(received_msg& msg) {
@@ -13,19 +14,28 @@ void conn_side_handler::handle_received_event(received_msg& msg) {
     cout << "received proxied packet, size " << cnt << endl;
     if (cnt <= 0) return;
 
+    struct iphdr * ip_hdr = reinterpret_cast<iphdr *>(buff);
+
     // store source ip
     ip4_addr source;
-    extract_from_network_order(&source, (uint8_t*) &((struct iphdr *) buff)->saddr);
-    server->source = source;
+    extract_from_network_order(&source, (uint8_t*) &ip_hdr->saddr);
+    my_source = source;
 
-    // store dest ip in mapping
+    // store dest ip
     ip4_addr dest_addr;
-    extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->daddr);
+    extract_from_network_order(&dest_addr, (uint8_t*) &ip_hdr->daddr);
+
+    // add to mappings
+//    server->mappings[dest_addr].insert(this);
     server->mappings.insert(dest_addr);
 
     // change source ip address
-    ip4_addr new_source = server->my_ip;
-    write_in_network_order((uint8_t*) &((struct iphdr *) buff)->saddr, &new_source);
+    ip4_addr new_source = server->server_ip;
+    write_in_network_order((uint8_t*) &ip_hdr->saddr, &new_source);
+
+    // update checksum
+    ip_hdr->check = 0;
+    ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
     cout << "sending raw bytes to ip level" << endl;
     server->network_handler.send_data({buff, cnt});
@@ -41,15 +51,39 @@ void network_side_handler::handle_received_event(received_msg& msg) {
 
     if (cnt <= 0) return;
 
-    // ensure ip is in mapping
+    // get source ip
+    ip4_addr source;
+    extract_from_network_order(&source, (uint8_t*) &((struct iphdr *) buff)->saddr);
+
+    // get dest ip
     ip4_addr dest_addr;
-    extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->saddr);
-    if (!server->mappings.count(dest_addr)) return;
+    extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->daddr);
 
-    cout << "sending reply back to tcpSession" << endl;
+//    for (conn_side_handler* handler : server->mappings[source]) {
+//        struct iphdr* ip_hdr = reinterpret_cast<iphdr *>(buff);
+//
+//        // change the dest address
+//        ip4_addr new_dest = handler->my_source;
+//        write_in_network_order((uint8_t*) &ip_hdr->saddr, &new_dest);
+//
+//        // update checksum
+//        ip_hdr->check = 0;
+//        ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
+//
+//        cout << "sending reply back to connection" << endl;
+//        handler->send_data({buff, cnt});
+//    }
+    struct iphdr* ip_hdr = reinterpret_cast<iphdr *>(buff);
 
-    // change dest ip address
-    write_in_network_order((uint8_t*) &((struct iphdr *) buff)->daddr, &server->source);
+    // change the dest address
+    ip4_addr new_dest = server->conn_handler->my_source;
+    write_in_network_order((uint8_t*) &ip_hdr->saddr, &new_dest);
 
-    server->client_handler.send_data({buff, cnt});
+    // update checksum
+    ip_hdr->check = 0;
+    ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
+
+    cout << "sending reply back to connection" << endl;
+    server->conn_handler->send_data({buff, cnt});
+
 }

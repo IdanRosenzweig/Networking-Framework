@@ -1,5 +1,5 @@
-#include "../../temp_connections/tcp/tcp_client.h"
-#include "../../temp_connections/tcp/tcp_boundary_preserving_client.h"
+#include "../../temp_connections/tcp_client_server//tcp_client.h"
+#include "../../temp_connections/tcp_client_server//tcp_boundary_preserving_client.h"
 
 #include <string>
 using namespace std;

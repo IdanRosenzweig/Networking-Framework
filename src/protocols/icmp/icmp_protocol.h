@@ -2,11 +2,11 @@
 #define SERVERCLIENT_ICMP_PROTOCOL_H
 
 #include "icmp_packet.h"
-#include "../../abstract/circular_buffer.h"
+#include "../../abstract/utils/circular_buffer.h"
 #include "../../abstract/sending/msg_sender.h"
 #include "../../abstract/receiving/msg_receiver.h"
-#include "../../abstract/multiplexer.h"
-#include "../../abstract/next_choice.h"
+#include "../../abstract/utils/multiplexer.h"
+#include "../../abstract/utils/next_choice.h"
 
 class icmp_protocol : public msg_sender, public msg_receiver {
 public:

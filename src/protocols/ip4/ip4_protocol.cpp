@@ -33,13 +33,13 @@ int ip4_protocol::send_data(send_msg msg) {
     iph->frag_off = 0;
     iph->ttl = 255;
     iph->protocol = next_protocol.get_next_choice();
-    iph->check = 0;
 
 //    iph->saddr = htonl(next_source_addr.get_next_choice().raw);
 //    iph->daddr = htonl(next_dest_addr.get_next_choice().raw);
     write_in_network_order((uint8_t*) &iph->saddr, &next_source_addr.get_next_choice());
     write_in_network_order((uint8_t*) &iph->daddr, &next_dest_addr.get_next_choice());
 
+    iph->check = 0;
     iph->check = internet_checksum((uint16_t *) packet, ip_packet_len);
 
     char *data = packet + sizeof(struct iphdr);

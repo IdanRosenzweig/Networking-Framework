@@ -4,7 +4,7 @@
 #include "../../protocols/tcp/tcp_protocol.h"
 
 // (no real difference between tcp_protocol and tcp_server, because i didn't implement
-// the tcp protocol but rather used the linux api for this, so there is no need for creating
+// the tcp_client_server protocol but rather used the linux api for this, so there is no need for creating
 // the protocol stack here, just use tcp_protocol directly)
 class tcp_server : public listenable<std::unique_ptr<tcp_session>> {
     tcp_protocol tcp_prot;

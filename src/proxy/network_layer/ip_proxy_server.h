@@ -20,7 +20,15 @@ class conn_side_handler;
 class network_side_handler;
 
 class conn_side_handler : public msg_sender, public msg_receiver {
+    basic_connection * my_conn;
+
 public:
+    ip4_addr my_source;
+
+    explicit conn_side_handler(basic_connection *myConn) : my_conn(myConn) {
+        my_conn->add_listener(this);
+    }
+
     ip_proxy_server *server;
 
     int send_data(send_msg msg) override; // send to the tcpSession
@@ -38,46 +46,41 @@ public:
 };
 
 
-// proxy at the ip level (changes ip header)
+// onion_network at the ip level (changes ip header)
+// currently works with one connection. can be extended to multiple clients
 class ip_proxy_server {
 public:
-    // connection to be proxied
-    basic_connection *connection;
+//    vector<class conn_side_handler> client_handlers; // all connections to be proxied
+    std::unique_ptr<conn_side_handler> conn_handler; // the connection to be proxied
 
     // gateway to the network
     basic_gateway *network_layer_gateway;
-
-    class conn_side_handler client_handler;
     class network_side_handler network_handler;
 
-    // proxy mappings
+    // onion_network mappings
+//    map<ip4_addr, set<conn_side_handler*>> mappings;
     set<ip4_addr> mappings;
 
     // stored source
-    ip4_addr source;
+    ip4_addr server_ip;
 
-    ip4_addr my_ip;
+    ip_proxy_server(basic_gateway *gw = nullptr) {
+        server_ip = get_my_priv_ip_addr("enp0s3");
 
-    ip_proxy_server() = delete;
-
-    ip_proxy_server(basic_connection *conn, basic_gateway *gw = nullptr) : connection(conn) {
-        my_ip = get_my_priv_ip_addr("enp0s3");
-
-        client_handler.server = this;
-        network_handler.server = this;
-
-        if (gw == nullptr) {
-            network_layer_gateway = new class network_layer_gateway("enp0s3");
-        } else
-            network_layer_gateway = gw;
-
-        // tcpSession side
-        connection->add_listener(&client_handler); // recv
-        // no need to assign class for send, conn_side_handler would just use this class's reference
-
-        // recv from network
+        if (gw == nullptr) network_layer_gateway = new class network_layer_gateway("enp0s3");
+        else network_layer_gateway = gw;
         network_layer_gateway->add_listener(&network_handler);
-        // no need to assign class for send, network_side_handler would just use this class's reference
+
+        network_handler.server = this;
+    }
+
+//    void set_proxied_connection(basic_connection* conn) {
+    void set_proxied_connection(basic_connection* conn) {
+        conn_handler = std::make_unique<conn_side_handler>(conn);
+        conn_handler->server = this;
+//        conn_side_handler handler(conn);
+//        handler.server = this;
+//        client_handlers.push_back(std::move(handler));
     }
 
 };

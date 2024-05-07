@@ -3,7 +3,7 @@
 
 #include <thread>
 #include <vector>
-#include "../connection/basic_connection.h"
+#include "../abstract/connection/basic_connection.h"
 #include "basic_firewall_filter.h"
 
 class firewall : public basic_connection {
