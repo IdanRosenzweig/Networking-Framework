@@ -5,14 +5,15 @@
 #include <thread>
 #include <pcap/pcap.h>
 
-#include "../../abstract/connection/basic_gateway.h"
-#include "data_link_sniffer.h"
-
-class data_link_layer_gateway : public basic_gateway {
+#include "../../abstract/gateway/basic_gateway.h"
+//#include "data_link_sniffer.h"
+#include "interface_sniffer.h"
+class data_link_layer_gateway : private basic_sniffer, public basic_gateway {
 private:
     int fd;
 
-    data_link_sniffer sniffer;
+//    data_link_sniffer sniffer;
+    interface_sniffer if_sniffer;
 
 public:
 
@@ -21,6 +22,11 @@ public:
     ~data_link_layer_gateway();
 
     int send_data(send_msg msg) override;
+
+private:
+    void handle_outgoing_packet(received_msg &msg) override;
+
+    void handle_incoming_packet(received_msg &msg) override;
 
 };
 

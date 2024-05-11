@@ -28,7 +28,10 @@ void recv_packet(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *b
 
 }
 
-data_link_layer_gateway::data_link_layer_gateway(const string& interface) : sniffer(interface, true) {
+data_link_layer_gateway::data_link_layer_gateway(const string &interface)
+//        : sniffer(interface, true)
+        : if_sniffer(interface)
+    {
 
     // open sd
     fd = socket(
@@ -52,22 +55,19 @@ data_link_layer_gateway::data_link_layer_gateway(const string& interface) : snif
         perror("SIOCGIFINDEX");
 
     struct sockaddr_ll outputServer;
-    memset(&outputServer, 0, sizeof (struct sockaddr_ll));
+    memset(&outputServer, 0, sizeof(struct sockaddr_ll));
 
     outputServer.sll_family = AF_PACKET;
     outputServer.sll_protocol = htons(ETH_P_ALL);
     outputServer.sll_ifindex = if_idx.ifr_ifindex;
-    outputServer.sll_halen = ETH_ALEN;  // 6
+    outputServer.sll_halen = ETH_ALEN;
 
-    // is this needed for writing RAW ethernet out, even as tcpSession???
-    if (bind(fd, (struct sockaddr *) & outputServer, sizeof (outputServer)) == -1)
+    if (bind(fd, (struct sockaddr *) &outputServer, sizeof(outputServer)) == -1)
         perror("bind");
 
+//    sniffer.add_listener(this);
+    if_sniffer.add_sniffer(this);
 
-//    // set ll socket msg
-//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
-
-    sniffer.add_listener(this);
 }
 
 data_link_layer_gateway::~data_link_layer_gateway() {
@@ -77,6 +77,14 @@ data_link_layer_gateway::~data_link_layer_gateway() {
 
 int data_link_layer_gateway::send_data(send_msg msg) {
     return send(fd,
-                  msg.buff, msg.count,
-                  0);
+                msg.buff, msg.count,
+                0);
+}
+
+void data_link_layer_gateway::handle_outgoing_packet(received_msg &msg) {
+    // nothing
+}
+
+void data_link_layer_gateway::handle_incoming_packet(received_msg &msg) {
+    this->handle_received_event(msg);
 }

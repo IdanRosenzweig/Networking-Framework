@@ -2,7 +2,7 @@
 #define SERVERCLIENT_VIRTUAL_IF_H
 
 #include <thread>
-#include "../abstract/connection/basic_gateway.h"
+#include "../abstract/gateway/basic_gateway.h"
 #include "../abstract/receiving/msg_receiver.h"
 
 class linux_virtual_iface;

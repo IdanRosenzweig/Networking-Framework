@@ -73,7 +73,7 @@ int tcp_session::send_data(send_msg msg) {
 }
 
 void tcp_session::handle_received_event(received_msg &event) {
-    listenable::handle_received_event(event);
+    multi_receiver::handle_received_event(event);
 }
 
 

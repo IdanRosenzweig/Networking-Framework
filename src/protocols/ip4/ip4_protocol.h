@@ -16,6 +16,7 @@ public:
 
     // send
     next_choice<int> next_protocol;
+    next_choice<uint8_t> next_ttl;
     next_choice<ip4_addr> next_dest_addr;
     next_choice<ip4_addr> next_source_addr;
 

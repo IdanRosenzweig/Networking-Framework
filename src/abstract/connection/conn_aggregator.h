@@ -4,7 +4,7 @@
 #include "../sending/msg_sender.h"
 #include "../receiving/msg_receiver.h"
 #include "basic_connection.h"
-#include "basic_gateway.h"
+#include "../gateway/basic_gateway.h"
 
 class conn_aggregator;
 

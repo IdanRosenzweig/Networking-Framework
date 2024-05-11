@@ -6,7 +6,7 @@
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
 
-#include "../../vpn/vpn_client.h"
+#include "../../temp_utils/vpn/vpn_client.h"
 #include "../../linux/virtual_if.h"
 
 
@@ -56,7 +56,7 @@ void vpn_main() {
 
         ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
 
-        // ping
+        // ping_util
         icmp_client.ping();
     }
 

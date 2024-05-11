@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <thread>
 
-#include "../../abstract/connection/basic_session.h"
+#include "../../abstract/session/basic_session.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"
 

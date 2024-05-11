@@ -9,10 +9,9 @@
 // basic use of receiving interrupted msg: storing them in a queue
 template <typename T>
 class recv_queue : public basic_receiver<T> {
-private:
+public:
     circular_buffer<T> income_queue;
 
-public:
     void handle_received_event(T& event) override {
         income_queue.push_back(event);
     }

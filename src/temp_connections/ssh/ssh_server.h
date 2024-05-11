@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 
-#include "../../abstract/connection/basic_session.h"
+#include "../../abstract/session/basic_session.h"
 
 #include "ssh_conn_session.h"
 

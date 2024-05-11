@@ -1,5 +1,5 @@
-#include "../../temp_connections/tcp_client_server//tcp_client.h"
-#include "../../temp_connections/tcp_client_server//tcp_boundary_preserving_client.h"
+#include "../../temp_connections/tcp_client_server/tcp_client.h"
+#include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_client.h"
 
 #include <string>
 using namespace std;
@@ -11,14 +11,14 @@ using namespace std;
 class client_app_tcp : public msg_receiver {
 public:
     void handle_received_event(received_msg &event) override {
-        cout << "server: " << event.data.get() + event.curr_offset << endl;
+        cout << "raw_tcp_server: " << event.data.get() + event.curr_offset << endl;
     }
 };
 
 void tcp_main() {
 
 //    tcp_client client(SERVER_ADDR, SERVER_PORT, MY_PORT);
-    tcp_boundary_preserving_client client(SERVER_ADDR, SERVER_PORT, MY_PORT);
+    tcp_boundary_preserving_client client(convert_to_ip4_addr(SERVER_ADDR), SERVER_PORT, MY_PORT);
 
     client_app_tcp app;
     client.add_listener(&app);
@@ -30,19 +30,19 @@ void tcp_main() {
     msg = "hello";
     client.send_data({msg, (int) strlen(msg)});
 
-//    sleep(1);
+    sleep(1);
     msg = "thisis test msg";
     client.send_data({msg, (int) strlen(msg)});
 
-//    sleep(1);
+    sleep(1);
     msg = "another one";
     client.send_data({msg, (int) strlen(msg)});
 
-//    sleep(1);
+    sleep(1);
     msg = "another one2";
     client.send_data({msg, (int) strlen(msg)});
 
-//    sleep(1);
+    sleep(1);
     msg = "another one3";
     client.send_data({msg, (int) strlen(msg)});
 

@@ -25,7 +25,7 @@ mac_addr get_my_mac_address(const char *interface_name) {
 }
 
 void print_mac(mac_addr addr) {
-    printf("mac octets is: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    printf("%02x:%02x:%02x:%02x:%02x:%02x",
            (unsigned int) addr.octets[0],
            (unsigned int) addr.octets[1],
            (unsigned int) addr.octets[2],

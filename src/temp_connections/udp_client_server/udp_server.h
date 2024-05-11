@@ -12,7 +12,7 @@
 #include <linux/ip.h>
 
 
-class udp_server : public msg_receiver, public listenable<socket_msg> {
+class udp_server : public msg_receiver, public multi_receiver<socket_msg> {
 public:
     network_layer_gateway gateway;
     ip4_protocol ip_server;
@@ -49,7 +49,7 @@ public:
         extract_from_network_order(&sock_msg.source_addr,
                                    (uint8_t*) &((struct iphdr*) (event.data.get() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
-        this->listenable::handle_received_event(sock_msg);
+        this->multi_receiver::handle_received_event(sock_msg);
     }
 
     int send_data_to_client(ip4_addr client_addr, int dest_port, send_msg msg) {

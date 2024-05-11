@@ -12,6 +12,7 @@ template <typename MSG_SZ_FIELD = uint16_t>
 class msg_boundary_seperator : public basic_connection {
     basic_connection* base_conn;
 public:
+
     msg_boundary_seperator() {}
     explicit msg_boundary_seperator(basic_connection *baseConn) : base_conn(baseConn) {
         base_conn->add_listener(this);
@@ -63,7 +64,7 @@ public:
             cnt -= reading;
 
             if (curr_read == curr_msg.sz) {
-                listenable::handle_received_event(curr_msg);
+                multi_receiver::handle_received_event(curr_msg);
                 mid_packet = false;
             }
         }

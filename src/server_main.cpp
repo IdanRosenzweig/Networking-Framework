@@ -9,12 +9,12 @@
 #include "linux/network_layer_gateway/network_layer_gateway.h"
 #include "abstract/receiving/recv_queue.h"
 #include "linux/network_layer_gateway/network_layer_gateway.h"
-#include "proxy/network_layer/ip_proxy_server.h"
-#include "temp_connections/udp/udp_server.h"
-#include "temp_connections/dns_server/dns_server.h"
+#include "temp_utils/proxy/network_layer/ip_proxy_server.h"
+#include "temp_connections/udp_client_server/udp_server.h"
+#include "temp_utils/dns_server_client//dns_server.h"
 #include "abstract/connection/conn_aggregator.h"
 #include "temp_connections/ssh/ssh_server.h"
-#include "vpn/vpn_daemon.h"
+#include "temp_utils/vpn/vpn_daemon.h"
 #include "protocols/msg_boundary/msg_boundary_seperator.h"
 
 #define MY_IP "10.100.102.31"
@@ -132,7 +132,7 @@ int tcp_main() {
 ////        cout << "received from " << inet_ntoa(in_addr{htonl(event.source_addr)}) << endl;
 //        cout << "source port " << event.source_port << endl;
 //        cout << "dest port " << event.dest_port << endl;
-//        this->listenable::handle_received_event(event.msg);
+//        this->multi_receiver::handle_received_event(event.msg);
 //    }
 //
 //    string client_addr = "10.100.102.18";
@@ -218,16 +218,16 @@ void vpn_main() {
 }
 
 //void ssh_main() {
-//    ssh_server server(1234);
+//    ssh_server raw_tcp_server(1234);
 //
-//    while (server.as_server_sessions.empty()) {
+//    while (raw_tcp_server.as_server_sessions.empty()) {
 //        using namespace std::chrono_literals;
 //        std::this_thread::sleep_for(500ms);
 //    }
 //
 //    // has session
 //    cout << "has session" << endl;
-//    std::unique_ptr<basic_session>& session = server.as_server_sessions[0];
+//    std::unique_ptr<basic_session>& session = raw_tcp_server.as_server_sessions[0];
 //
 //    server_app_tcp testHandler;
 //    session->add_listener(&testHandler);

@@ -75,7 +75,7 @@ tcp_protocol::tcp_protocol(bool server) {
                 std::unique_ptr<tcp_session> session = std::make_unique<tcp_session>(
                         client_sd, tcp_session_data{addr, ntohs(client_addr.sin_port), 5678}
                 );
-                this->listenable::handle_received_event(session);
+                this->multi_receiver::handle_received_event(session);
 
             }
         });
@@ -127,16 +127,16 @@ std::unique_ptr<tcp_session> tcp_protocol::start_session() {
         }
     }
 
-    std::cout << "connecting to server..." << std::endl;
+    std::cout << "connecting to raw_tcp_server..." << std::endl;
     if (connect(session_sd,
                 (struct sockaddr *) &my_addr,
                 sizeof(my_addr)
     ) < 0) {
-        cerr << "can't connect to server" << endl;
+        cerr << "can't connect to raw_tcp_server" << endl;
         return nullptr;
     }
 
-    std::cout << "connected to the server" << std::endl;
+    std::cout << "connected to the raw_tcp_server" << std::endl;
 
     return std::move(std::make_unique<tcp_session>(
             session_sd,

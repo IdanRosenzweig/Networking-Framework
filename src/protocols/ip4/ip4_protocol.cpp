@@ -8,13 +8,13 @@
 using namespace std;
 
 ip4_protocol::ip4_protocol() {
-
+    next_ttl.set_next_choice(255);
 }
 
 
 int ip4_protocol::send_data(send_msg msg) {
     if (next_dest_addr.get_next_choice() == ip4_addr{0}) {
-        cout << "tcpSession is null" << endl;
+//        cout << "tcpSession is null" << endl;
         return 0;
     }
 
@@ -31,7 +31,7 @@ int ip4_protocol::send_data(send_msg msg) {
     iph->tot_len = htons(ip_packet_len);
     iph->id = htonl(4444);
     iph->frag_off = 0;
-    iph->ttl = 255;
+    iph->ttl = next_ttl.get_next_choice();
     iph->protocol = next_protocol.get_next_choice();
 
 //    iph->saddr = htonl(next_source_addr.get_next_choice().raw);
@@ -49,7 +49,7 @@ int ip4_protocol::send_data(send_msg msg) {
 }
 
 void ip4_protocol::handle_received_event(received_msg& msg) {
-//    cout << "ip aggregator handler called" << endl;
+//    cout << "ip aggregator app_handler called" << endl;
     uint8_t *buff = msg.data.get() + msg.curr_offset;
 
     struct iphdr *iph = (struct iphdr *) buff;

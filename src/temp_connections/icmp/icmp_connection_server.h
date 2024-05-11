@@ -25,7 +25,7 @@ public:
         icmp_server.next_type.set_next_choice(ICMP_CONN_SERVER_TYPE);
         icmp_server.next_code.set_next_choice(ICMP_CONN_SERVER_CODE);
 
-        // client handler would automatically use _udp_server.
+        // client app_handler would automatically use _udp_server.
 
 
         // setup recv from client flow

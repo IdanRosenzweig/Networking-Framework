@@ -5,7 +5,7 @@
 #include <cstring>
 #include <thread>
 
-#include "../../abstract/connection/basic_session.h"
+#include "../../abstract/session/basic_session.h"
 #include "../../abstract/utils/next_choice.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"
@@ -13,7 +13,7 @@
 
 #include "tcp_session.h"
 
-class tcp_protocol : public listenable<std::unique_ptr<tcp_session>> {
+class tcp_protocol : public multi_receiver<std::unique_ptr<tcp_session>> {
 
     int sd;
     std::thread worker;

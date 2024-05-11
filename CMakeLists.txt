@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(ServerClient)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include(FindPCAP.cmake)
 include(FindLibSSH.cmake)
@@ -12,7 +12,7 @@ set(PROTOCOLS_SRC
         src/protocols/ether/ethernet_protocol.cpp
         src/protocols/ether/mac_addr.cpp
 
-        src/protocols/arp/arp_protocol.cpp
+        src/temp_utils/arp/arp_scanner.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
@@ -36,14 +36,15 @@ set(ABSTRACT_SRC
 
 set(LINUX_SRC
         src/linux/data_link_layer/data_link_layer_gateway.cpp
-        src/linux/data_link_layer/data_link_sniffer.cpp
+#        src/linux/data_link_layer/data_link_sniffer.cpp
+        src/linux/data_link_layer/interface_sniffer.cpp
 
         src/linux/network_layer_gateway/network_layer_gateway.cpp
 
         src/linux/hardware.cpp
+
         src/linux/virtual_if.cpp
         src/linux/tun_tap.cpp
-        src/linux/tun_tap.h
 )
 
 add_executable(Server
@@ -59,21 +60,20 @@ add_executable(Server
         src/temp_connections/icmp/icmp_connection_client.cpp
         src/temp_connections/icmp/icmp_connection_server.cpp
 
-        src/temp_connections/dns_server_client/dns_server.cpp
-        src/temp_connections/dns_server_client/dns.cpp
+        src/temp_utils/dns_server_client/dns_server.cpp
+        src/temp_utils/dns_server_client/dns.cpp
 
-        src/analyzer/analyzer.cpp
-        src/analyzer/packet_displayer.cpp
+        src/temp_utils/analyzer/analyzer.cpp
+        src/temp_utils/analyzer/packet_displayer.cpp
 
 
         src/temp_connections/ssh/ssh_server.cpp
 
         src/temp_connections/tcp_client_server/tcp_server.cpp
-        src/main/echo_server/echo_server.cpp
         src/temp_connections/tcp_client_server/tcp_boundary_preserving_server.cpp
-        src/temp_connections/tcp_client_server/tcp_boundary_preserving_server.h
-        src/onion_network/onion_network_node.cpp
-        src/onion_network/onion_network_node.h
+
+        src/temp_utils/onion_network/onion_network_node.cpp
+        src/temp_utils/onion_network/onion_network_node.h
 
 )
 target_link_libraries(Server ${PCAP_LIBRARY})
@@ -92,11 +92,11 @@ add_executable(Client
         src/temp_connections/icmp/icmp_connection_client.cpp
         src/temp_connections/icmp/icmp_connection_server.cpp
 
-        src/temp_connections/dns_server_client/dns_client.cpp
-        src/temp_connections/dns_server_client/dns.cpp
+        src/temp_utils/dns_server_client/dns_client.cpp
+        src/temp_utils/dns_server_client/dns.cpp
 
-        src/analyzer/analyzer.cpp
-        src/analyzer/packet_displayer.cpp
+        src/temp_utils/analyzer/analyzer.cpp
+        src/temp_utils/analyzer/packet_displayer.cpp
 
 
         src/linux/virtual_if.cpp
@@ -104,9 +104,14 @@ add_executable(Client
         src/temp_connections/ssh/ssh_conn_session.cpp
 
         src/temp_connections/tcp_client_server/tcp_client.cpp
-        src/temp_connections/tcp_client_server/tcp_client.h
         src/temp_connections/tcp_client_server/tcp_boundary_preserving_client.cpp
-        src/onion_network/client.h
+
+        src/temp_utils/onion_network/client.h
+
+        src/temp_utils/remote_service/remote_service_daemon.cpp
+        src/temp_utils/ping/ping_util.cpp
+        src/temp_utils/bandwidth/bandwidth.cpp
+        src/temp_utils/dns_server_client/database/database_loader.cpp
 
 )
 target_link_libraries(Client ${PCAP_LIBRARY})
@@ -130,8 +135,8 @@ add_executable(vpn_client
 
         src/main/vpn/vpn_client_main.cpp
 
-        src/temp_connections/dns_server_client/dns_client.cpp
-        src/temp_connections/dns_server_client/dns.cpp
+        src/temp_utils/dns_server_client/dns_client.cpp
+        src/temp_utils/dns_server_client/dns.cpp
 )
 target_link_libraries(vpn_client ${PCAP_LIBRARY})
 target_link_libraries(vpn_client ${LIBSSH_LIBRARIES})
@@ -165,8 +170,8 @@ add_executable(onion_network_node
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/main/onion_network/node.cpp
-        src/proxy/network_layer/ip_proxy_server.cpp
+        src/main/onion_network/network_node.cpp
+        src/temp_utils/proxy/network_layer/ip_proxy_server.cpp
 )
 target_link_libraries(onion_network_node ${PCAP_LIBRARY})
 target_link_libraries(onion_network_node ${LIBSSH_LIBRARIES})
@@ -176,9 +181,97 @@ add_executable(onion_network_client
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/main/onion_network/client.cpp
-        src/temp_connections/dns_server_client/dns_client.cpp
-        src/temp_connections/dns_server_client/dns.cpp
+        src/main/onion_network/network_client.cpp
+        src/temp_utils/dns_server_client/dns_client.cpp
+        src/temp_utils/dns_server_client/dns.cpp
 )
 target_link_libraries(onion_network_client ${PCAP_LIBRARY})
 target_link_libraries(onion_network_client ${LIBSSH_LIBRARIES})
+
+
+add_executable(ping
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/ping/ping.cpp
+        src/temp_utils/ping/ping_util.cpp
+)
+target_link_libraries(ping ${PCAP_LIBRARY})
+target_link_libraries(ping ${LIBSSH_LIBRARIES})
+
+add_executable(traceroute
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/ping/traceroute.cpp
+        src/temp_utils/ping/traceroute_util.cpp
+)
+target_link_libraries(traceroute ${PCAP_LIBRARY})
+target_link_libraries(traceroute ${LIBSSH_LIBRARIES})
+
+
+add_executable(bandwidth
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/bandwidth/bandwidth.cpp
+        src/temp_utils/bandwidth/bandwidth.cpp
+)
+target_link_libraries(bandwidth ${PCAP_LIBRARY})
+target_link_libraries(bandwidth ${LIBSSH_LIBRARIES})
+
+
+add_executable(netcat
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/netcat/netcat.cpp
+)
+target_link_libraries(netcat ${PCAP_LIBRARY})
+target_link_libraries(netcat ${LIBSSH_LIBRARIES})
+
+
+add_executable(dns_server
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/dns/dns_server.cpp
+        src/temp_utils/dns_server_client/dns_server.cpp
+        src/temp_utils/dns_server_client/database/database_loader.cpp
+        src/temp_utils/dns_server_client/dns.cpp
+)
+target_link_libraries(dns_server ${PCAP_LIBRARY})
+target_link_libraries(dns_server ${LIBSSH_LIBRARIES})
+
+add_executable(dns_client
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/dns/dns_client.cpp
+        src/temp_utils/dns_server_client/dns_client.cpp
+        src/temp_utils/dns_server_client/dns.cpp
+)
+target_link_libraries(dns_client ${PCAP_LIBRARY})
+target_link_libraries(dns_client ${LIBSSH_LIBRARIES})
+
+
+find_package(Boost REQUIRED COMPONENTS program_options)
+include_directories(${Boost_INCLUDE_DIRS})
+
+add_executable(arp_scan
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/arp/arp_scan.cpp
+        src/temp_utils/arp/arp_scanner.cpp
+)
+target_link_libraries(arp_scan ${PCAP_LIBRARY})
+target_link_libraries(arp_scan ${LIBSSH_LIBRARIES})
+target_link_libraries(arp_scan ${Boost_LIBRARIES})

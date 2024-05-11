@@ -7,7 +7,7 @@
 // in addition, when sending msg you don't have to worry about the protocol stack (you control it),
 // but when receiving msg you have to process the protocol stack
 
-// a basic network handler for handling interrupted msg
+// a basic network app_handler for handling interrupted msg
 template <typename T>
 class basic_receiver {
 public:

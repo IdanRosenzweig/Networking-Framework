@@ -2,7 +2,6 @@
 #define SERVERCLIENT_MAC_ADDR_H
 
 #include <stdint.h>
-#include "../ip4/ip4_addr.h"
 
 struct mac_addr {
     uint8_t octets[6];
