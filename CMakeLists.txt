@@ -12,7 +12,7 @@ set(PROTOCOLS_SRC
         src/protocols/ether/ethernet_protocol.cpp
         src/protocols/ether/mac_addr.cpp
 
-        src/temp_utils/arp/arp_scanner.cpp
+        src/temp_utils/net_arp/net_arp.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
@@ -264,14 +264,26 @@ target_link_libraries(dns_client ${LIBSSH_LIBRARIES})
 find_package(Boost REQUIRED COMPONENTS program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(arp_scan
+add_executable(net_scanner
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/main/arp/arp_scan.cpp
-        src/temp_utils/arp/arp_scanner.cpp
+        src/main/net_scanner/net_scanner.cpp
+        src/temp_utils/net_arp/net_arp.cpp
 )
-target_link_libraries(arp_scan ${PCAP_LIBRARY})
-target_link_libraries(arp_scan ${LIBSSH_LIBRARIES})
-target_link_libraries(arp_scan ${Boost_LIBRARIES})
+target_link_libraries(net_scanner ${PCAP_LIBRARY})
+target_link_libraries(net_scanner ${LIBSSH_LIBRARIES})
+target_link_libraries(net_scanner ${Boost_LIBRARIES})
+
+add_executable(net_intercept
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/net_intercept/net_intercept.cpp
+        src/temp_utils/net_arp/net_arp.cpp
+)
+target_link_libraries(net_intercept ${PCAP_LIBRARY})
+target_link_libraries(net_intercept ${LIBSSH_LIBRARIES})
+target_link_libraries(net_intercept ${Boost_LIBRARIES})

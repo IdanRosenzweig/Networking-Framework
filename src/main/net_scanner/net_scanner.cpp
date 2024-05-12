@@ -1,18 +1,18 @@
 #include "../../linux/data_link_layer/data_link_layer_gateway.h"
-#include "../../temp_utils/arp/arp_scanner.h"
+#include "../../temp_utils/net_arp/net_arp.h"
 #include "../../linux/hardware.h"
 #include <unistd.h>
 #include <boost/program_options.hpp>
 
 void arp_scan_single_main(ip4_addr ip_addr) {
-    arp_scanner scanner;
+    net_arp scanner;
 
     cout << "mac address associated with ip: " << convert_to_str(ip_addr) << endl;
     print_mac(scanner.search_for_mac_addr(ip_addr));
 }
 
 void arp_scan_subnet_main(ip4_subnet_mask mask) {
-    arp_scanner scanner;
+    net_arp scanner;
 
     auto results = scanner.scan_entire_subnet(mask);
 

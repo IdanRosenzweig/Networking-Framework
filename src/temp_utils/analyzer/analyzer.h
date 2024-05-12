@@ -5,7 +5,7 @@
 //#include "../../abstract/receiving/msg_receiver.h"
 //
 //#include "../../protocols/ether/ethernet_protocol.h"
-//#include "../../protocols/arp/arp_scanner.h"
+//#include "../../protocols/net_arp/net_arp.h"
 //#include "../../protocols/ip4/ip4_protocol.h"
 //#include "../../protocols/udp/udp_protocol.h"
 //#include "../../protocols/tcp/tcp_protocol.h"
@@ -17,7 +17,7 @@
 //    data_link_sniffer raw_sniffer;
 //
 //    ethernet_protocol ethernetProtocol;
-//    arp_scanner arpProtocol;
+//    net_arp arpProtocol;
 //    ip4_protocol ip4Protocol;
 //    udp_protocol udpProtocol;
 ////    tcp_protocol tcpProtocol;
