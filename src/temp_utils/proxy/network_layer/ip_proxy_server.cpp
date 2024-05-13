@@ -46,9 +46,13 @@ int network_side_handler::send_data(send_msg msg) {
 }
 
 void network_side_handler::handle_received_event(received_msg& msg) {
+    // make sure there are connections to send the packet to
+    // so no nullptr dereference or something like that happens
+    if (server->conn_handler == nullptr) return;
+    if (server->conn_handler->my_source == empty_ip4_addr) return;
+
     uint8_t *buff = msg.data.get() + msg.curr_offset;
     int cnt = msg.sz - msg.curr_offset;
-
     if (cnt <= 0) return;
 
     // get source ip
@@ -83,7 +87,7 @@ void network_side_handler::handle_received_event(received_msg& msg) {
     ip_hdr->check = 0;
     ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
-    cout << "sending reply back to connection" << endl;
+    cout << "sending reply back to connection " << convert_to_str(server->conn_handler->my_source) << "_" << endl;
     server->conn_handler->send_data({buff, cnt});
 
 }

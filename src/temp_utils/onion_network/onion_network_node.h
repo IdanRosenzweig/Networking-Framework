@@ -8,6 +8,8 @@
 // onion network node. currently only works with one connection.
 class onion_network_node {
 
+    ip_proxy_server proxy;
+
     class udp_server udpServer;
 
     class server_app_handler : public basic_receiver<socket_msg>, public basic_connection {
@@ -21,7 +23,6 @@ class onion_network_node {
         ip4_addr ip_source;
         int port_source;
         void handle_received_event(socket_msg& event) override {
-            cout << "received udp message" << endl;
             ip_source = event.source_addr;
             port_source = event.source_port;
             this->multi_receiver::handle_received_event(event.msg);
@@ -32,8 +33,6 @@ class onion_network_node {
         }
     };
     server_app_handler udp_single_conn;
-
-    ip_proxy_server proxy;
 
 public:
     onion_network_node(basic_gateway *gw = nullptr) : proxy(gw), udpServer(ONION_NETWORK_NODE_LISTEN_PORT), udp_single_conn(&udpServer) {

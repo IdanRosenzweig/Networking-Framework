@@ -8,45 +8,20 @@ using namespace std;
 struct ip4_addr {
     uint8_t octets[4];
 
-    bool operator==(const ip4_addr &rhs) const {
-        return octets[0] == rhs.octets[0]
-               && octets[1] == rhs.octets[1]
-               && octets[2] == rhs.octets[2]
-               && octets[3] == rhs.octets[3];
-    }
+    bool operator==(const ip4_addr &rhs) const;
 
-    bool operator!=(const ip4_addr &rhs) const {
-        return !(rhs == *this);
-    }
+    bool operator!=(const ip4_addr &rhs) const;
 
-    bool operator<(const ip4_addr &rhs) const {
-        if (octets[0] != rhs.octets[0])
-            return octets[0] < rhs.octets[0];
+    bool operator<(const ip4_addr &rhs) const;
 
-        if (octets[1] != rhs.octets[1])
-            return octets[1] < rhs.octets[1];
+    bool operator>(const ip4_addr &rhs) const;
 
-        if (octets[2] != rhs.octets[2])
-            return octets[2] < rhs.octets[2];
+    bool operator<=(const ip4_addr &rhs) const;
 
-        if (octets[3] != rhs.octets[3])
-            return octets[3] < rhs.octets[3];
-
-        return false;
-    }
-
-    bool operator>(const ip4_addr &rhs) const {
-        return rhs < *this;
-    }
-
-    bool operator<=(const ip4_addr &rhs) const {
-        return !(rhs < *this);
-    }
-
-    bool operator>=(const ip4_addr &rhs) const {
-        return !(*this < rhs);
-    }
+    bool operator>=(const ip4_addr &rhs) const;
 };
+
+#define empty_ip4_addr ip4_addr{{0,0,0,0}}
 
 ip4_addr generate_next_ip(ip4_addr addr);
 

@@ -4,11 +4,11 @@
 #include "protocols/udp/udp_protocol.h"
 #include "protocols/tcp/tcp_protocol.h"
 #include "protocols/ip4/ip4_protocol.h"
-#include "linux/data_link_layer/data_link_layer_gateway.h"
+#include "linux/interface_gateway.h"
 #include "protocols/ether/ethernet_protocol.h"
-#include "linux/network_layer_gateway/network_layer_gateway.h"
+#include "linux/osi/network_layer_gateway.h"
 #include "abstract/receiving/recv_queue.h"
-#include "linux/network_layer_gateway/network_layer_gateway.h"
+#include "linux/osi/network_layer_gateway.h"
 #include "temp_utils/proxy/network_layer/ip_proxy_server.h"
 #include "temp_connections/udp_client_server/udp_server.h"
 #include "temp_utils/dns_server_client//dns_server.h"
@@ -146,7 +146,7 @@ int tcp_main() {
 ////    icmp_connection_server icmpConnectionServer;
 //    server_app_handler conn(&udp_server); // automatically sets up send and recv control
 //
-//    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
+//    osi ipNetworkGateway("enp0s3"); // gateway to ip network
 //
 //    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
 //
@@ -161,7 +161,7 @@ int tcp_main() {
 ////    icmp_connection_server icmpConnectionServer;
 //    server_app_handler conn(&udp_server);
 //
-//    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
+//    osi ipNetworkGateway("enp0s3"); // gateway to ip network
 //
 //    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
 //
@@ -176,7 +176,7 @@ int tcp_main() {
 ////    icmp_connection_server icmpConnectionServer;
 //    server_app_handler conn(&udp_server);
 //
-//    network_layer_gateway ipNetworkGateway("enp0s3"); // gateway to ip network
+//    osi ipNetworkGateway("enp0s3"); // gateway to ip network
 //
 //    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
 //

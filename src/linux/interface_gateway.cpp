@@ -1,4 +1,4 @@
-#include "data_link_layer_gateway.h"
+#include "interface_gateway.h"
 
 #include <cstring>
 #include <iostream>
@@ -10,25 +10,26 @@
 
 using namespace std;
 
-void recv_packet(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
-    data_link_layer_gateway *gateway = reinterpret_cast<data_link_layer_gateway *>(user);
+//void recv_packet(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
+//    interface_gateway *gateway = reinterpret_cast<interface_gateway *>(user);
+//
+//    int data_sz = pkthdr->len;
+//
+//    if (data_sz <= 0) return;
+//
+//    uint8_t *alloc_msg = new uint8_t[data_sz];
+//    memcpy(alloc_msg, bytes, data_sz);
+//
+//    received_msg msg;
+//    msg.data = unique_ptr<uint8_t>(alloc_msg);
+//    msg.sz = data_sz;
+//    msg.curr_offset = 0;
+//    gateway->handle_received_event(msg);
+//
+//}
 
-    int data_sz = pkthdr->len;
 
-    if (data_sz <= 0) return;
-
-    uint8_t *alloc_msg = new uint8_t[data_sz];
-    memcpy(alloc_msg, bytes, data_sz);
-
-    received_msg msg;
-    msg.data = unique_ptr<uint8_t>(alloc_msg);
-    msg.sz = data_sz;
-    msg.curr_offset = 0;
-    gateway->handle_received_event(msg);
-
-}
-
-data_link_layer_gateway::data_link_layer_gateway(const string &interface)
+interface_gateway::interface_gateway(const string &interface)
 //        : sniffer(interface, true)
         : if_sniffer(interface)
     {
@@ -65,26 +66,33 @@ data_link_layer_gateway::data_link_layer_gateway(const string &interface)
     if (bind(fd, (struct sockaddr *) &outputServer, sizeof(outputServer)) == -1)
         perror("bind");
 
+    // set ll socket msg
+//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
+
 //    sniffer.add_listener(this);
     if_sniffer.add_sniffer(this);
 
 }
 
-data_link_layer_gateway::~data_link_layer_gateway() {
+interface_gateway::~interface_gateway() {
     close(fd);
 //    worker.detach();
 }
 
-int data_link_layer_gateway::send_data(send_msg msg) {
+int interface_gateway::send_data(send_msg msg) {
+//    return sendto(fd,
+//                msg.buff, msg.count,
+//                0,
+//                reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
     return send(fd,
-                msg.buff, msg.count,
-                0);
+                  msg.buff, msg.count,
+                  0);
 }
 
-void data_link_layer_gateway::handle_outgoing_packet(received_msg &msg) {
+void interface_gateway::handle_outgoing_packet(received_msg &msg) {
     // nothing
 }
 
-void data_link_layer_gateway::handle_incoming_packet(received_msg &msg) {
+void interface_gateway::handle_incoming_packet(received_msg &msg) {
     this->handle_received_event(msg);
 }

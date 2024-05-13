@@ -1,4 +1,4 @@
-#include "../../linux/data_link_layer/data_link_layer_gateway.h"
+#include "../../linux/interface_gateway.h"
 #include "../../temp_utils/analyzer/net_analyzer.h"
 
 #include <unistd.h>

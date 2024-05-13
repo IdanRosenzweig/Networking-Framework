@@ -13,7 +13,7 @@
 #include "protocols/ether/ethernet_protocol.h"
 #include "temp_utils/arp/arp_scanner.h"
 
-#include "linux/data_link_layer/data_link_layer_gateway.h"
+#include "linux/interface_gateway.h"
 #include "protocols/udp/udp_protocol.h"
 #include "temp_utils/proxy/network_layer/ip_proxy_client.h"
 #include "abstract/utils/circular_buffer.h"
@@ -139,7 +139,7 @@ void arp_main() {
     ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
 
     // protocol stack
-    data_link_layer_gateway dataLinkLayerGateway("enp0s3");
+    interface_gateway dataLinkLayerGateway("enp0s3");
 
     ethernet_protocol ether_client;
     arp_scanner arp_client;

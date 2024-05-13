@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_PING_UTIL_H
 #define SERVERCLIENT_PING_UTIL_H
 
-#include "../../linux/network_layer_gateway/network_layer_gateway.h"
+#include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
 #include "../../abstract/utils/circular_buffer.h"

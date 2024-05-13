@@ -1,8 +1,7 @@
 #ifndef SERVERCLIENT_NET_ANALYZER_H
 #define SERVERCLIENT_NET_ANALYZER_H
 
-#include "../../linux/data_link_layer/data_link_sniffer.h"
-#include "../../linux/data_link_layer/interface_sniffer.h"
+#include "../../linux/interface_sniffer.h"
 #include "../../abstract/receiving/msg_receiver.h"
 #include "../../abstract/connection/basic_sniffer.h"
 

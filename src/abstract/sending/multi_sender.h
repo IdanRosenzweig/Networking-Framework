@@ -20,4 +20,5 @@ public:
     }
 
 };
+
 #endif //SERVERCLIENT_MULTI_SENDER_H

@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 linux_virtual_iface::linux_virtual_iface(basic_gateway *ggw, char *dev) : gateway(ggw) {
-    ggw->add_listener(this);
+    gateway->add_listener(this);
 
     fd = open_raw_tap(dev);
     if (fd == -1)
@@ -21,7 +21,7 @@ linux_virtual_iface::linux_virtual_iface(basic_gateway *ggw, char *dev) : gatewa
             int cnt = read(fd, buff, BUFF_SZ);
             if (cnt <= 0) continue;
 
-//            cout << "tap sending " << cnt << " bytes" << endl;
+            cout << "tap sending " << cnt << " bytes" << endl;
             this->gateway->send_data({buff, cnt});
         }
     });
@@ -29,8 +29,7 @@ linux_virtual_iface::linux_virtual_iface(basic_gateway *ggw, char *dev) : gatewa
 
 void linux_virtual_iface::handle_received_event(received_msg &event) {
     int cnt = event.sz - event.curr_offset;
-    if (cnt == 60)
-        cout << "tap received " << cnt << " bytes" << endl;
+//    cout << "tap received " << cnt << " bytes" << endl;
     write(fd, event.data.get() + event.curr_offset, event.sz - event.curr_offset);
 //    write(fd, event.data.get(), event.sz);
 }

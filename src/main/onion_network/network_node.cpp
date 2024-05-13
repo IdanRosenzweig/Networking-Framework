@@ -1,6 +1,5 @@
-#include "../../proxy/network_layer/ip_proxy_server.h"
-#include "../../temp_connections/udp_client_server/udp_server.h"
-#include "../../onion_network/onion_network_node.h"
+#include "../../linux/osi/network_layer_gateway.h"
+#include "../../temp_utils/onion_network/onion_network_node.h"
 
 
 void onion_network_node_main() {

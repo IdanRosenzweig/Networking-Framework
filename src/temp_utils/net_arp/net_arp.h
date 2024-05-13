@@ -10,7 +10,7 @@
 #include "../../abstract/receiving/recv_queue.h"
 #include "../../abstract/utils/circular_buffer.h"
 
-#include "../../linux/data_link_layer/data_link_layer_gateway.h"
+#include "../../linux/interface_gateway.h"
 
 #include "../../protocols/ether/mac_addr.h"
 #include "../../protocols/ether/ethernet_protocol.h"
@@ -21,7 +21,7 @@
 class net_arp : private recv_queue<received_msg> {
 
     // send
-    data_link_layer_gateway dataLinkLayerGateway;
+    interface_gateway dataLinkLayerGateway;
     ethernet_protocol ether_client;
 
 public:

@@ -3,6 +3,7 @@
 #include <cstring>
 #include <arpa/inet.h>
 #include "internet_checksum.h"
+#include <netinet/ip.h>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ ip4_protocol::ip4_protocol() {
 
 
 int ip4_protocol::send_data(send_msg msg) {
-    if (next_dest_addr.get_next_choice() == ip4_addr{0}) {
+    if (next_dest_addr.get_next_choice() == empty_ip4_addr) {
 //        cout << "tcpSession is null" << endl;
         return 0;
     }

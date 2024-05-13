@@ -1,7 +1,7 @@
 #include <iostream>
 #include <linux/if_ether.h>
 
-#include "../../linux/data_link_layer/data_link_layer_gateway.h"
+#include "../../linux/interface_gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
@@ -27,7 +27,7 @@ void vpn_main() {
         char *str = "172.217.22.46";
         //    char* str = "google.com";
 
-        data_link_layer_gateway dataLinkLayerGateway(dev);
+        interface_gateway dataLinkLayerGateway(dev);
         ethernet_protocol ether_client;
         ip4_protocol ip_client;
         icmp_protocol icmp_client;

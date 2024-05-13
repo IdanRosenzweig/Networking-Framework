@@ -1,4 +1,4 @@
-#include "../../linux/data_link_layer/data_link_layer_gateway.h"
+#include "../../linux/interface_gateway.h"
 #include "../../temp_utils/net_arp/net_arp.h"
 #include "../../linux/hardware.h"
 #include <unistd.h>

@@ -36,16 +36,17 @@ set(ABSTRACT_SRC
 )
 
 set(LINUX_SRC
-        src/linux/data_link_layer/data_link_layer_gateway.cpp
-#        src/linux/data_link_layer/data_link_sniffer.cpp
-        src/linux/data_link_layer/interface_sniffer.cpp
+        src/linux/interface_gateway.cpp
+        src/linux/interface_sniffer.cpp
 
-        src/linux/network_layer_gateway/network_layer_gateway.cpp
+        src/linux/osi/network_layer_gateway.cpp
 
         src/linux/hardware.cpp
 
         src/linux/virtual_if.cpp
         src/linux/tun_tap.cpp
+        src/linux/osi/data_link_layer_gateway.cpp
+        src/linux/osi/data_link_layer_gateway.h
 )
 
 add_executable(Server
@@ -173,6 +174,7 @@ add_executable(onion_network_node
 
         src/main/onion_network/network_node.cpp
         src/temp_utils/proxy/network_layer/ip_proxy_server.cpp
+        src/temp_connections/udp_client_server/udp_server.cpp
 )
 target_link_libraries(onion_network_node ${PCAP_LIBRARY})
 target_link_libraries(onion_network_node ${LIBSSH_LIBRARIES})

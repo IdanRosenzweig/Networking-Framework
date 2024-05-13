@@ -3,7 +3,7 @@
 
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
-#include "../../linux/network_layer_gateway/network_layer_gateway.h"
+#include "../../linux/osi/network_layer_gateway.h"
 #include "../../abstract/connection/basic_connection.h"
 #include "common.h"
 

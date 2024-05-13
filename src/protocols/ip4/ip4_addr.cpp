@@ -1,6 +1,46 @@
 #include "ip4_addr.h"
 #include <arpa/inet.h>
 
+bool ip4_addr::operator==(const ip4_addr &rhs) const {
+    return octets[0] == rhs.octets[0]
+           && octets[1] == rhs.octets[1]
+           && octets[2] == rhs.octets[2]
+           && octets[3] == rhs.octets[3];
+}
+
+bool ip4_addr::operator!=(const ip4_addr &rhs) const {
+    return !(rhs == *this);
+}
+
+bool ip4_addr::operator<(const ip4_addr &rhs) const {
+    if (octets[0] != rhs.octets[0])
+        return octets[0] < rhs.octets[0];
+
+    if (octets[1] != rhs.octets[1])
+        return octets[1] < rhs.octets[1];
+
+    if (octets[2] != rhs.octets[2])
+        return octets[2] < rhs.octets[2];
+
+    if (octets[3] != rhs.octets[3])
+        return octets[3] < rhs.octets[3];
+
+    return false;
+}
+
+bool ip4_addr::operator>(const ip4_addr &rhs) const {
+    return rhs < *this;
+}
+
+bool ip4_addr::operator<=(const ip4_addr &rhs) const {
+    return !(rhs < *this);
+}
+
+bool ip4_addr::operator>=(const ip4_addr &rhs) const {
+    return !(*this < rhs);
+}
+
+
 ip4_addr generate_next_ip(ip4_addr addr) {
     ip4_addr next_ip;
 
@@ -93,3 +133,4 @@ bool is_inside_subnet(ip4_subnet_mask subnet, ip4_addr ip) {
 
     return inside_mask;
 }
+

@@ -29,7 +29,7 @@ class vpn_daemon {
     };
     sessions_handler handler;
 
-    data_link_layer_gateway dataLinkLayerGateway;
+    interface_gateway dataLinkLayerGateway;
     vector<std::unique_ptr<tcp_session>> tcpSession;
     vector<msg_boundary_seperator<>> sessions;
 

@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_INTERFACE_SNIFFER_H
 #define SERVERCLIENT_INTERFACE_SNIFFER_H
 
-#include "../../abstract/connection/multi_sniffer.h"
+#include "../abstract/connection/multi_sniffer.h"
 
 #include <pcap/pcap.h>
 #include <string>

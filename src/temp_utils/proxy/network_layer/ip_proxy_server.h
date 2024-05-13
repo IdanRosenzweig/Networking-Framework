@@ -5,7 +5,7 @@
 #include "../../../abstract/gateway/basic_gateway.h"
 #include "../../../abstract/receiving/msg_receiver.h"
 
-#include "../../../linux/network_layer_gateway/network_layer_gateway.h"
+#include "../../../linux/osi/network_layer_gateway.h"
 
 #include "../../../protocols/ip4/ip4_addr.h"
 
@@ -23,7 +23,7 @@ class conn_side_handler : public msg_sender, public msg_receiver {
     basic_connection * my_conn;
 
 public:
-    ip4_addr my_source;
+    ip4_addr my_source = empty_ip4_addr;
 
     explicit conn_side_handler(basic_connection *myConn) : my_conn(myConn) {
         my_conn->add_listener(this);
