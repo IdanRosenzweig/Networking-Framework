@@ -1,6 +1,5 @@
 #include "udp_protocol.h"
 #include <iostream>
-#include "udp_header.h"
 #include <netinet/in.h>
 #include <cstring>
 #include "../ip4/internet_checksum.h"
@@ -39,13 +38,13 @@ void udp_protocol::handle_received_event(received_msg& msg) {
 
 //    cout << "udp_client_server aggregator app_handler called on port " << port << endl;
 
+    if (default_handler != nullptr)
+        default_handler->handle_received_event(msg);
+
     if (port_handlers.is_key_assigned(port)) {
 //        cout << "found assigned port: " << port << endl;
          port_handlers.get_val_of_key(port)->handle_received_event(msg);
-         return;
+//         return;
     }
-
-    if (default_handler != nullptr)
-        default_handler->handle_received_event(msg);
 
 }

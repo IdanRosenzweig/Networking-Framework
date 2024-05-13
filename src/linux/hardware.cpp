@@ -24,17 +24,6 @@ mac_addr get_my_mac_address(const char *interface_name) {
     return addr;
 }
 
-void print_mac(mac_addr addr) {
-    printf("%02x:%02x:%02x:%02x:%02x:%02x",
-           (unsigned int) addr.octets[0],
-           (unsigned int) addr.octets[1],
-           (unsigned int) addr.octets[2],
-           (unsigned int) addr.octets[3],
-           (unsigned int) addr.octets[4],
-           (unsigned int) addr.octets[5]
-    );
-}
-
 ip4_addr get_my_priv_ip_addr(const char *interface) {
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 

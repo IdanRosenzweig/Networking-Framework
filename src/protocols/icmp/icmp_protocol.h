@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_ICMP_PROTOCOL_H
 #define SERVERCLIENT_ICMP_PROTOCOL_H
 
-#include "icmp_packet.h"
+#include "icmp_header.h"
 #include "../../abstract/sending/msg_sender.h"
 #include "../../abstract/receiving/msg_receiver.h"
 #include "../../abstract/utils/multiplexer.h"

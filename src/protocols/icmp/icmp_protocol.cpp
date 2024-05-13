@@ -3,7 +3,7 @@
 #include <linux/icmp.h>
 #include <cstring>
 #include <thread>
-#include "icmp_packet.h"
+#include "icmp_header.h"
 #include "../ip4/internet_checksum.h"
 
 using namespace std;
@@ -14,17 +14,17 @@ int icmp_protocol::send_data(send_msg msg) {
     char buff[BUFF_LEN];
     memset(buff, '\x00', BUFF_LEN);
 
-    icmp_packet *packet = reinterpret_cast<icmp_packet*>(buff);
+    icmp_header *packet = reinterpret_cast<icmp_header*>(buff);
     packet->type = next_type.get_next_choice();
     packet->code = next_code.get_next_choice();
     packet->content.raw = next_content.get_next_choice();
 
-    memcpy(buff + sizeof(icmp_packet), msg.buff, msg.count);
+    memcpy(buff + sizeof(icmp_header), msg.buff, msg.count);
 
     packet->checksum = 0;
-    packet->checksum = internet_checksum(reinterpret_cast<uint16_t *>(buff), sizeof(icmp_packet) + msg.count);
+    packet->checksum = internet_checksum(reinterpret_cast<uint16_t *>(buff), sizeof(icmp_header) + msg.count);
 
-    return gateway->send_data({buff, (int) sizeof(icmp_packet) + msg.count});
+    return gateway->send_data({buff, (int) sizeof(icmp_header) + msg.count});
 }
 
 void icmp_protocol::handle_received_event(received_msg& msg) {
@@ -32,19 +32,19 @@ void icmp_protocol::handle_received_event(received_msg& msg) {
 
     uint8_t *buff = msg.data.get() + msg.curr_offset;
 
-    struct icmp_packet *icmp = (struct icmp_packet *) buff;
+    struct icmp_header *icmp = (struct icmp_header *) buff;
     uint8_t type = icmp->type;
 
     msg.protocol_offsets.push_back({msg.curr_offset, ICMP});
-    msg.curr_offset += sizeof(struct icmp_packet);
-
-    if (type_handlers.is_key_assigned(type)) {
-        type_handlers.get_val_of_key(type)->handle_received_event(msg);
-        return;
-    }
+    msg.curr_offset += sizeof(struct icmp_header);
 
     if (default_handler != nullptr)
         default_handler->handle_received_event(msg);
+
+    if (type_handlers.is_key_assigned(type)) {
+        type_handlers.get_val_of_key(type)->handle_received_event(msg);
+//        return;
+    }
 
 }
 
@@ -54,7 +54,7 @@ void icmp_protocol::handle_received_event(received_msg& msg) {
 //    char buff[BUFF_LEN];
 //    memset(buff, '\x00', BUFF_LEN);
 //
-//    icmp_packet* packet = reinterpret_cast<icmp_packet *>(buff);
+//    icmp_header* packet = reinterpret_cast<icmp_header *>(buff);
 //    packet->type = ICMP_ECHO;
 //    packet->code = 0;
 //    packet->content.echo.id = 3333;
@@ -62,7 +62,7 @@ void icmp_protocol::handle_received_event(received_msg& msg) {
 //
 //    char *data = "echo packet";
 //    int data_sz = strlen(data);
-//    memcpy(buff + sizeof(icmp_packet), data, data_sz);
+//    memcpy(buff + sizeof(icmp_header), data, data_sz);
 //
 //    int i = 0;
 //    do {
@@ -70,12 +70,12 @@ void icmp_protocol::handle_received_event(received_msg& msg) {
 ////        std::this_thread::sleep_for(100ms);
 //
 //        packet->checksum = 0; // must reset the value before calculating the checksum again
-//        packet->checksum = internet_checksum(reinterpret_cast<uint16_t *>(buff), sizeof(icmp_packet) + data_sz); // update checksum
+//        packet->checksum = internet_checksum(reinterpret_cast<uint16_t *>(buff), sizeof(icmp_header) + data_sz); // update checksum
 //
 //        // count start time
 //        const auto start = std::chrono::high_resolution_clock::now();
 //
-//        if (gateway->send_data({buff, (int) sizeof(icmp_packet) + data_sz}) < 1) {
+//        if (gateway->send_data({buff, (int) sizeof(icmp_header) + data_sz}) < 1) {
 //            std::cerr << "Failed to send packet" << std::endl;
 //            continue;
 //        }
@@ -89,7 +89,7 @@ void icmp_protocol::handle_received_event(received_msg& msg) {
 //            const auto end = std::chrono::high_resolution_clock::now();
 //            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 //
-//            icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
+//            icmp_header *reply = reinterpret_cast<icmp_header *>(buf);
 //
 //            bool failed = false;
 //            if (reply->content.echo.id != packet->content.echo.id) failed = true;

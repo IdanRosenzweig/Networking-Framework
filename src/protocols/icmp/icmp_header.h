@@ -1,9 +1,9 @@
-#ifndef SERVERCLIENT_ICMP_PACKET_H
-#define SERVERCLIENT_ICMP_PACKET_H
+#ifndef SERVERCLIENT_ICMP_HEADER_H
+#define SERVERCLIENT_ICMP_HEADER_H
 
 #include <stdint.h>
 
-struct icmp_packet {
+struct icmp_header {
     uint8_t type;
     uint8_t code;
     uint16_t checksum;
@@ -25,4 +25,4 @@ struct icmp_packet {
 };
 
 
-#endif //SERVERCLIENT_ICMP_PACKET_H
+#endif //SERVERCLIENT_ICMP_HEADER_H

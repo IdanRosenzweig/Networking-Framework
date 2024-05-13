@@ -7,6 +7,7 @@
 #include "../../abstract/receiving/msg_receiver.h"
 #include "../../abstract/utils/next_choice.h"
 #include "../../abstract/utils/multiplexer.h"
+#include "udp_header.h"
 
 class udp_protocol : public msg_sender, public msg_receiver {
 public:

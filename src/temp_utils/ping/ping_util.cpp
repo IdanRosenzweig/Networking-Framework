@@ -10,7 +10,7 @@ void ping_util::ping_node() {
 
     icmp_client.next_type.set_next_choice(ICMP_ECHO);
     icmp_client.next_code.set_next_choice(0);
-    icmp_packet::content::echo_content content{0x1234, 0};
+    icmp_header::content::echo_content content{0x1234, 0};
     icmp_client.next_content.set_next_choice(*(uint32_t*) &content);
 
     int i = 0;
@@ -34,7 +34,7 @@ void ping_util::ping_node() {
         const auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
+        icmp_header *reply = reinterpret_cast<icmp_header *>(buf);
 
         bool failed = false;
         switch (reply->type) {

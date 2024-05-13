@@ -32,6 +32,7 @@ set(PROTOCOLS_SRC
 set(ABSTRACT_SRC
         src/abstract/protocol_t.cpp
         src/abstract/connection/conn_aggregator.cpp
+        src/abstract/utils/datadump.h
 )
 
 set(LINUX_SRC
@@ -63,7 +64,7 @@ add_executable(Server
         src/temp_utils/dns_server_client/dns_server.cpp
         src/temp_utils/dns_server_client/dns.cpp
 
-        src/temp_utils/analyzer/analyzer.cpp
+        src/temp_utils/analyzer/net_analyzer.cpp
         src/temp_utils/analyzer/packet_displayer.cpp
 
 
@@ -95,7 +96,7 @@ add_executable(Client
         src/temp_utils/dns_server_client/dns_client.cpp
         src/temp_utils/dns_server_client/dns.cpp
 
-        src/temp_utils/analyzer/analyzer.cpp
+        src/temp_utils/analyzer/net_analyzer.cpp
         src/temp_utils/analyzer/packet_displayer.cpp
 
 
@@ -287,3 +288,15 @@ add_executable(net_intercept
 target_link_libraries(net_intercept ${PCAP_LIBRARY})
 target_link_libraries(net_intercept ${LIBSSH_LIBRARIES})
 target_link_libraries(net_intercept ${Boost_LIBRARIES})
+
+add_executable(net_analyzer
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/net_analyzer/net_analyzer.cpp
+        src/temp_utils/analyzer/net_analyzer.cpp
+)
+target_link_libraries(net_analyzer ${PCAP_LIBRARY})
+target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
+target_link_libraries(net_analyzer ${Boost_LIBRARIES})

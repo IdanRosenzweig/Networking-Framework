@@ -23,7 +23,7 @@
 
 #include "temp_utils/firewalls/firewall.h"
 #include "temp_utils/firewalls/network_layer/only_udp_filter.h"
-#include "temp_utils/analyzer/analyzer.h"
+#include "temp_utils/analyzer/net_analyzer.h"
 
 #include "linux/virtual_if.h"
 

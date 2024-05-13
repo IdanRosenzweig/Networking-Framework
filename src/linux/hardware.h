@@ -6,8 +6,6 @@
 
 mac_addr get_my_mac_address(const char *interface_name);
 
-void print_mac(mac_addr addr);
-
 ip4_addr get_my_priv_ip_addr(const char *interface);
 
 

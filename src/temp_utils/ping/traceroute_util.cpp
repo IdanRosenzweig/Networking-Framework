@@ -10,7 +10,7 @@ void traceroute_util::trace_to_destination() {
 
     icmp_client.next_type.set_next_choice(ICMP_ECHO);
     icmp_client.next_code.set_next_choice(0);
-    icmp_packet::content::echo_content content{0x1234, 0};
+    icmp_header::content::echo_content content{0x1234, 0};
     icmp_client.next_content.set_next_choice(*(uint32_t *) &content);
 
     cout << "trace: " << endl;
@@ -30,7 +30,7 @@ void traceroute_util::trace_to_destination() {
         raw_icmp.pop_front();
         uint8_t *buf = msg.data.get() + msg.protocol_offsets.back().first;
 
-        icmp_packet *reply = reinterpret_cast<icmp_packet *>(buf);
+        icmp_header *reply = reinterpret_cast<icmp_header *>(buf);
 
         bool completed = false;
         bool ttl_fail = false;

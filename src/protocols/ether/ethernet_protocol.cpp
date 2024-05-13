@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <netinet/if_ether.h>
 
 using namespace std;
 
@@ -29,7 +28,7 @@ int ethernet_protocol::send_data(send_msg msg) {
     mac_addr src_addr = next_source_addr.get_next_choice();
     memcpy(eth_header->ether_shost, &src_addr, ETH_ALEN); // my mac
 
-    // ethertype
+    // ethertypeevent.data.get() + event.curr_offset
     eth_header->ether_type = next_protocol.get_next_choice();
 
 
@@ -48,14 +47,14 @@ void ethernet_protocol::handle_received_event(received_msg& msg) {
     uint16_t ethertype = eth_header->ether_type;
 
     msg.protocol_offsets.push_back({msg.curr_offset, ETHERNET});
-
-    if (protocol_handlers.is_key_assigned(ethertype)) {
-        msg.curr_offset += sizeof(struct ether_header);
-        protocol_handlers.get_val_of_key(ethertype)->handle_received_event(msg);
-        return;
-    }
+    msg.curr_offset += sizeof(struct ether_header);
 
     if (default_handler != nullptr)
         default_handler->handle_received_event(msg);
+
+    if (protocol_handlers.is_key_assigned(ethertype)) {
+        protocol_handlers.get_val_of_key(ethertype)->handle_received_event(msg);
+//        return;
+    }
 
 }

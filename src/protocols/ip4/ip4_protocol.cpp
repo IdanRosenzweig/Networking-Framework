@@ -1,6 +1,5 @@
 #include "ip4_protocol.h"
 #include <iostream>
-#include <netinet/ip.h>
 #include <cstring>
 #include <arpa/inet.h>
 #include "internet_checksum.h"
@@ -57,6 +56,9 @@ void ip4_protocol::handle_received_event(received_msg& msg) {
 
     msg.protocol_offsets.push_back({msg.curr_offset, IP4});
     msg.curr_offset += sizeof(struct iphdr);
+
+    if (default_handler != nullptr)
+        default_handler->handle_received_event(msg);
 
     if (protocol_handlers.is_key_assigned(protocol)) {
         protocol_handlers.get_val_of_key(protocol)->handle_received_event(msg);

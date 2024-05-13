@@ -8,6 +8,7 @@
 #include "../../abstract/sending/msg_sender.h"
 #include "../../abstract/receiving/msg_receiver.h"
 #include "../../abstract/utils/multiplexer.h"
+#include <netinet/if_ether.h>
 
 class ethernet_protocol : public msg_sender, public msg_receiver {
 public:
