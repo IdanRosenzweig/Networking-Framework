@@ -12,7 +12,7 @@ ip4_protocol::ip4_protocol() {
 }
 
 
-int ip4_protocol::send_data(send_msg msg) {
+int ip4_protocol::send_data(send_msg& msg) {
     if (next_dest_addr.get_next_choice() == empty_ip4_addr) {
 //        cout << "tcpSession is null" << endl;
         return 0;
@@ -45,7 +45,8 @@ int ip4_protocol::send_data(send_msg msg) {
     char *data = packet + sizeof(struct iphdr);
     memcpy(data, msg.buff, msg.count);
 
-    return gateway->send_data({packet, ip_packet_len});
+    send_msg send{packet, ip_packet_len};
+    return gateway->send_data(send);
 }
 
 void ip4_protocol::handle_received_event(received_msg& msg) {

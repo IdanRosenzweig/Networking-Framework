@@ -1,6 +1,3 @@
-#include <iostream>
-#include <linux/if_ether.h>
-
 #include "../../linux/interface_gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
@@ -9,13 +6,15 @@
 #include "../../temp_utils/vpn/vpn_client.h"
 #include "../../linux/virtual_if.h"
 
+#include <iostream>
+using namespace std;
 
 void vpn_main() {
     string vpn_server = "10.100.102.31";
-    vpn_client vpn(vpn_server);
+    vpn_client vpn(convert_to_ip4_addr(vpn_server));
 
     char dev[6] = "virt0";
-    linux_virtual_iface iface = create_virtual_iface_from_connection(&vpn, dev);
+    linux_virtual_iface iface(&vpn, dev);
 
 //    while (true) {
 //

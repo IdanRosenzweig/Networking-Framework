@@ -1,9 +1,22 @@
 #include "ip_proxy_server.h"
-#include "../../../protocols/ip4/internet_checksum.h"
+#include "../../linux/hardware.h"
+#include "../../linux/osi/network_layer_gateway.h"
+#include "../../protocols/ip4/internet_checksum.h"
+#include <linux/ip.h>
 #include <iostream>
 using namespace std;
 
-int conn_side_handler::send_data(send_msg msg) {
+ip_proxy_server::ip_proxy_server(msg_gateway *gw) {
+    server_ip = get_my_priv_ip_addr("enp0s3");
+
+    if (gw == nullptr) network_layer_gateway = new class network_layer_gateway("enp0s3");
+    else network_layer_gateway = gw;
+    network_layer_gateway->add_listener(&network_handler);
+
+    network_handler.server = this;
+}
+
+int conn_side_handler::send_data(send_msg& msg) {
     return my_conn->send_data(msg);
 }
 
@@ -38,10 +51,11 @@ void conn_side_handler::handle_received_event(received_msg& msg) {
     ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
     cout << "sending raw bytes to ip level" << endl;
-    server->network_handler.send_data({buff, cnt});
+    send_msg send{buff, cnt};
+    server->network_handler.send_data(send);
 }
 
-int network_side_handler::send_data(send_msg msg) {
+int network_side_handler::send_data(send_msg& msg) {
     return server->network_layer_gateway->send_data(msg);
 }
 
@@ -88,6 +102,9 @@ void network_side_handler::handle_received_event(received_msg& msg) {
     ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
     cout << "sending reply back to connection " << convert_to_str(server->conn_handler->my_source) << "_" << endl;
-    server->conn_handler->send_data({buff, cnt});
+    send_msg send{buff, cnt};
+    server->conn_handler->send_data(send);
 
 }
+
+

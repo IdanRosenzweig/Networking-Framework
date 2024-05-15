@@ -3,20 +3,20 @@
 
 #include <thread>
 #include <vector>
-#include "../../abstract/connection/basic_connection.h"
+#include "../../abstract/connection/msg_connection.h"
 #include "basic_firewall_filter.h"
 
-class firewall : public basic_connection {
-    basic_connection* base_conn;
+class firewall : public msg_connection {
+    msg_connection* base_conn;
 
 public:
     std::vector<basic_firewall_filter*> filters;
 
-    firewall(basic_connection* conn) : base_conn(conn) {
+    firewall(msg_connection* conn) : base_conn(conn) {
         base_conn->add_listener(this);
     }
 
-    int send_data(send_msg val) override {
+    int send_data(send_msg& val) override {
         return base_conn->send_data(val);
     }
 

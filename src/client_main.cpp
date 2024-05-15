@@ -15,7 +15,7 @@
 
 #include "linux/interface_gateway.h"
 #include "protocols/udp/udp_protocol.h"
-#include "temp_utils/proxy/network_layer/ip_proxy_client.h"
+#include "temp_utils/proxy/ip_proxy_client.h"
 #include "abstract/utils/circular_buffer.h"
 #include "abstract/receiving/recv_queue.h"
 #include "temp_connections/udp_client_server/udp_client.h"
@@ -98,151 +98,6 @@ void udp_main() {
     }
 }
 
-void tcp_main() {
-    constexpr int my_port = 1212;
-    constexpr int server_port = 5678;
-    string server_addr{"10.100.102.18"};
-
-    tcp_client tcpClient(server_addr, server_port, my_port);
-
-    msg_boundary_seperator client(&tcpClient);
-
-    sleep(3);
-    std::cout << "sending msg" << std::endl;
-    char* msg;
-
-    msg = "hello";
-    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-
-    msg = "thisis test msg";
-    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-
-    msg = "another one";
-    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-
-    msg = "another one2";
-    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-
-    msg = "another one3";
-    cout << "sent " << client.send_data({msg, (int) strlen(msg)}) << " bytes" << endl;
-
-    while (true) {
-
-    }
-
-}
-
-
-void arp_main() {
-
-    mac_addr my_mac = get_my_mac_address("enp0s3");
-    ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
-
-    // protocol stack
-    interface_gateway dataLinkLayerGateway("enp0s3");
-
-    ethernet_protocol ether_client;
-    arp_scanner arp_client;
-
-    // for sending
-    ether_client.gateway = &dataLinkLayerGateway;
-    ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
-    ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
-    ether_client.next_source_addr.set_next_choice(my_mac);
-
-    arp_client.gateway = &ether_client;
-
-    // for receiving
-    dataLinkLayerGateway.add_listener(&ether_client);
-    ether_client.protocol_handlers.assign_to_key(htons(ETH_P_ARP), &arp_client);
-
-
-    // attack
-//    mac_addr res = arp_client.search_for_mac_addr("10.100.102.27");
-//    print_mac(res);
-
-
-
-    string victim = "10.100.102.15";
-    vector<pair<mac_addr, string>> victim_list = {
-//            {arp_client.search_for_mac_addr(victim, my_mac, my_ip), victim}
-    };
-    arp_client.spoof_as_device("10.100.102.1", // router
-                               my_mac,
-                               victim_list);
-
-}
-
-void proxy_main() {
-
-    string proxy_server = "10.100.102.18";
-
-    // first node
-    udp_client udp_1(convert_to_ip4_addr(proxy_server), 4001, 1001);
-//    icmp_connection icmpConnection;
-    ip_proxy_client proxy_1(&udp_1);
-
-    // second node
-//    udp_prot udp_2("10.100.102.18", 4002, 1002, &proxy_1);
-////    icmp_connection icmpConnection;
-//    ip_proxy_client proxy_2(&udp_2);
-
-    // third node
-//    _udp_client udp_3("10.100.102.18", 4003, 1003, &proxy_2);
-////    icmp_connection icmpConnection;
-//    ip_proxy_client proxy_3(&udp_3);
-
-//     regular dns communication
-    {
-
-        ip4_protocol ip_prot;
-        udp_protocol udp_prot;
-        dns_client dns_client;
-
-        // setup send flow
-        ip_prot.gateway = &proxy_1;
-        ip_prot.next_protocol.set_next_choice(IPPROTO_UDP);
-        ip_prot.next_dest_addr.set_next_choice(convert_to_ip4_addr("8.8.8.8"));
-        ip_prot.next_source_addr.set_next_choice(convert_to_ip4_addr(MY_IP));
-
-        udp_prot.gateway = &ip_prot;
-        udp_prot.next_source_port.set_next_choice(4545);
-        udp_prot.next_dest_port.set_next_choice(DNS_SERVER_PORT);
-
-        dns_client.gateway = &udp_prot;
-
-        // setup recv flow
-        proxy_1.add_listener(&ip_prot);
-
-        ip_prot.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_prot);
-
-        udp_prot.port_handlers.assign_to_key(4545, &dns_client);
-
-        // communicate
-        // send msg
-        vector<string> hosts = {
-                "wiki.osdev.org",
-                "www.wix.com",
-                "docs.google.com",
-                "www.scs.stanford.edu",
-                "yahho.com",
-                "google.com",
-                "youtube.com",
-                "tradingview.com",
-                "walla.co.il",
-                "nasa.com",
-                "medium.com",
-                "www.scs.stanford.edu",
-        };
-
-        for (string& str : hosts)
-            dns_client.query(str);
-
-    }
-
-
-}
-
 //void ssh_main() {
 //    ssh_conn_session tcpSession("10.100.102.18", "idan", "123", 1234);
 //
@@ -264,12 +119,6 @@ void proxy_main() {
 int main() {
 
 //    udp_main();
-//    tcp_main();
-//    dns_main();
-//    icmp_main();
-    arp_main();
-//    proxy_main();
-//    sniffer_main();
 
     return (0);
 }

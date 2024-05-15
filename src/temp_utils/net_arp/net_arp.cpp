@@ -40,7 +40,8 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip) {
     ether_client.next_source_addr.set_next_choice(my_mac);
     ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
 
-    ether_client.send_data({request, sizeof(ether_arp)});
+    send_msg send{request, sizeof(ether_arp)};
+    ether_client.send_data(send);
 
     // wait some reasonable time
     using namespace std::chrono_literals;
@@ -95,12 +96,13 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
 //    memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
 
 
-        // send
+        // req
         ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
         ether_client.next_source_addr.set_next_choice(my_mac);
         ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
 
-        ether_client.send_data({request, sizeof(ether_arp)});
+        send_msg req = {request, sizeof(ether_arp)};
+        ether_client.send_data(req);
 
         curr_ip = generate_next_ip(curr_ip);
     }
@@ -171,7 +173,9 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
 
             ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
             ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
-            ether_client.send_data({buff, sizeof(ether_arp)});
+
+            send_msg send = {buff, sizeof(ether_arp)};
+            ether_client.send_data(send);
 
         } else { // spoof every victim
             for (int i = 0; i < no_victims; i++) {
@@ -185,7 +189,9 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
 
                 ether_client.next_dest_addr.set_next_choice(victim_mac);
                 ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
-                ether_client.send_data({buff, sizeof(ether_arp)});
+
+                send_msg send = {buff, sizeof(ether_arp)};
+                ether_client.send_data(send);
             }
 
         }

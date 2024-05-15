@@ -1,12 +1,33 @@
 #include "dns_client.h"
 
-#include <netinet/in.h>
-#include <arpa/nameser.h>
 #include <vector>
 #include <iostream>
-#include <arpa/inet.h>
-
 using namespace std;
+
+#include "../../linux/hardware.h"
+
+dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) {
+    if (gw == nullptr) gateway = new network_layer_gateway("enp0s3");
+    else gateway = gw;
+
+    // setup send flow
+    ip_client.gateway = gateway;
+    ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
+    ip_client.next_dest_addr.set_next_choice(server_addr);
+    ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
+//        ip_client.next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.31"));
+
+    udp_client.gateway = &ip_client;
+    udp_client.next_source_port.set_next_choice(1212);
+    udp_client.next_dest_port.set_next_choice(DNS_SERVER_PORT);
+
+    // setup recv flow
+    gateway->add_listener(&ip_client);
+
+    ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
+
+    udp_client.port_handlers.assign_to_key(1212, this);
+}
 
 void dns_client::query(dns_record_type type, const std::string& key) {
 
@@ -45,7 +66,9 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
 
     // send the dns request
-    udp_client.send_data({(char *) buff, (int) sizeof(struct dns_header) + queries_sz});
+    cout << "requesting 1 dns record" << endl;
+    send_msg send{(char *) buff, (int) sizeof(struct dns_header) + queries_sz};
+    udp_client.send_data(send);
 
 
     // receive answer
@@ -55,100 +78,105 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
     struct dns_header *response = (struct dns_header *) reply_buff;
 
-    cout << "response for " << key.c_str() << " contains : " << endl;
-    cout << ntohs(response->query_count) << " questions were sent." << endl;
-    cout << ntohs(response->ans_count) << " Answers." << endl;
-    cout << ntohs(response->auth_count) << " Authoritative Servers." << endl;
-    cout << ntohs(response->add_count) << " Additional records." << endl << endl;
+    cout << "received response" << endl;
+    int no_answers = ntohs(response->ans_count);
+    int no_authoritative_answers = ntohs(response->auth_count);
+    int no_addit_data = ntohs(response->add_count);
+    cout << "- " << no_answers << " answers" << endl;
+    cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
+    cout << "- " << no_addit_data << " additional records data" << endl << endl;
 
     // jump over the header and the query
     uint8_t *curr_ptr = &reply_buff[sizeof(struct dns_header) + queries_sz];
 
-
     // read answers
-    vector<dns_answer> answers;
-    for (int i = 0; i < ntohs(response->ans_count); i++) {
-        struct dns_answer curr;
+    if (no_answers > 0) {
+        vector<dns_answer> answers;
+        for (int i = 0; i < no_answers; i++) {
+            struct dns_answer curr;
 
-        curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
+            curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
 
-        answers.push_back(std::move(curr));
+            answers.push_back(std::move(curr));
+        }
+
+        cout << "# answers:" << endl;
+        for (int i = 0; i < no_answers; i++) {
+
+            cout << "Name : " << answers[i].name.c_str() << ", ";
+            if (answers[i].type == DNS_TYPE_A)
+            {
+                struct sockaddr_in a;
+                a.sin_addr.s_addr = (*(uint32_t *) (answers[i].rdata.c_str()));
+                cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
+
+            } else if (answers[i].type == DNS_TYPE_CNAME) {
+                ustring decoded_name;
+                extract_encoded_name(
+                        &decoded_name, (uint8_t*) answers[i].rdata.c_str(), buff
+                );
+                decode_dns_name(decoded_name);
+
+                cout << "has alias key : " << decoded_name.c_str();
+
+            } else if (answers[i].type == DNS_TYPE_MX) {
+                struct mx_rdata_t rdata;
+                mx_rdata_t::extract(&rdata, (uint8_t*) answers[i].rdata.c_str(), buff);
+                cout << "has mail aggregator : " << rdata.domain.c_str();
+            }
+
+            cout << endl;
+        }
     }
 
     // read authorities
-    vector<dns_answer> auth;
-    for (int i = 0; i < ntohs(response->auth_count); i++) {
-        struct dns_answer curr;
+    if (no_authoritative_answers > 0) {
+        vector<dns_answer> auth;
+        for (int i = 0; i < no_authoritative_answers; i++) {
+            struct dns_answer curr;
 
-        curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
+            curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
 
-        auth.push_back(std::move(curr));
+            auth.push_back(std::move(curr));
+        }
+
+        cout << "# authoritative server answers:" << endl;
+        for (int i = 0; i < no_authoritative_answers; i++) {
+
+            cout << "Name : " << auth[i].name.c_str() << ", ";
+            if ((auth[i].type) == DNS_TYPE_NS) {
+                cout << "has nameserver : " << auth[i].rdata.c_str();
+            }
+
+            cout << endl;
+        }
     }
 
     // read additional
-    vector<dns_answer> addit;
-    for (int i = 0; i < ntohs(response->add_count); i++) {
-        struct dns_answer curr;
+    if (no_addit_data > 0) {
+        vector<dns_answer> addit;
+        for (int i = 0; i < no_addit_data; i++) {
+            struct dns_answer curr;
 
-        curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
+            curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
 
-        addit.push_back(std::move(curr));
-    }
-
-    // print answers
-    cout << "Answer Records : " << ntohs(response->ans_count) << endl;
-    for (int i = 0; i < ntohs(response->ans_count); i++) {
-
-        cout << "Name : " << answers[i].name.c_str() << ", ";
-        if (answers[i].type == DNS_TYPE_A)
-        {
-            struct sockaddr_in a;
-            a.sin_addr.s_addr = (*(uint32_t *) (answers[i].rdata.c_str()));
-            cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
-
-        } else if (answers[i].type == DNS_TYPE_CNAME) {
-            ustring decoded_name;
-            extract_encoded_name(
-                    &decoded_name, (uint8_t*) answers[i].rdata.c_str(), buff
-            );
-            decode_dns_name(decoded_name);
-
-            cout << "has alias key : " << decoded_name.c_str();
-
-        } else if (answers[i].type == DNS_TYPE_MX) {
-            struct mx_rdata_t rdata;
-            mx_rdata_t::extract(&rdata, (uint8_t*) answers[i].rdata.c_str(), buff);
-            cout << "has mail aggregator : " << rdata.domain.c_str();
+            addit.push_back(std::move(curr));
         }
 
-        cout << endl;
-    }
+        cout << "# additional record data:" << endl;
+        for (int i = 0; i < no_addit_data; i++) {
 
-    // print authorities
-    cout << endl << "Authoritive Records : " << ntohs(response->auth_count) << endl;
-    for (int i = 0; i < ntohs(response->auth_count); i++) {
+            cout << "Name : " << addit[i].name.c_str() << ", ";
+            if ((addit[i].type) == DNS_TYPE_A) {
+                struct sockaddr_in a;
+                a.sin_addr.s_addr = (*(uint32_t *) (addit[i].rdata.c_str()));
+                cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
 
-        cout << "Name : " << auth[i].name.c_str() << ", ";
-        if ((auth[i].type) == DNS_TYPE_NS) {
-            cout << "has nameserver : " << auth[i].rdata.c_str();
+            }
+
+            cout << endl;
         }
-
-        cout << endl;
-    }
-
-    // print additional msg
-    cout << endl << "Additional Records : " << ntohs(response->add_count) << endl;
-    for (int i = 0; i < ntohs(response->add_count); i++) {
-
-        cout << "Name : " << addit[i].name.c_str() << ", ";
-        if ((addit[i].type) == DNS_TYPE_A) {
-            struct sockaddr_in a;
-            a.sin_addr.s_addr = (*(uint32_t *) (addit[i].rdata.c_str()));
-            cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
-
-        }
-
-        cout << endl;
     }
 
 }
+

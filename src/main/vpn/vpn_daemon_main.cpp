@@ -1,6 +1,6 @@
 #include "../../temp_utils/vpn/vpn_daemon.h"
 #include <string>
-
+#include <iostream>
 using namespace std;
 
 void vpn_main() {

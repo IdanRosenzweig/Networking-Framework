@@ -2,7 +2,7 @@
 #define SERVERCLIENT_BASIC_FIREWALL_FILTER_H
 
 #include "firewall_policy.h"
-#include "../../abstract/receiving/received_msg.h"
+#include "../../abstract/receiving/msg/received_msg.h"
 
 class basic_firewall_filter {
 public:

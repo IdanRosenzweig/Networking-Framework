@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int icmp_protocol::send_data(send_msg msg) {
+int icmp_protocol::send_data(send_msg& msg) {
 
 #define BUFF_LEN 1024
     char buff[BUFF_LEN];
@@ -24,7 +24,8 @@ int icmp_protocol::send_data(send_msg msg) {
     packet->checksum = 0;
     packet->checksum = internet_checksum(reinterpret_cast<uint16_t *>(buff), sizeof(icmp_header) + msg.count);
 
-    return gateway->send_data({buff, (int) sizeof(icmp_header) + msg.count});
+    send_msg send{buff, (int) sizeof(icmp_header) + msg.count};
+    return gateway->send_data(send);
 }
 
 void icmp_protocol::handle_received_event(received_msg& msg) {

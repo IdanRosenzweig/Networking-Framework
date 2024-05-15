@@ -1,14 +1,13 @@
 #ifndef SERVERCLIENT_BANDWIDTH_H
 #define SERVERCLIENT_BANDWIDTH_H
 
-#include "../../abstract/connection/basic_connection.h"
-#include "../../abstract/connection/multi_sniffer.h"
-#include "../../abstract/gateway/basic_gateway.h"
+#include "../../abstract/connection/msg_connection.h"
+#include "../../abstract/sniffer/msg_sniffer.h"
 
 class bandwidth {
-    multi_sniffer* conn;
+    multi_msg_sniffer* conn;
 
-    class my_sniff : public basic_sniffer {
+    class my_sniff : public msg_sniffer {
         bandwidth* master;
     public:
         explicit my_sniff(bandwidth *master) : master(master) {}
@@ -17,15 +16,14 @@ class bandwidth {
 
         void handle_incoming_packet(received_msg &msg) override;
     };
-    my_sniff sniff;
+    my_sniff my_sniff;
 
 
 public:
-    explicit bandwidth(multi_sniffer *conn);
+    explicit bandwidth(multi_msg_sniffer *conn);
 
     uint64_t bytes_out_cnt = 0;
     uint64_t bytes_in_cnt = 0;
-
 
 };
 

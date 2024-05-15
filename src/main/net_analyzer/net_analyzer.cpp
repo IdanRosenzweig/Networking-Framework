@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 #include <boost/program_options.hpp>
+#include <iostream>
+using namespace std;
 
 void net_analyzer_main(const string& iface) {
     net_analyzer analyzer(iface);
@@ -18,7 +20,9 @@ int main(int argc, char **argv) {
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "print tool use description")
-            ("interface", po::value<string>(), "interface to sniff traffic from");
+            ("interface,i", po::value<string>(), "interface to sniff traffic from")
+//            ("show-hexdump,h", po::value<bool>(), "show hexdump of packets")
+            ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);

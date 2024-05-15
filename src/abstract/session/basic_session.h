@@ -3,8 +3,7 @@
 
 #include "../connection/basic_connection.h"
 
-class basic_session : public basic_connection {
-};
-
+template <typename SEND_T, typename RECV_T>
+using basic_session =  basic_connection<SEND_T, RECV_T>;
 
 #endif //SERVERCLIENT_BASIC_SESSION_H

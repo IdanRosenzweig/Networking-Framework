@@ -5,14 +5,14 @@
 #include <libssh/server.h>
 #include <libssh/callbacks.h>
 
-#include "../../abstract/sending/msg_sender.h"
-#include "../../abstract/receiving/msg_receiver.h"
-#include "../../abstract/connection/basic_connection.h"
+#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/receiving/msg/msg_receiver.h"
+#include "../../abstract/connection/msg_connection.h"
 
 #include <thread>
 
 // ssh runs over ip and tcp_client_server
-class ssh_conn_session : public basic_connection {
+class ssh_conn_session : public msg_connection {
     ssh_session session;
     ssh_channel raw_channel;
 
@@ -146,7 +146,7 @@ public:
 //        ssh_channel_free(raw_channel);
 //    }
 
-    int send_data(send_msg val) override;
+    int send_data(send_msg& val) override;
 
 };
 

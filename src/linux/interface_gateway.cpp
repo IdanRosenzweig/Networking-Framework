@@ -10,24 +10,6 @@
 
 using namespace std;
 
-//void recv_packet(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
-//    interface_gateway *gateway = reinterpret_cast<interface_gateway *>(user);
-//
-//    int data_sz = pkthdr->len;
-//
-//    if (data_sz <= 0) return;
-//
-//    uint8_t *alloc_msg = new uint8_t[data_sz];
-//    memcpy(alloc_msg, bytes, data_sz);
-//
-//    received_msg msg;
-//    msg.data = unique_ptr<uint8_t>(alloc_msg);
-//    msg.sz = data_sz;
-//    msg.curr_offset = 0;
-//    gateway->handle_received_event(msg);
-//
-//}
-
 
 interface_gateway::interface_gateway(const string &interface)
 //        : sniffer(interface, true)
@@ -79,7 +61,7 @@ interface_gateway::~interface_gateway() {
 //    worker.detach();
 }
 
-int interface_gateway::send_data(send_msg msg) {
+int interface_gateway::send_data(send_msg& msg) {
 //    return sendto(fd,
 //                msg.buff, msg.count,
 //                0,

@@ -1,8 +1,5 @@
 #include "dns_server.h"
 
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #include <iostream>
 using namespace std;
 
@@ -29,8 +26,8 @@ void dns_server::handle_received_event(socket_msg& event) {
             case DNS_TYPE_A: {
                 cout << "received A query for name: " << query.q_name.c_str() << endl;
 
-                auto it = mappings_type_a.find(string((char*) query.q_name.c_str()));
-                if (it == mappings_type_a.end()) {
+                auto node = mappings_type_a.search(string((char*) query.q_name.c_str()));
+                if (node == nullptr) {
                     cerr << "no mapping for this name" << endl;
                     break;
                 }
@@ -43,7 +40,7 @@ void dns_server::handle_received_event(socket_msg& event) {
                 curr_ans.data_len = 4;
 
                 curr_ans.rdata = ustring (4, 0);
-                ip4_addr addr = (*it).second;
+                ip4_addr addr = node->key;
                 write_in_network_order((uint8_t*) curr_ans.rdata.c_str(), &addr);
 
                 curr_reply_ptr += write_response_to_buff(curr_reply_ptr, &curr_ans);
@@ -52,8 +49,8 @@ void dns_server::handle_received_event(socket_msg& event) {
             case DNS_TYPE_MX: {
                 cout << "received MX query for name: " << query.q_name.c_str() << endl;
 
-                auto it = mappings_type_mx.find(string((char*) query.q_name.c_str()));
-                if (it == mappings_type_mx.end()) {
+                auto node = mappings_type_mx.search(string((char*) query.q_name.c_str()));
+                if (node == nullptr) {
                     cerr << "no mapping for this name" << endl;
                     break;
                 }
@@ -64,7 +61,7 @@ void dns_server::handle_received_event(socket_msg& event) {
                 curr_ans._class = query.q_class;
                 curr_ans.ttl = 3600; // one hour
 
-                mx_rdata_t rdata{10, ustring((uint8_t*) (*it).second.c_str()) };
+                mx_rdata_t rdata{10, ustring((uint8_t*) node->key.c_str()) };
                 curr_ans.rdata = mx_rdata_t::convert_to_ustring(&rdata);
                 curr_ans.data_len = curr_ans.rdata.size();
 

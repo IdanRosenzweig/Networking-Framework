@@ -1,16 +1,18 @@
 #include "conn_aggregator.h"
 #include <thread>
+#include <iostream>
+using namespace std;
 
-void conn_aggregator::add_connection(basic_connection *conn) {
+void conn_aggregator::add_connection(msg_connection *conn) {
     conns.push_back(std::make_unique<conn_handler>(this, conn));
 }
 
 
-conn_handler::conn_handler(conn_aggregator *master, basic_connection *conn) : master(master), my_conn(conn) {
+conn_handler::conn_handler(conn_aggregator *master, msg_connection *conn) : master(master), my_conn(conn) {
     my_conn->add_listener(this);
 }
 
-int conn_handler::send_data(send_msg val) {
+int conn_handler::send_data(send_msg& val) {
     return my_conn->send_data(val);
 }
 
@@ -25,7 +27,8 @@ void conn_handler::handle_received_event(received_msg &event) {
             continue;
         }
 
-        int res = master->conns[i]->send_data({event.data.get() + event.curr_offset, event.sz - event.curr_offset});
+        send_msg send{event.data.get() + event.curr_offset, event.sz - event.curr_offset};
+        int res = master->conns[i]->send_data(send);
         if (res == -1) {
             cerr << "couldn't send to aggregator my_conn" << endl;
             master->conns.erase(master->conns.begin() + i);

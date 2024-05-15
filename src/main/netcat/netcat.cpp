@@ -1,7 +1,11 @@
 #include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_client.h"
 #include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_server.h"
 #include "../../abstract/session/basic_sessions_manager.h"
+
+#include <boost/program_options.hpp>
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 
 class app_handler : public basic_session_handler<tcp_boundary_preserving_session>, public msg_receiver {
 public:
@@ -36,7 +40,8 @@ void netcat_server_main(int port) {
         getline(cin, str);
 
         for (auto& session : app.sessions) {
-            int res = session.session->send_data({(void*) str.c_str(), (int) str.size()});
+            send_msg send{(void*) str.c_str(), (int) str.size()};
+            int res = session.session->send_data(send);
             if (res == -1 || res == 0) {
                 cerr << "can't send to connection, closing" << endl;
                 break;
@@ -64,7 +69,8 @@ void netcat_client_main(ip4_addr dest_ip, int port) {
         string str;
         getline(cin, str);
 
-        int res = client.send_data({(void *) str.c_str(), (int) str.size()});
+        send_msg send{(void *) str.c_str(), (int) str.size()};
+        int res = client.send_data(send);
         if (res == -1 || res == 0) {
             cerr << "can't send to connection, closing" << endl;
             break;
@@ -73,22 +79,55 @@ void netcat_client_main(ip4_addr dest_ip, int port) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2) goto print_usage;
+    namespace po = boost::program_options;
 
-    if (argv[1][0] == 'S') {
-        if (argc < 3) goto print_usage;
-        netcat_server_main(std::stoi(argv[2]));
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help", "print tool use description")
+            ("client", "use as client")
+            ("server", "use as server")
+            ("dest", po::value<string>(),"used for client, dest ip address of the server to connect to")
+            ("port", po::value<int>(), "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
 
-    } else if (argv[1][0] == 'C') {
-        if (argc < 4) goto print_usage;
-        netcat_client_main(convert_to_ip4_addr(argv[2]), std::stoi(argv[3]));
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-    } else goto print_usage;
+    if (vm.count("help")) {
+        cout << desc << endl;
+        return 1;
+    }
 
-    return 0;
+    bool server;
+    if (vm.count("server")) server = true;
+    else if (vm.count("client")) server = false;
+    else {
+        cout << desc << endl;
+        return 1;
+    }
 
-    print_usage:
-    cout << "usage for server: bandwidth S port" << endl;
-    cout << "usage for server: bandwidth C server_ip port" << endl;
-    return 1;
+    if (server) {
+        if (!vm.count("port")) {
+            cout << desc << endl;
+            return 1;
+        }
+        int port = vm["port"].as<int>();
+
+        netcat_server_main(port);
+
+    } else {
+        if (!vm.count("port")) {
+            cout << desc << endl;
+            return 1;
+        }
+        int port = vm["port"].as<int>();
+
+        if (!vm.count("dest")) {
+            cout << desc << endl;
+            return 1;
+        }
+        string dest = vm["dest"].as<string>();
+
+        netcat_client_main(convert_to_ip4_addr(dest), port);
+    }
 }

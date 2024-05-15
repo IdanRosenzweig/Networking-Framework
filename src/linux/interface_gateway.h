@@ -2,15 +2,14 @@
 #define SERVERCLIENT_INTERFACE_GATEWAY_H
 
 #include <netpacket/packet.h>
-#include <thread>
-#include <pcap/pcap.h>
+//#include <thread>
+//#include <pcap/pcap.h>
 
-#include "../abstract/gateway/basic_gateway.h"
+#include "../abstract/gateway/msg_gateway.h"
 #include "interface_sniffer.h"
 
-class interface_gateway;
-
-class interface_gateway : private basic_sniffer, public basic_gateway {
+// wrapper class for the raw interface_sniffer that exposes gateway api
+class interface_gateway : private msg_sniffer , public msg_gateway {
 private:
     int fd;
     struct sockaddr_ll dest_addr; // used only for hardware interface
@@ -23,7 +22,7 @@ public:
 
     ~interface_gateway();
 
-    int send_data(send_msg msg) override;
+    int send_data(send_msg& msg) override;
 
 private:
     void handle_outgoing_packet(received_msg &msg) override;

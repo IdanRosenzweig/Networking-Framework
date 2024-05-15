@@ -1,7 +1,10 @@
 #include "../../linux/interface_gateway.h"
 #include "../../linux/interface_sniffer.h"
 #include "../../temp_utils/bandwidth/bandwidth.h"
+
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 
 void bandwidth_main(const string& interface) {
     interface_sniffer sniffer("enp0s3");

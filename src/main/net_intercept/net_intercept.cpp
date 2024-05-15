@@ -1,8 +1,11 @@
 #include "../../linux/interface_gateway.h"
 #include "../../temp_utils/net_arp/net_arp.h"
 #include "../../linux/hardware.h"
+
 #include <unistd.h>
 #include <boost/program_options.hpp>
+#include <iostream>
+using namespace std;
 
 void net_intercept_main(const vector<ip4_addr> &victim, ip4_addr dest, bool block) {
     net_arp scanner;

@@ -1,11 +1,9 @@
 #ifndef SERVERCLIENT_IP4_PROTOCOL_H
 #define SERVERCLIENT_IP4_PROTOCOL_H
 
-#include <map>
-
 #include "ip4_addr.h"
-#include "../../abstract/sending/msg_sender.h"
-#include "../../abstract/receiving/msg_receiver.h"
+#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/receiving/msg/msg_receiver.h"
 #include "../../abstract/utils/next_choice.h"
 #include "../../abstract/utils/multiplexer.h"
 
@@ -22,7 +20,7 @@ public:
 
     msg_sender *gateway;
 
-    int send_data(send_msg msg) override;
+    int send_data(send_msg& msg) override;
 
     // recv
     multiplexer<int, basic_receiver *> protocol_handlers;

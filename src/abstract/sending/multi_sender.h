@@ -13,7 +13,7 @@ public:
         senders.push_back(sender);
     }
 
-    int send_data(T val) override {
+    int send_data(T& val) override {
         for (auto sender : senders) {
             sender->send_data(val);
         }

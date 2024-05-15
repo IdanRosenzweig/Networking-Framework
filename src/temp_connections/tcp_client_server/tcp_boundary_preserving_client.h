@@ -4,7 +4,7 @@
 #include "tcp_client.h"
 #include "../../protocols/msg_boundary/msg_boundary_seperator.h"
 
-class tcp_boundary_preserving_client : public basic_connection {
+class tcp_boundary_preserving_client : public msg_connection {
 public:
     tcp_client tcpClient;
     msg_boundary_seperator<> client;
@@ -13,7 +13,7 @@ public:
         client.add_listener(this);
     }
 
-    int send_data(send_msg val) override {
+    int send_data(send_msg& val) override {
         return client.send_data(val);
     }
 };

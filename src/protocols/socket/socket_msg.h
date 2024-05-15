@@ -2,7 +2,7 @@
 #define SERVERCLIENT_SOCKET_MSG_H
 
 #include "../ip4/ip4_addr.h"
-#include "../../abstract/receiving/received_msg.h"
+#include "../../abstract/receiving/msg/received_msg.h"
 
 struct socket_msg { // represents msg to endpoint
     ip4_addr source_addr;

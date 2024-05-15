@@ -2,39 +2,36 @@
 #define SERVERCLIENT_BASIC_CONNECTION_H
 
 #include "../sending/multi_sender.h"
-#include "../sending/send_msg.h"
 #include "../receiving/multi_receiver.h"
-#include "../receiving/received_msg.h"
-#include "basic_sniffer.h"
+#include "../sniffer/basic_sniffer.h"
+#include <vector>
 
 // a basic connection that you can send data on and listen to data from
-class basic_connection : public multi_sender<send_msg>, public multi_receiver<received_msg> {
-    vector<basic_sniffer*> sniffers;
+// you can also attack sniffers to the connection, when data is sent or received
+
+template <typename SEND_T, typename RECV_T>
+class basic_connection : public multi_sender<SEND_T>, public multi_receiver<RECV_T> {
+    std::vector<basic_sniffer<SEND_T, RECV_T>*> sniffers;
 public:
-    void add_sniffer(basic_sniffer* sniffer) {
+    void attach_sniffer(basic_sniffer<SEND_T, RECV_T>* sniffer) {
         sniffers.push_back(sniffer);
     }
 
 public:
     virtual ~basic_connection() {}
 
-    int send_data(send_msg val) override {
-        received_msg msg;
-        msg.data = unique_ptr<uint8_t>( new uint8_t[val.count]);
-        memcpy(msg.data.get(), val.buff, val.count);
-        msg.sz = val.count;
-        msg.curr_offset = 0;
+    int send_data(SEND_T& val) override {
         for (auto& sniffer : sniffers)
-            sniffer->handle_outgoing_packet(msg);
+            sniffer->handle_outgoing_packet(val);
 
-        return multi_sender::send_data(val);
+        return multi_sender<SEND_T>::send_data(val);
     }
 
-    void handle_received_event(received_msg &event) override {
+    void handle_received_event(RECV_T &event) override {
         for (auto& sniffer : sniffers)
             sniffer->handle_incoming_packet(event);
 
-        multi_receiver::handle_received_event(event);
+        multi_receiver<RECV_T>::handle_received_event(event);
     }
 
 };

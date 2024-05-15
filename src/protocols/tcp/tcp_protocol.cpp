@@ -6,6 +6,10 @@
 #include <netinet/tcp.h>
 
 tcp_protocol::tcp_protocol(bool server) {
+    // prevent linux from sending "destination port unreachable" when this class receives packets.
+    // because this class doesn't bind any port in the kernel
+//    system("sudo iptables -A OUTPUT -p icmp --icmp-type destination-unreachable -j DROP");
+
     if (server) {
         // opening a file descriptor
         sd = socket(

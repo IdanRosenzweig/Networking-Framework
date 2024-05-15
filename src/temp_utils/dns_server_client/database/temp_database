@@ -1,2 +1,3 @@
 a google.com 172.217.22.78
 mx google.com smtp.google.com
+a my_router 10.100.102.1

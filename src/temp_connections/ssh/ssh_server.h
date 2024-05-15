@@ -16,7 +16,7 @@
 
 #include "ssh_conn_session.h"
 
-class client_session : public basic_session {
+class client_session : public msg_session {
     ssh_session session;
     ssh_channel raw_channel;
 
@@ -68,7 +68,7 @@ public:
         ssh_free(session);
     }
 
-    int send_data(send_msg val) override {
+    int send_data(send_msg& val) override {
         return ssh_channel_write(raw_channel, val.buff, val.count);
     }
 
@@ -80,7 +80,7 @@ class ssh_server {
 
 public:
 
-    std::vector<std::unique_ptr<basic_session>> as_server_sessions; // tcpSession where i am the aggregator
+    std::vector<std::unique_ptr<msg_session>> as_server_sessions; // tcpSession where i am the aggregator
 
     ssh_server(int port) {
         sshbind = ssh_bind_new();

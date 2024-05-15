@@ -4,7 +4,6 @@
 #include "basic_receiver.h"
 #include "../utils/circular_buffer.h"
 #include <queue>
-#include <thread>
 
 // basic use of receiving interrupted msg: storing them in a queue
 template <typename T>

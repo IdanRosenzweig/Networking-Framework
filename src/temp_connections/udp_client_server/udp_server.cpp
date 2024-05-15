@@ -1,5 +1,6 @@
 #include "udp_server.h"
 #include <linux/ip.h>
+#include "../../linux/hardware.h"
 
 udp_server::udp_server(int serverPort) : server_port(serverPort), gateway("enp0s3") {
 
@@ -21,7 +22,6 @@ udp_server::udp_server(int serverPort) : server_port(serverPort), gateway("enp0s
 }
 
 void udp_server::handle_received_event(received_msg &event) {
-    cout << "udp server received on port 11081" << endl;
     socket_msg sock_msg;
     sock_msg.msg = event;
     sock_msg.source_port =

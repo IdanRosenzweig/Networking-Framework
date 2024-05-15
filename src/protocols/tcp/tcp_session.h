@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <thread>
 
-#include "../../abstract/session/basic_session.h"
+#include "../../abstract/session/msg_session.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"
 
@@ -14,7 +14,7 @@ struct tcp_session_data {
     int dest_port;
 };
 
-class tcp_session : public basic_session {
+class tcp_session : public msg_session {
 
     int sd;
     std::thread worker;
@@ -29,7 +29,7 @@ public:
 
     ~tcp_session();
 
-    int send_data(send_msg msg) override;
+    int send_data(send_msg& msg) override;
 
     void handle_received_event(received_msg& event) override;
 

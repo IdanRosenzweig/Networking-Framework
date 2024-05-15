@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_ONION_NETWORK_NODE_H
 #define SERVERCLIENT_ONION_NETWORK_NODE_H
 
-#include "../proxy/network_layer/ip_proxy_server.h"
+#include "../proxy/ip_proxy_server.h"
 #include "onion_network_common.h"
 #include "../../temp_connections/udp_client_server/udp_server.h"
 
@@ -12,7 +12,7 @@ class onion_network_node {
 
     class udp_server udpServer;
 
-    class server_app_handler : public basic_receiver<socket_msg>, public basic_connection {
+    class server_app_handler : public basic_receiver<socket_msg>, public msg_connection {
     public:
         class udp_server* udpServer;
 
@@ -28,14 +28,14 @@ class onion_network_node {
             this->multi_receiver::handle_received_event(event.msg);
         }
 
-        int send_data(send_msg val) override {
+        int send_data(send_msg& val) override {
             return udpServer->send_data_to_client(ip_source, port_source, val);
         }
     };
     server_app_handler udp_single_conn;
 
 public:
-    onion_network_node(basic_gateway *gw = nullptr) : proxy(gw), udpServer(ONION_NETWORK_NODE_LISTEN_PORT), udp_single_conn(&udpServer) {
+    onion_network_node(msg_gateway *gw = nullptr) : proxy(gw), udpServer(ONION_NETWORK_NODE_LISTEN_PORT), udp_single_conn(&udpServer) {
         // add a single connection to the onion_network
         proxy.set_proxied_connection(&udp_single_conn);
     }

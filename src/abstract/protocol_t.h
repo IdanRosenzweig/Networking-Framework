@@ -13,7 +13,8 @@ enum protocol_t {
 
 #include <string>
 
-std::string to_str(protocol_t prot);
+std::string convert_to_str(protocol_t prot);
 
+protocol_t convert_str_to_protocol_t(const std::string& prot);
 
 #endif //SERVERCLIENT_PROTOCOL_T_H

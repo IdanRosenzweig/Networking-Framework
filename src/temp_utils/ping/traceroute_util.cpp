@@ -1,6 +1,27 @@
 #include "traceroute_util.h"
-#include <linux/icmp.h>
+#include "../../linux/hardware.h"
 #include <linux/ip.h>
+#include <linux/icmp.h>
+#include <iostream>
+using namespace std;
+
+traceroute_util::traceroute_util(msg_gateway* gw) {
+    if (gw == nullptr) gateway = new network_layer_gateway("enp0s3");
+    else gateway = gw;
+
+    // setup send flow
+    ip_client.gateway = gateway;
+    ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
+    ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
+
+    icmp_client.gateway = &ip_client;
+
+    // setup recv flow
+    gateway->add_listener(&ip_client);
+    ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
+
+    icmp_client.default_handler = this;
+}
 
 void traceroute_util::trace_to_destination() {
     ip_client.next_dest_addr.set_next_choice(dest_ip.get_next_choice());
@@ -19,7 +40,8 @@ void traceroute_util::trace_to_destination() {
     while (true) {
         ip_client.next_ttl.set_next_choice(curr_ttl);
 
-        if (icmp_client.send_data({data, data_sz}) < 1) {
+        send_msg send{data, data_sz};
+        if (icmp_client.send_data(send) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
             continue;
         }
@@ -72,3 +94,5 @@ void traceroute_util::trace_to_destination() {
     }
 
 }
+
+

@@ -9,7 +9,7 @@
 #include "linux/osi/network_layer_gateway.h"
 #include "abstract/receiving/recv_queue.h"
 #include "linux/osi/network_layer_gateway.h"
-#include "temp_utils/proxy/network_layer/ip_proxy_server.h"
+#include "temp_utils/proxy/ip_proxy_server.h"
 #include "temp_connections/udp_client_server/udp_server.h"
 #include "temp_utils/dns_server_client//dns_server.h"
 #include "abstract/connection/conn_aggregator.h"
@@ -79,143 +79,6 @@ int udp_main() {
     return 0;
 }
 
-class server_app_tcp : public basic_receiver<std::unique_ptr<tcp_session>>, public msg_receiver {
-public:
-    unique_ptr<tcp_session> tcpSession = nullptr;
-    unique_ptr<msg_boundary_seperator<>> client;
-
-    void handle_received_event(unique_ptr<tcp_session> &event) override {
-//        tcpSession = std::move(event);
-//        tcpSession->add_listener(this);
-        tcpSession = std::move(event);
-        client = std::make_unique<msg_boundary_seperator<>>(tcpSession.get());
-        client->add_listener(this);
-    }
-
-    void handle_received_event(received_msg &event) override {
-        cout << "tcpSession session: " << event.data.get() + event.curr_offset << endl;
-    }
-};
-
-int tcp_main() {
-
-    tcp_server server(5678);
-
-    server_app_tcp testHandler;
-    server.add_listener(&testHandler);
-
-    while (testHandler.tcpSession == nullptr) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(10ms);
-    }
-
-    // has session
-    cout << "has session" << endl;
-
-    while (true) {
-
-    }
-
-    return 0;
-}
-
-
-//class server_app_handler : public basic_receiver<socket_msg>, public basic_connection {
-//public:
-//    udp_server* udpServer;
-//
-//    server_app_handler(udp_server* udpServer) : udpServer(udpServer) {
-//        udpServer->add_listener(this);
-//    }
-//
-//    void handle_received_event(socket_msg& event) override {
-////        cout << "received from " << inet_ntoa(in_addr{htonl(event.source_addr)}) << endl;
-//        cout << "source port " << event.source_port << endl;
-//        cout << "dest port " << event.dest_port << endl;
-//        this->multi_receiver::handle_received_event(event.msg);
-//    }
-//
-//    string client_addr = "10.100.102.18";
-//    int send_data(send_msg val) override {
-//        return udpServer->send_data_to_client(convert_to_ip4_addr(client_addr), 1001, val);
-//    }
-//};
-//
-//void proxy_main1() {
-//    udp_server udp_server(4001);
-////    icmp_connection_server icmpConnectionServer;
-//    server_app_handler conn(&udp_server); // automatically sets up send and recv control
-//
-//    osi ipNetworkGateway("enp0s3"); // gateway to ip network
-//
-//    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
-//
-//    while (true) {
-//
-//    }
-//
-//}
-//
-//void proxy_main2() {
-//    udp_server udp_server(4002); // connection to the tcpSession
-////    icmp_connection_server icmpConnectionServer;
-//    server_app_handler conn(&udp_server);
-//
-//    osi ipNetworkGateway("enp0s3"); // gateway to ip network
-//
-//    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
-//
-//    while (true) {
-//
-//    }
-//
-//}
-//
-//void proxy_main3() {
-//    udp_server udp_server(4003); // connection to the tcpSession
-////    icmp_connection_server icmpConnectionServer;
-//    server_app_handler conn(&udp_server);
-//
-//    osi ipNetworkGateway("enp0s3"); // gateway to ip network
-//
-//    ip_proxy_server onion_network(&conn, &ipNetworkGateway);
-//
-//    while (true) {
-//
-//    }
-//
-//}
-//
-//void proxy_main() {
-//    std::thread proxy1([]() -> void {
-//        proxy_main1();
-//    });
-////    std::thread proxy2([]() -> void {
-////        proxy_main2();
-////    });
-////    std::thread proxy3([]() -> void {
-////        proxy_main3();
-////    });
-//
-//    proxy1.join();
-////    proxy2.join();
-////    proxy3.join();
-//}
-
-void dns_main() {
-    dns_server server;
-
-    while (true) {
-
-    }
-}
-
-
-void vpn_main() {
-    vpn_daemon vpnDaemon("enp0s3");
-
-    while (true) {}
-}
 
 //void ssh_main() {
 //    ssh_server raw_tcp_server(1234);
@@ -239,9 +102,6 @@ void vpn_main() {
 
 int main() {
 //    udp_main();
-    tcp_main();
-//    proxy_main();
-//    dns_main();
 //    vpn_main();
 
 }

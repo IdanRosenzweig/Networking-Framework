@@ -1,8 +1,11 @@
 #include "../../linux/interface_gateway.h"
 #include "../../temp_utils/net_arp/net_arp.h"
 #include "../../linux/hardware.h"
+
 #include <unistd.h>
 #include <boost/program_options.hpp>
+#include <iostream>
+using namespace std;
 
 void arp_scan_single_main(ip4_addr ip_addr) {
     net_arp scanner;
@@ -25,9 +28,10 @@ void arp_scan_subnet_main(ip4_subnet_mask mask) {
 
 }
 
-namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
+    namespace po = boost::program_options;
+
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "print tool use description")

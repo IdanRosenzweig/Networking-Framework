@@ -1,54 +1,29 @@
 #include <iostream>
 
-#include "../../temp_utils/proxy/network_layer/ip_proxy_client.h"
+#include "../../temp_utils/proxy/ip_proxy_client.h"
 
 #include "../../temp_connections/udp_client_server/udp_client.h"
 #include "../../temp_utils/dns_server_client/dns_client.h"
 #include "../../temp_connections/icmp/icmp_connection_client.h"
-#include "../../temp_utils/onion_network/client.h"
+#include "../../temp_utils/onion_network/onion_network_client.h"
 
 #include "../../linux/virtual_if.h"
 #include <unistd.h>
+#include <boost/program_options.hpp>
+
 #define MY_IP "10.100.102.18"
 
 
-void onion_network_main() {
-    client proxy({
-//                         convert_to_ip4_addr("10.100.102.34"),
-                         convert_to_ip4_addr("10.100.102.31"),
-                 });
+void onion_network_node_main(const vector<ip4_addr>& path) {
+    onion_network_client proxy(path);
 
     char dev[6] = "virt0";
-    linux_virtual_iface iface = create_virtual_iface_from_connection(&proxy, dev);
+    linux_virtual_iface iface(&proxy, dev);
 
-//    while (true) {
-//
-//    }
+    cout << "virtual interface \"" << dev << "\" is open. send your ip network through it" << endl;
+    while (true) {
 
-    // icmp
-//    {
-//        char *str = "172.217.22.46";
-//        //    char* str = "google.com";
-//
-//        ip4_protocol ip_client;
-//        icmp_protocol icmp_client;
-//
-//        // setup send flow
-//        ip_client.gateway = &proxy;
-//        ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
-//        ip_client.next_dest_addr.set_next_choice(convert_to_ip4_addr(str));
-//        ip_client.next_source_addr.set_next_choice(convert_to_ip4_addr(MY_IP));
-//
-//        icmp_client.gateway = &ip_client;
-//
-//        // setup recv flow
-//        proxy.add_listener(&ip_client);
-//
-//        ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
-
-//        // ping_util
-//        icmp_client.ping_util();
-//    }
+    }
 
 //     regular dns communication
     {
@@ -81,11 +56,38 @@ void onion_network_main() {
             dns_client.query(DNS_TYPE_A, str);
             cout << endl << endl << endl;
         }
+
     }
 }
 
-int main() {
-//    proxy_main();
-    onion_network_main();
-}
+int main(int argc, char** argv) {
+//    namespace po = boost::program_options;
+//
+//    po::options_description desc("Allowed options");
+//    desc.add_options()
+//            ("help", "print tool use description")
+//            ("path,p", po::value<vector<string>>()->multitoken(),
+//             "the path along the onion network to use");
+//
+//    po::variables_map vm;
+//    po::store(po::parse_command_line(argc, argv, desc), vm);
+//    po::notify(vm);
+//
+//    if (vm.count("help")) {
+//        cout << desc << endl;
+//        return 1;
+//    }
+//
+//    if (!vm.count("path")) {
+//        cout << desc << endl;
+//        return 1;
+//    }
+//    vector<string> path = vm["path"].as<vector<string>>();
+//
+//    vector<ip4_addr> ip_path;
+//    for (string& node : path) ip_path.push_back(convert_to_ip4_addr(node));
+//
+//    onion_network_node_main(ip_path);
+    onion_network_node_main({convert_to_ip4_addr("10.100.102.31")});
 
+}

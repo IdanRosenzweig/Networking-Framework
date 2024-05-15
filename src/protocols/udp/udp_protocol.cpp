@@ -6,7 +6,7 @@
 using namespace std;
 
 
-int udp_protocol::send_data(send_msg msg) {
+int udp_protocol::send_data(send_msg& msg) {
 #define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, '\x00', BUFF_LEN);
@@ -23,7 +23,8 @@ int udp_protocol::send_data(send_msg msg) {
     char *packet_data = buff + sizeof(udp_header);
     memcpy(packet_data, msg.buff, msg.count);
 
-    return gateway->send_data({buff, (int) sizeof(udp_header) + msg.count});
+    send_msg send{buff, (int) sizeof(udp_header) + msg.count};
+    return gateway->send_data(send);
 }
 
 void udp_protocol::handle_received_event(received_msg& msg) {

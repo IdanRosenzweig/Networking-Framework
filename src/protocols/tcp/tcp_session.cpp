@@ -49,7 +49,7 @@ tcp_session::~tcp_session() {
     close(sd);
 }
 
-int tcp_session::send_data(send_msg msg) {
+int tcp_session::send_data(send_msg& msg) {
     if (!alive) return -1;
 
     int error = 0;

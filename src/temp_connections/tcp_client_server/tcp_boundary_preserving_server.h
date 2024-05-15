@@ -5,7 +5,7 @@
 #include "../../protocols/msg_boundary/msg_boundary_seperator.h"
 #include "../../abstract/session/basic_session_generator.h"
 
-class tcp_boundary_preserving_session : public basic_session {
+class tcp_boundary_preserving_session : public msg_session {
     std::unique_ptr<tcp_session> tcpSession;
     msg_boundary_seperator<> client;
 
@@ -15,7 +15,7 @@ public:
         client.add_listener(this);
     }
 
-    int send_data(send_msg val) override {
+    int send_data(send_msg& val) override {
         return client.send_data(val);
     }
 

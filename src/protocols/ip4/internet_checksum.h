@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-unsigned short internet_checksum(const uint16_t * buf, int no_bytes);
+uint16_t internet_checksum(const uint16_t * buf, int no_bytes);
 
 #endif //SERVERCLIENT_INTERNET_CHECKSUM_H

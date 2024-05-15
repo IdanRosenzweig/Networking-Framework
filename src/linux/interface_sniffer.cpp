@@ -1,5 +1,7 @@
 #include "interface_sniffer.h"
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 
 void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
     interface_sniffer *sniffer = reinterpret_cast<interface_sniffer *>(user);

@@ -5,8 +5,8 @@
 #include <vector>
 #include <utility>
 
-#include "../../abstract/sending/msg_sender.h"
-#include "../../abstract/receiving/msg_receiver.h"
+#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/receiving/msg/msg_receiver.h"
 #include "../../abstract/receiving/recv_queue.h"
 #include "../../abstract/utils/circular_buffer.h"
 

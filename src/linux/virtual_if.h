@@ -2,27 +2,21 @@
 #define SERVERCLIENT_VIRTUAL_IF_H
 
 #include <thread>
-#include "../abstract/gateway/basic_gateway.h"
-#include "../abstract/receiving/msg_receiver.h"
+#include "../abstract/gateway/msg_gateway.h"
+#include "../abstract/receiving/msg/msg_receiver.h"
 
-class linux_virtual_iface;
-
-linux_virtual_iface create_virtual_iface_from_connection(basic_gateway *ggw, char dev[6]);
-
-class linux_virtual_iface : public msg_receiver {
-    basic_gateway* gateway;
+class linux_virtual_iface : private msg_receiver {
+    msg_gateway* gateway;
     int fd;
 
     std::thread worker;
 
-    explicit linux_virtual_iface(basic_gateway *ggw, char dev[6]);
-
     void handle_received_event(received_msg &event) override;
 
 public:
-    ~linux_virtual_iface();
+    explicit linux_virtual_iface(msg_gateway *gw, char dev[6]);
 
-    friend linux_virtual_iface create_virtual_iface_from_connection(basic_gateway *ggw, char dev[6]);
+    ~linux_virtual_iface();
 
 };
 

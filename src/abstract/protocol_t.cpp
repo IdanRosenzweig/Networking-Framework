@@ -1,6 +1,6 @@
 #include "protocol_t.h"
 
-std::string to_str(protocol_t prot) {
+std::string convert_to_str(protocol_t prot) {
     switch (prot) {
         case ETHERNET: return "ethernet";
         case ARP: return "net_arp";
@@ -12,4 +12,16 @@ std::string to_str(protocol_t prot) {
     }
 
     return "";
+}
+
+protocol_t convert_str_to_protocol_t(const std::string& prot) {
+    if (prot == "ethernet") return ETHERNET;
+    else if (prot == "arp") return ARP;
+    else if (prot == "ip4") return IP4;
+    else if (prot == "udp") return UDP;
+    else if (prot == "tcp") return TCP;
+    else if (prot == "icmp") return ICMP;
+    else if (prot == "dns") return DNS;
+    else
+        throw "invalid protocol";
 }

@@ -1,5 +1,6 @@
 #include <netinet/in.h>
 #include "dns.h"
+#include <iostream>
 
 ustring encode_dns_name(uint8_t *name) {
     ustring encoded;
@@ -194,9 +195,10 @@ int write_response_to_buff(uint8_t *dest, struct dns_answer *source) {
 
 
 dns_record_type str_to_record_type(const string& str) {
-    if (str == "a") return DNS_TYPE_A;
-    else if (str == "mx") return DNS_TYPE_MX;
-    else if (str == "ptr") return DNS_TYPE_PTR;
-    else
+    if (str == "A") return DNS_TYPE_A;
+    else if (str == "MX") return DNS_TYPE_MX;
+    else if (str == "PTR") return DNS_TYPE_PTR;
+    else {
         throw "invalid record type";
+    }
 }

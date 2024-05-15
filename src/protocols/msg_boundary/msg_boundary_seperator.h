@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_MSG_BOUNDARY_SEPERATOR_H
 #define SERVERCLIENT_MSG_BOUNDARY_SEPERATOR_H
 
-#include "../../abstract/connection/basic_connection.h"
+#include "../../abstract/connection/msg_connection.h"
 
 // takes a connection that doesn't necessarily preserve message boundary
 // and wraps it with a message boundary preserving protocol.
@@ -9,16 +9,16 @@
 // it also deletes all subprotocols that are stored in the messages coming from the connection (in msg.protocol_offsets)
 
 template <typename MSG_SZ_FIELD = uint16_t>
-class msg_boundary_seperator : public basic_connection {
-    basic_connection* base_conn;
+class msg_boundary_seperator : public msg_connection {
+    msg_connection* base_conn;
 public:
 
     msg_boundary_seperator() {}
-    explicit msg_boundary_seperator(basic_connection *baseConn) : base_conn(baseConn) {
+    explicit msg_boundary_seperator(msg_connection *baseConn) : base_conn(baseConn) {
         base_conn->add_listener(this);
     }
 
-    int send_data(send_msg val) override {
+    int send_data(send_msg& val) override {
         MSG_SZ_FIELD sz = val.count;
 
 #define BUFF_SZ 1024
@@ -29,7 +29,8 @@ public:
         memcpy(buff + sizeof(MSG_SZ_FIELD), val.buff, sz);
 
         int total_sz = sz + sizeof(MSG_SZ_FIELD);
-        return base_conn->send_data(send_msg{buff, total_sz});
+        send_msg send{buff, total_sz};
+        return base_conn->send_data(send);
     }
 
     bool mid_packet = false; // in the middle of reading a packet

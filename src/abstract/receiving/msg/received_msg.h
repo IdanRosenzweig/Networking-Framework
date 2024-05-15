@@ -1,12 +1,10 @@
 #ifndef SERVERCLIENT_RECEIVED_MSG_H
 #define SERVERCLIENT_RECEIVED_MSG_H
 
-#include "../protocol_t.h"
+#include "../../protocol_t.h"
 #include <vector>
 #include <memory>
 #include <cstring>
-#include <iostream>
-using namespace std;
 
 struct received_msg {
     std::unique_ptr<uint8_t> data = nullptr;

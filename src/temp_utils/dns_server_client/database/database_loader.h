@@ -5,6 +5,6 @@
 #include <string>
 using namespace std;
 
-void load_config_database(dns_server* server, const string& configfile);
+void load_database(dns_server* server, const string& db_path);
 
 #endif //SERVERCLIENT_DATABASE_LOADER_H

@@ -2,6 +2,7 @@
 #include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_client.h"
 
 #include <string>
+#include <iostream>
 using namespace std;
 
 #define SERVER_ADDR "10.100.102.18"
@@ -28,23 +29,28 @@ void tcp_main() {
 
     sleep(1);
     msg = "hello";
-    client.send_data({msg, (int) strlen(msg)});
+    send_msg send{msg, (int) strlen(msg)};
+    client.send_data(send);
 
     sleep(1);
     msg = "thisis test msg";
-    client.send_data({msg, (int) strlen(msg)});
+    send = send_msg{msg, (int) strlen(msg)};
+    client.send_data(send);
 
     sleep(1);
     msg = "another one";
-    client.send_data({msg, (int) strlen(msg)});
+    send = send_msg{msg, (int) strlen(msg)};
+    client.send_data(send);
 
     sleep(1);
     msg = "another one2";
-    client.send_data({msg, (int) strlen(msg)});
+    send = send_msg{msg, (int) strlen(msg)};
+    client.send_data(send);
 
     sleep(1);
     msg = "another one3";
-    client.send_data({msg, (int) strlen(msg)});
+    send = send_msg{msg, (int) strlen(msg)};
+    client.send_data(send);
 
 //    while (true) {
 //

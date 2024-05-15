@@ -4,7 +4,7 @@
 #include "ping_util.h"
 
 class traceroute_util : msg_receiver {
-    network_layer_gateway gateway;
+    msg_gateway * gateway;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
 
@@ -14,20 +14,7 @@ class traceroute_util : msg_receiver {
     }
 
 public:
-    traceroute_util() : gateway("enp0s3") {
-        // setup send flow
-        ip_client.gateway = &gateway;
-        ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
-        ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
-
-        icmp_client.gateway = &ip_client;
-
-        // setup recv flow
-        gateway.add_listener(&ip_client);
-        ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
-
-        icmp_client.default_handler = this;
-    }
+    traceroute_util(msg_gateway * gw = nullptr);
 
     next_choice<ip4_addr> dest_ip;
 

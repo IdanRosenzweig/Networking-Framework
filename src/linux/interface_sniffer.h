@@ -1,14 +1,15 @@
 #ifndef SERVERCLIENT_INTERFACE_SNIFFER_H
 #define SERVERCLIENT_INTERFACE_SNIFFER_H
 
-#include "../abstract/connection/multi_sniffer.h"
+#include "../abstract/sniffer/msg_sniffer.h"
 
 #include <pcap/pcap.h>
 #include <string>
 #include <thread>
 using namespace std;
 
-class interface_sniffer : public multi_sniffer {
+// open a raw sniffer on a linux interface
+class interface_sniffer : public multi_msg_sniffer {
     pcap_t *traffic_in;
     std::thread worker_in;
 

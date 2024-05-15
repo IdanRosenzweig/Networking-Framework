@@ -3,7 +3,7 @@
 
 #include "../connection/basic_connection.h"
 
-class basic_gateway : public basic_connection {
-};
+template <typename SEND_T, typename RECV_T>
+using basic_gateway = basic_connection<SEND_T, RECV_T>;
 
 #endif //SERVERCLIENT_BASIC_GATEWAY_H

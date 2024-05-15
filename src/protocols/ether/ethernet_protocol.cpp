@@ -10,7 +10,7 @@ ethernet_protocol::ethernet_protocol() {
 }
 
 
-int ethernet_protocol::send_data(send_msg msg) {
+int ethernet_protocol::send_data(send_msg& msg) {
 #define BUFF_LEN 1024
     char buff[BUFF_LEN];
     memset(buff, 0, BUFF_LEN);
@@ -35,7 +35,8 @@ int ethernet_protocol::send_data(send_msg msg) {
     char *frame_data = buff + sizeof(struct ether_header);
     memcpy(frame_data, msg.buff, msg.count);
 
-    return gateway->send_data({buff, (int) sizeof(struct ether_header) + msg.count});
+    send_msg send{buff, (int) sizeof(struct ether_header) + msg.count};
+    return gateway->send_data(send);
 
 }
 
