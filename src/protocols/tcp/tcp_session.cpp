@@ -15,7 +15,7 @@ tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(
             std::this_thread::sleep_for(10ms);
 
 #define BUFF_SZ 1024
-            char buff[BUFF_SZ];
+            uint8_t buff[BUFF_SZ];
             memset(buff, 0, BUFF_SZ);
 
             int data_sz = recv(this->sd, buff, BUFF_SZ, 0);
@@ -31,13 +31,17 @@ tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(
 
 //            cout << "tcp_client_server session read size " << data_sz << endl;
 
-            uint8_t *alloc_msg = new uint8_t[data_sz];
-            memcpy(alloc_msg, buff, data_sz);
-
             received_msg msg;
-            msg.data = unique_ptr<uint8_t>(alloc_msg);
-            msg.sz = data_sz;
+            msg.data = udata_t(data_sz, 0x00);
+            memcpy(msg.data.data(), buff, data_sz);
             msg.curr_offset = 0;
+//            uint8_t *alloc_msg = new uint8_t[data_sz];
+//            memcpy(alloc_msg, buff, data_sz);
+//
+//            received_msg msg;
+//            msg.data = unique_ptr<uint8_t>(alloc_msg);
+//            msg.data.size() = data_sz;
+//            msg.curr_offset = 0;
             this->handle_received_event(msg);
         }
     });
@@ -49,7 +53,7 @@ tcp_session::~tcp_session() {
     close(sd);
 }
 
-int tcp_session::send_data(send_msg& msg) {
+int tcp_session::send_data(send_msg<>& msg) {
     if (!alive) return -1;
 
     int error = 0;
@@ -69,7 +73,7 @@ int tcp_session::send_data(send_msg& msg) {
         return 0;
     }
 
-    return send(sd, msg.buff, msg.count, 0);
+    return send(sd, msg.get_active_buff(), msg.get_count(), 0);
 }
 
 void tcp_session::handle_received_event(received_msg &event) {

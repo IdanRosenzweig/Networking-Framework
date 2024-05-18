@@ -9,12 +9,9 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
     int data_sz = pkthdr->len;
     if (data_sz <= 0) return;
 
-    uint8_t *alloc_msg = new uint8_t[data_sz];
-    memcpy(alloc_msg, bytes, data_sz);
-
     received_msg msg;
-    msg.data = unique_ptr<uint8_t>(alloc_msg);
-    msg.sz = data_sz;
+    msg.data = udata_t(data_sz, 0x00);
+    memcpy(msg.data.data(), bytes, data_sz);
     msg.curr_offset = 0;
     sniffer->handle_incoming_packet(msg);
 }
@@ -25,12 +22,9 @@ void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *b
     int data_sz = pkthdr->len;
     if (data_sz <= 0) return;
 
-    uint8_t *alloc_msg = new uint8_t[data_sz];
-    memcpy(alloc_msg, bytes, data_sz);
-
     received_msg msg;
-    msg.data = unique_ptr<uint8_t>(alloc_msg);
-    msg.sz = data_sz;
+    msg.data = udata_t(data_sz, 0x00);
+    memcpy(msg.data.data(), bytes, data_sz);
     msg.curr_offset = 0;
     sniffer->handle_outgoing_packet(msg);
 }

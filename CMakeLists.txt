@@ -28,6 +28,7 @@ set(PROTOCOLS_SRC
         src/protocols/icmp/icmp_protocol.cpp
 
         src/protocols/msg_boundary/msg_boundary_protocol.cpp
+        src/protocols/better_suite/bs_endpoint_multiplexing/bs_endpoint_multiplexing.cpp
 )
 
 set(ABSTRACT_SRC

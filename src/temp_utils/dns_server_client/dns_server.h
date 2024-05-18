@@ -6,7 +6,7 @@
 
 #include "../../abstract/receiving/msg/msg_receiver.h"
 #include "../../abstract/sending/msg/msg_sender.h"
-#include "trie.h"
+#include "../../abstract/utils/trie.h"
 
 #include "dns.h"
 #include "../../linux/osi/network_layer_gateway.h"

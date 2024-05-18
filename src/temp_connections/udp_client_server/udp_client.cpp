@@ -26,6 +26,6 @@ udp_client::udp_client(ip4_addr dest_ip, int dest_port, int my_port, msg_gateway
     _udp_client.port_handlers.assign_to_key(my_port, this);
 }
 
-int udp_client::send_data(send_msg &msg) {
+int udp_client::send_data(send_msg<> &msg) {
     return _udp_client.send_data(msg);
 }

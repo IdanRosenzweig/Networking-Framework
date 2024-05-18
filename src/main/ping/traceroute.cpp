@@ -5,7 +5,7 @@
 using namespace std;
 
 void traceroute_main(ip4_addr dest_ip) {
-    traceroute_util tracer;
+    traceroute_util tracer(new interface_gateway("virt0"));
     tracer.dest_ip.set_next_choice(dest_ip);
 
     tracer.trace_to_destination();

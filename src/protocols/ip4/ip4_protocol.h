@@ -20,7 +20,7 @@ public:
 
     msg_sender *gateway;
 
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 
     // recv
     multiplexer<int, basic_receiver *> protocol_handlers;

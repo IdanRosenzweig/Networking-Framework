@@ -8,7 +8,8 @@ enum protocol_t {
     UDP,
     TCP,
     ICMP,
-    DNS
+    DNS,
+    BS_PORT
 };
 
 #include <string>

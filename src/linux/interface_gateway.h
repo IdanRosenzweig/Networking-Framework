@@ -22,7 +22,7 @@ public:
 
     ~interface_gateway();
 
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 
 private:
     void handle_outgoing_packet(received_msg &msg) override;

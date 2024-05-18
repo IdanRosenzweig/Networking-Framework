@@ -10,7 +10,7 @@ void net_analyzer::ether_handler::handle_received_event(received_msg &event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "ethernet\t";
 
-    struct ether_header* ether = (struct ether_header*) (event.data.get() + event.protocol_offsets.back().first);
+    struct ether_header* ether = (struct ether_header*) (event.data.data() + event.protocol_offsets.back().first);
     mac_addr src;
     mac_addr dest;
     memcpy(&src, ether->ether_shost, ETH_ALEN);
@@ -25,7 +25,7 @@ void net_analyzer::ip4_handler::handle_received_event(received_msg &event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "ip4\t\t";
 
-    struct iphdr* ip_hdr = (struct iphdr*) (event.data.get() + event.protocol_offsets.back().first);
+    struct iphdr* ip_hdr = (struct iphdr*) (event.data.data() + event.protocol_offsets.back().first);
     ip4_addr src;
     ip4_addr dest;
     extract_from_network_order(&src, (uint8_t*) &ip_hdr->saddr);
@@ -40,7 +40,7 @@ void net_analyzer::udp_handler::handle_received_event(received_msg &event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "udp\t\t";
 
-    struct udp_header* udp = (struct udp_header*) (event.data.get() + event.protocol_offsets.back().first);
+    struct udp_header* udp = (struct udp_header*) (event.data.data() + event.protocol_offsets.back().first);
     cout << "src port " << dec << ntohs(udp->source_port) << "\t\t";
     cout << "dest port " << dec << ntohs(udp->dest_port) << "\t";
 
@@ -51,7 +51,7 @@ void net_analyzer::icmp_handler::handle_received_event(received_msg &event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "icmp\t";
 
-    struct icmp_header* icmp = (struct icmp_header*) (event.data.get() + event.protocol_offsets.back().first);
+    struct icmp_header* icmp = (struct icmp_header*) (event.data.data() + event.protocol_offsets.back().first);
 
     cout << endl;
 }
@@ -84,7 +84,7 @@ void net_analyzer::handle_outgoing_packet(received_msg &msg) {
 
     cout << "##### hex dump" << endl;
     FILE* pipe = popen("/usr/bin/hd", "w");
-    fwrite(msg.data.get(), 1, msg.sz, pipe);
+    fwrite(msg.data.data(), 1, msg.data.size(), pipe);
     pclose(pipe);
 
     cout << endl;
@@ -98,7 +98,7 @@ void net_analyzer::handle_incoming_packet(received_msg &msg) {
 
     cout << "### hex dump" << endl;
     FILE* pipe = popen("/usr/bin/hd", "w");
-    fwrite(msg.data.get(), 1, msg.sz, pipe);
+    fwrite(msg.data.data(), 1, msg.data.size(), pipe);
     pclose(pipe);
 
     cout << endl;

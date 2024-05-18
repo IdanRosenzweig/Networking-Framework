@@ -29,7 +29,7 @@ public:
 
     ip_proxy_server *server;
 
-    int send_data(send_msg& msg) override; // send to the tcpSession
+    int send_data(send_msg<>& msg) override; // send to the tcpSession
 
     void handle_received_event(received_msg& msg) override; // recv from the tcpSession
 };
@@ -38,7 +38,7 @@ class network_side_handler : public msg_sender, public msg_receiver {
 public:
     ip_proxy_server *server;
 
-    int send_data(send_msg& msg) override; // send to the network
+    int send_data(send_msg<>& msg) override; // send to the network
 
     void handle_received_event(received_msg& msg) override; // recv from the network
 };

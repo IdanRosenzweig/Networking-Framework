@@ -25,16 +25,16 @@ void udp_server::handle_received_event(received_msg &event) {
     socket_msg sock_msg;
     sock_msg.msg = event;
     sock_msg.source_port =
-            ntohs( ((struct udp_header*) (event.data.get() + event.protocol_offsets.rbegin()->first))->source_port );
+            ntohs( ((struct udp_header*) (event.data.data() + event.protocol_offsets.rbegin()->first))->source_port );
     sock_msg.dest_port =
-            ntohs( ((struct udp_header*) (event.data.get() + event.protocol_offsets.rbegin()->first))->dest_port );
+            ntohs( ((struct udp_header*) (event.data.data() + event.protocol_offsets.rbegin()->first))->dest_port );
     extract_from_network_order(&sock_msg.source_addr,
-                               (uint8_t*) &((struct iphdr*) (event.data.get() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
+                               (uint8_t*) &((struct iphdr*) (event.data.data() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
     this->multi_receiver::handle_received_event(sock_msg);
 }
 
-int udp_server::send_data_to_client(ip4_addr client_addr, int dest_port, send_msg msg) {
+int udp_server::send_data_to_client(ip4_addr client_addr, int dest_port, send_msg<> msg) {
     ip_server.next_dest_addr.set_next_choice(client_addr);
     _udp_server.next_dest_port.set_next_choice(dest_port);
 

@@ -16,7 +16,7 @@ private:
 public:
     network_layer_gateway(const string& interface);
 
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 
 };
 

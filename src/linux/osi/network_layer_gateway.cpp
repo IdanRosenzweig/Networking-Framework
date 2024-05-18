@@ -16,7 +16,7 @@ network_layer_gateway::network_layer_gateway(const string& interface) : interfac
     ether_prot.protocol_handlers.assign_to_key(htons(ETH_P_IP), this);
 }
 
-int network_layer_gateway::send_data(send_msg& msg) {
+int network_layer_gateway::send_data(send_msg<>& msg) {
     return ether_prot.send_data(msg);
 }
 

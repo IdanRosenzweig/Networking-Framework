@@ -19,8 +19,8 @@ public:
 
 private:
     void handle_received_event(received_msg &event) override {
-        cout << "msg: " << event.data.get() + event.curr_offset << endl;
-        send_msg send{event.data.get() + event.curr_offset, event.sz - event.curr_offset};
+        cout << "msg: " << event.data.data() + event.curr_offset << endl;
+        send_msg send{event.data.data() + event.curr_offset, event.data.size() - event.curr_offset};
         session->send_data(send);
     }
 };

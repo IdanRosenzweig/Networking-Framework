@@ -15,7 +15,7 @@ template <int PORT>
 class only_udp_filter : public basic_firewall_filter {
 public:
     ip4_protocol ip_prot;
-    udp_protocol udp_prot;
+    bs_port_multiplexing udp_prot;
 
     class data_counter counter;
 

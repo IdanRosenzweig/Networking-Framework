@@ -16,7 +16,7 @@ public:
         base_conn->add_listener(this);
     }
 
-    int send_data(send_msg& val) override {
+    int send_data(send_msg<>& val) override {
         return base_conn->send_data(val);
     }
 

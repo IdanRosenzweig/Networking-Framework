@@ -12,7 +12,7 @@ conn_handler::conn_handler(conn_aggregator *master, msg_connection *conn) : mast
     my_conn->add_listener(this);
 }
 
-int conn_handler::send_data(send_msg& val) {
+int conn_handler::send_data(send_msg<>& val) {
     return my_conn->send_data(val);
 }
 
@@ -27,7 +27,10 @@ void conn_handler::handle_received_event(received_msg &event) {
             continue;
         }
 
-        send_msg send{event.data.get() + event.curr_offset, event.sz - event.curr_offset};
+        int cnt = event.data.size() - event.curr_offset;
+        send_msg<> send;
+        memcpy(send.get_active_buff(), event.data.data() + event.curr_offset, cnt);
+        send.set_count(cnt);
         int res = master->conns[i]->send_data(send);
         if (res == -1) {
             cerr << "couldn't send to aggregator my_conn" << endl;

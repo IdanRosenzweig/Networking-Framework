@@ -32,11 +32,10 @@ dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) {
 void dns_client::query(dns_record_type type, const std::string& key) {
 
 #define BUFF_SZ 65536
-    unsigned char buff[BUFF_SZ];
-    memset(buff, '\x00', BUFF_SZ);
+    uint8_t buff[BUFF_SZ] = {0};
 
     // build the dns request header
-    struct dns_header *request = (struct dns_header *) &buff;
+    struct dns_header *request = (struct dns_header *) buff;
     request->id = (unsigned short) htons(3576);
     request->qr = 0; //This is a dns_query
     request->opcode = 0; //This is a standard dns_query
@@ -67,13 +66,16 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
     // send the dns request
     cout << "requesting 1 dns record" << endl;
-    send_msg send{(char *) buff, (int) sizeof(struct dns_header) + queries_sz};
+    int cnt = sizeof(struct dns_header) + queries_sz;
+    send_msg send;
+    memcpy(send.get_active_buff(), buff, cnt);
+    send.set_count(cnt);
     udp_client.send_data(send);
 
 
     // receive answer
     received_msg reply = front_data();
-    uint8_t *reply_buff = reply.data.get() + reply.curr_offset;
+    uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
 
 
     struct dns_header *response = (struct dns_header *) reply_buff;
@@ -84,7 +86,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     int no_addit_data = ntohs(response->add_count);
     cout << "- " << no_answers << " answers" << endl;
     cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
-    cout << "- " << no_addit_data << " additional records data" << endl << endl;
+    cout << "- " << no_addit_data << " additional records data_t" << endl << endl;
 
     // jump over the header and the query
     uint8_t *curr_ptr = &reply_buff[sizeof(struct dns_header) + queries_sz];
@@ -163,7 +165,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
             addit.push_back(std::move(curr));
         }
 
-        cout << "# additional record data:" << endl;
+        cout << "# additional record data_t:" << endl;
         for (int i = 0; i < no_addit_data; i++) {
 
             cout << "Name : " << addit[i].name.c_str() << ", ";

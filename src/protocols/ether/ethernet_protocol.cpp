@@ -10,10 +10,8 @@ ethernet_protocol::ethernet_protocol() {
 }
 
 
-int ethernet_protocol::send_data(send_msg& msg) {
-#define BUFF_LEN 1024
-    char buff[BUFF_LEN];
-    memset(buff, 0, BUFF_LEN);
+int ethernet_protocol::send_data(send_msg<>& msg) {
+    uint8_t* buff = msg.get_reserve_buff();
 
     // setup ethernet
     struct ether_header *eth_header = (struct ether_header *) buff;
@@ -28,21 +26,22 @@ int ethernet_protocol::send_data(send_msg& msg) {
     mac_addr src_addr = next_source_addr.get_next_choice();
     memcpy(eth_header->ether_shost, &src_addr, ETH_ALEN); // my mac
 
-    // ethertypeevent.data.get() + event.curr_offset
+    // ethertypeevent.data_t.get() + event.curr_offset
     eth_header->ether_type = next_protocol.get_next_choice();
 
 
-    char *frame_data = buff + sizeof(struct ether_header);
-    memcpy(frame_data, msg.buff, msg.count);
+    uint8_t *frame_data = buff + sizeof(struct ether_header);
+    memcpy(frame_data, msg.get_active_buff(), msg.get_count());
 
-    send_msg send{buff, (int) sizeof(struct ether_header) + msg.count};
-    return gateway->send_data(send);
+    msg.toggle_active_buff();
+    msg.set_count(sizeof(struct ether_header) + msg.get_count());
+    return gateway->send_data(msg);
 
 }
 
 void ethernet_protocol::handle_received_event(received_msg& msg) {
 //    cout << "ethernet aggregator app_handler called" << endl;
-    uint8_t *buff = msg.data.get() + msg.curr_offset;
+    uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct ether_header *eth_header = (struct ether_header *) buff;
     uint16_t ethertype = eth_header->ether_type;

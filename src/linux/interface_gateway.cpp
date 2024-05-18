@@ -61,13 +61,13 @@ interface_gateway::~interface_gateway() {
 //    worker.detach();
 }
 
-int interface_gateway::send_data(send_msg& msg) {
+int interface_gateway::send_data(send_msg<>& msg) {
 //    return sendto(fd,
 //                msg.buff, msg.count,
 //                0,
 //                reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
     return send(fd,
-                  msg.buff, msg.count,
+                  msg.get_active_buff(), msg.get_count(),
                   0);
 }
 

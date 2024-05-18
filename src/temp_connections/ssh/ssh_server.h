@@ -38,19 +38,16 @@ public:
 
         worker = std::thread([&]() -> void {
 #define BUFF_SZ 1024
-            char buff[BUFF_SZ];
+            uint8_t buff[BUFF_SZ];
             while (true) {
                 memset(buff, 0, BUFF_SZ);
 
                 int data_sz = ssh_channel_read(raw_channel, buff, BUFF_SZ, false);
                 if (data_sz <= 0) continue;
 
-                uint8_t *alloc_msg = new uint8_t[data_sz];
-                memcpy(alloc_msg, buff, data_sz);
-
                 received_msg msg;
-                msg.data = unique_ptr<uint8_t>(alloc_msg);
-                msg.sz = data_sz;
+                msg.data = udata_t(data_sz, 0x00);
+                memcpy(msg.data.data(), buff, data_sz);
                 msg.curr_offset = 0;
                 this->handle_received_event(msg);
             }
@@ -68,7 +65,7 @@ public:
         ssh_free(session);
     }
 
-    int send_data(send_msg& val) override {
+    int send_data(send_msg<>& val) override {
         return ssh_channel_write(raw_channel, val.buff, val.count);
     }
 

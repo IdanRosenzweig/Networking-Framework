@@ -6,8 +6,8 @@
 #include "../sniffer/basic_sniffer.h"
 #include <vector>
 
-// a basic connection that you can send data on and listen to data from
-// you can also attack sniffers to the connection, when data is sent or received
+// a basic connection that you can send data_t on and listen to data_t from
+// you can also attack sniffers to the connection, when data_t is sent or received
 
 template <typename SEND_T, typename RECV_T>
 class basic_connection : public multi_sender<SEND_T>, public multi_receiver<RECV_T> {

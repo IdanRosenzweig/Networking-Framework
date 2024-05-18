@@ -1,0 +1,8 @@
+//
+// Created by idan on 5/17/24.
+//
+
+#ifndef SERVERCLIENT_PROTOCOL_H
+#define SERVERCLIENT_PROTOCOL_H
+
+#endif //SERVERCLIENT_PROTOCOL_H

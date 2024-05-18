@@ -21,7 +21,7 @@ public:
 
     udp_server(int serverPort);
 
-    int send_data_to_client(ip4_addr client_addr, int dest_port, send_msg msg);
+    int send_data_to_client(ip4_addr client_addr, int dest_port, send_msg<> msg);
 
 };
 

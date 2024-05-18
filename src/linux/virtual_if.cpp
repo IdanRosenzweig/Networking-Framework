@@ -16,25 +16,25 @@ linux_virtual_iface::linux_virtual_iface(msg_gateway *gw, char *dev) : gateway(g
 
     worker = std::thread([&]() -> void {
         while (true) {
-#define BUFF_SZ 1024
-            char buff[BUFF_SZ];
-            memset(buff, 0, BUFF_SZ);
 
-            int cnt = read(fd, buff, BUFF_SZ);
+            send_msg<> send;
+            uint8_t *buff = send.get_active_buff();
+
+            int cnt = read(fd, buff, 1024);
             if (cnt <= 0) continue;
 
 //            cout << "tap sending " << cnt << " bytes" << endl;
-            send_msg send{buff, cnt};
+            send.set_count(cnt);
             this->gateway->send_data(send);
         }
     });
 }
 
 void linux_virtual_iface::handle_received_event(received_msg &event) {
-    int cnt = event.sz - event.curr_offset;
+    int cnt = event.data.size() - event.curr_offset;
 //    cout << "tap received " << cnt << " bytes" << endl;
-    write(fd, event.data.get() + event.curr_offset, event.sz - event.curr_offset);
-//    write(fd, event.data.get(), event.sz);
+    write(fd, event.data.data() + event.curr_offset, event.data.size() - event.curr_offset);
+//    write(fd, event.data_t.get(), event.data.size());
 }
 
 linux_virtual_iface::~linux_virtual_iface() {

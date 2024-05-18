@@ -12,22 +12,20 @@ ip4_protocol::ip4_protocol() {
 }
 
 
-int ip4_protocol::send_data(send_msg& msg) {
+int ip4_protocol::send_data(send_msg<>& msg) {
     if (next_dest_addr.get_next_choice() == empty_ip4_addr) {
 //        cout << "tcpSession is null" << endl;
         return 0;
     }
 
-#define BUFF_LEN 1024
-    char packet[BUFF_LEN];
-    memset(packet, '\x00', BUFF_LEN);
+    uint8_t* packet = msg.get_reserve_buff();
 
     struct iphdr *iph = (struct iphdr *) packet;
 
     iph->ihl = 5;
     iph->version = 4;
     iph->tos = 0;
-    int ip_packet_len = sizeof(struct iphdr) + msg.count;
+    int ip_packet_len = sizeof(struct iphdr) + msg.get_count();
     iph->tot_len = htons(ip_packet_len);
     iph->id = htonl(4444);
     iph->frag_off = 0;
@@ -40,18 +38,20 @@ int ip4_protocol::send_data(send_msg& msg) {
     write_in_network_order((uint8_t*) &iph->daddr, &next_dest_addr.get_next_choice());
 
     iph->check = 0;
-    iph->check = internet_checksum((uint16_t *) packet, ip_packet_len);
+//    iph->check = internet_checksum((uint16_t *) packet, ip_packet_len);
+    iph->check = internet_checksum((uint16_t *) packet, sizeof(struct iphdr));
 
-    char *data = packet + sizeof(struct iphdr);
-    memcpy(data, msg.buff, msg.count);
+    uint8_t *data = packet + sizeof(struct iphdr);
+    memcpy(data, msg.get_active_buff(), msg.get_count());
 
-    send_msg send{packet, ip_packet_len};
-    return gateway->send_data(send);
+    msg.toggle_active_buff();
+    msg.set_count(ip_packet_len);
+    return gateway->send_data(msg);
 }
 
 void ip4_protocol::handle_received_event(received_msg& msg) {
 //    cout << "ip aggregator app_handler called" << endl;
-    uint8_t *buff = msg.data.get() + msg.curr_offset;
+    uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct iphdr *iph = (struct iphdr *) buff;
     uint8_t protocol = iph->protocol;

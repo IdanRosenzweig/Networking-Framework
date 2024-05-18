@@ -25,7 +25,7 @@ public:
 
     void print() {
         received_msg msg = front_data();
-        cout << "tcpSession: " << (char *) (msg.data.get() + msg.curr_offset) << endl;
+        cout << "tcpSession: " << (char *) (msg.data.data() + msg.curr_offset) << endl;
     }
 
     void send(string str) {
@@ -43,7 +43,7 @@ int udp_main() {
     network_layer_gateway networkLayerGateway("enp0s3");
 
     ip4_protocol ip_server;
-    udp_protocol udp_client;
+    bs_port_multiplexing udp_client;
 
     server_app_udp udpApp;
 
@@ -54,8 +54,8 @@ int udp_main() {
     ip_server.next_source_addr.set_next_choice(convert_to_ip4_addr(MY_IP));
 
     udp_client.gateway = &ip_server;
-    udp_client.next_source_port.set_next_choice(hosting_port);
-    udp_client.next_dest_port.set_next_choice(client_port);
+    udp_client.next_source_point.set_next_choice(hosting_port);
+    udp_client.next_dest_point.set_next_choice(client_port);
 
     udpApp.gateway = &udp_client;
 

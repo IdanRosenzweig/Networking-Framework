@@ -16,7 +16,7 @@ public:
         conn_to_proxy_server->add_listener(this);
     }
 
-    int send_data(send_msg& msg) override {
+    int send_data(send_msg<>& msg) override {
         return conn_to_proxy_server->send_data(msg);
     }
 

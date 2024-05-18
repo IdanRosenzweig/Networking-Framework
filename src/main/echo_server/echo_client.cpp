@@ -12,7 +12,7 @@ using namespace std;
 class client_app_tcp : public msg_receiver {
 public:
     void handle_received_event(received_msg &event) override {
-        cout << "raw_tcp_server: " << event.data.get() + event.curr_offset << endl;
+        cout << "raw_tcp_server: " << event.data.data() + event.curr_offset << endl;
     }
 };
 

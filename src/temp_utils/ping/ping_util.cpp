@@ -44,7 +44,9 @@ void ping_util::ping_node() {
         // count start time
         const auto start = std::chrono::high_resolution_clock::now();
 
-        send_msg send{data, data_sz};
+        send_msg send;
+        memcpy(send.get_active_buff(), data, data_sz);
+        send.set_count(data_sz);
         if (icmp_client.send_data(send) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
             continue;
@@ -54,7 +56,7 @@ void ping_util::ping_node() {
         while (true) {
             received_msg msg = raw_icmp.front();
             raw_icmp.pop_front();
-            uint8_t *buf = msg.data.get() + msg.protocol_offsets.back().first;
+            uint8_t *buf = msg.data.data() + msg.protocol_offsets.back().first;
 
             const auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

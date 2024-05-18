@@ -18,8 +18,8 @@ public:
 
 private:
     void handle_received_event(received_msg &event) override {
-        cout << event.data.get() + event.curr_offset << endl;
-//        session->send_data({event.data.get() + event.curr_offset, event.sz - event.curr_offset});
+        cout << event.data.data() + event.curr_offset << endl;
+//        session->send_data({event.data_t.get() + event.curr_offset, event.data.size() - event.curr_offset});
     }
 };
 
@@ -55,7 +55,7 @@ void netcat_server_main(int port) {
 class client_app : public msg_receiver {
 public:
     void handle_received_event(received_msg &event) override {
-        cout << event.data.get() + event.curr_offset << endl;
+        cout << event.data.data() + event.curr_offset << endl;
     }
 };
 

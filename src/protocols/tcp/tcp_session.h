@@ -29,7 +29,7 @@ public:
 
     ~tcp_session();
 
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 
     void handle_received_event(received_msg& event) override;
 

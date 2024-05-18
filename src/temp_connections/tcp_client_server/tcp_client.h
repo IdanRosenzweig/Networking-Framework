@@ -14,7 +14,7 @@ public:
 
     tcp_client(ip4_addr ip, int port, int my_port);
 
-    int send_data(send_msg& val) override;
+    int send_data(send_msg<>& val) override;
 };
 
 

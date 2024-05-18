@@ -4,10 +4,10 @@
 #include <string>
 using namespace std;
 
-template<typename T,
+template<typename TYPE,
         size_t RANGE, // max number of children
-        size_t (*ASSIGN_INDEX)(T val), // function that assigns indexes in the range [0, RANGE) to values
-        typename K // key stored at each node
+        size_t (*ASSIGN_INDEX)(TYPE val), // function that assigns indexes in the range [0, RANGE) to values
+        typename KEY // key stored at each node
 >
 struct trie_node { // a trie node, representing an entire tree
     bool marked = false;
@@ -15,17 +15,17 @@ struct trie_node { // a trie node, representing an entire tree
     trie_node *children[RANGE] = {nullptr};
     size_t child_count = 0;
 
-    K key;
+    KEY key;
 
     virtual ~trie_node() {
         remove_all_children();
     }
 
-    trie_node *get_child(T val) const {
+    trie_node *get_child(TYPE val) const {
         return children[ASSIGN_INDEX(val)];
     }
 
-    trie_node *create_child(T val) {
+    trie_node *create_child(TYPE val) {
         size_t in = ASSIGN_INDEX(val);
 
         if (children[in] != nullptr) return children[in]; // child already exists
@@ -36,7 +36,7 @@ struct trie_node { // a trie node, representing an entire tree
         return children[in];
     }
 
-    void remove_child(T val) {
+    void remove_child(TYPE val) {
         size_t in = ASSIGN_INDEX(val);
 
         if (children[in] == nullptr) return; // no such child
@@ -55,7 +55,7 @@ struct trie_node { // a trie node, representing an entire tree
         }
     }
 
-    trie_node *search(const string &str) {
+    trie_node *search(const basic_string<TYPE> &str) {
         trie_node *curr_node = this;
         for (char c: str) {
             trie_node *child = curr_node->get_child(c);
@@ -67,7 +67,7 @@ struct trie_node { // a trie node, representing an entire tree
         return curr_node;
     }
 
-    trie_node * add_word(const string &str) {
+    trie_node * add_word(const basic_string<TYPE> &str) {
         if (str.empty()) return nullptr;
 
         trie_node *curr_node = this;
@@ -82,7 +82,7 @@ struct trie_node { // a trie node, representing an entire tree
         return curr_node;
     }
 
-    void remove_word(const string &str) {
+    void remove_word(const basic_string<TYPE> &str) {
         if (str.empty()) return;
 
         // we would want to remove the final node representing the entire word,
@@ -109,18 +109,18 @@ struct trie_node { // a trie node, representing an entire tree
     }
 
     // does the trie contain this word
-    bool contains_word(const string &str) {
+    bool contains_word(const basic_string<TYPE> &str) {
         trie_node *node = search(str);
         return node != nullptr && node->marked;
     }
 
     // does the trie contain some word which has this prefix
-    bool is_prefix(const string &str) {
+    bool is_prefix(const basic_string<TYPE> &str) {
         return search(str) != nullptr;
     }
 
     // does the trie contain some word which is a prefix of str
-    bool contains_prefix(const string &str) {
+    bool contains_prefix(const basic_string<TYPE> &str) {
         trie_node *curr_node = this;
         for (char c: str) {
             trie_node *child = curr_node->get_child(c);

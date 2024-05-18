@@ -63,7 +63,7 @@ void vpn_main() {
 //    {
 //        ethernet_protocol ether_prot;
 //        ip4_protocol ip_prot;
-//        udp_protocol udp_prot;
+//        bs_endpoint_multiplexing udp_prot;
 //        dns_client dns_client;
 //
 //        // setup send flow
@@ -81,8 +81,8 @@ void vpn_main() {
 //        ip_prot.next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.31"));
 //
 //        udp_prot.gateway = &ip_prot;
-//        udp_prot.next_source_port.set_next_choice(4545);
-//        udp_prot.next_dest_port.set_next_choice(DNS_SERVER_PORT);
+//        udp_prot.next_source_point.set_next_choice(4545);
+//        udp_prot.next_dest_point.set_next_choice(DNS_SERVER_PORT);
 //
 //        dns_client.gateway = &udp_prot;
 //

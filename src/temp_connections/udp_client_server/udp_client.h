@@ -14,7 +14,7 @@ public:
 
     udp_client(ip4_addr dest_ip, int dest_port, int my_port, msg_gateway * gw = nullptr);
 
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 
 };
 

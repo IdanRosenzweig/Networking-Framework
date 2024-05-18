@@ -13,13 +13,11 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip) {
     struct mac_addr my_mac = get_my_mac_address("enp0s3");
     struct ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
 
-#define BUFF_LEN 1024
-    char request[BUFF_LEN];
-    memset(request, 0, BUFF_LEN);
-
+#define BUFF_SZ 65536
+    uint8_t buff[BUFF_SZ] = {0};
 
     // setup net_arp
-    struct ether_arp *arp_header = (struct ether_arp *) request; // arp_header header
+    struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
     arp_header->arp_hrd = htons(ARPHRD_ETHER); // first net_arp octets type: mac
     arp_header->arp_pro = htons(ETH_P_IP); // first net_arp octets type: ip
     arp_header->arp_hln = ETH_ALEN; // len of mac octets
@@ -40,8 +38,11 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip) {
     ether_client.next_source_addr.set_next_choice(my_mac);
     ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
 
-    send_msg send{request, sizeof(ether_arp)};
-    ether_client.send_data(send);
+    int cnt = sizeof(ether_arp);
+    send_msg<> request;
+    memcpy(request.get_active_buff(), buff, cnt);
+    request.set_count(cnt);
+    ether_client.send_data(request);
 
     // wait some reasonable time
     using namespace std::chrono_literals;
@@ -51,7 +52,7 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip) {
     if (income_queue.empty()) return mac_addr{0};
 
     auto reply = front_data();
-    uint8_t *reply_buff = reply.data.get() + reply.curr_offset;
+    uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
 
     struct ether_arp *arp_reply = (struct ether_arp *) reply_buff;
     if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
@@ -67,8 +68,8 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
     struct mac_addr my_mac = get_my_mac_address("enp0s3");
     struct ip4_addr my_ip = get_my_priv_ip_addr("enp0s3");
 
-#define BUFF_LEN 1024
-    char request[BUFF_LEN];
+#define BUFF_SZ 65536
+    uint8_t buff[BUFF_SZ] = {0};
 
     ip4_addr curr_ip = smallest_ip_addr_in_subnet(mask);
     while (true) {
@@ -77,10 +78,8 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
             break;
         }
 
-        memset(request, 0, BUFF_LEN);
-
         // setup net_arp
-        struct ether_arp *arp_header = (struct ether_arp *) request; // arp_header header
+        struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
         arp_header->arp_hrd = htons(ARPHRD_ETHER); // first net_arp octets type: mac
         arp_header->arp_pro = htons(ETH_P_IP); // first net_arp octets type: ip
         arp_header->arp_hln = ETH_ALEN; // len of mac octets
@@ -101,8 +100,11 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         ether_client.next_source_addr.set_next_choice(my_mac);
         ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
 
-        send_msg req = {request, sizeof(ether_arp)};
-        ether_client.send_data(req);
+        int cnt = sizeof(ether_arp);
+        send_msg<> request;
+        memcpy(request.get_active_buff(), buff, cnt);
+        request.set_count(cnt);
+        ether_client.send_data(request);
 
         curr_ip = generate_next_ip(curr_ip);
     }
@@ -116,7 +118,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
     vector<pair<ip4_addr, mac_addr>> res;
     while (!income_queue.empty()) {
         auto reply = front_data();
-        uint8_t *reply_buff = reply.data.get() + reply.curr_offset;
+        uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
 
         struct ether_arp *arp_reply = (struct ether_arp *) reply_buff;
         if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY)
@@ -131,7 +133,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         res.emplace_back(res_ip, res_mac);
     }
 
-    cout << "got " << res.size() << "replies" << endl;
+    cout << "got " << res.size() << " replies" << endl;
 
     return res;
 }
@@ -145,10 +147,8 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
     for (int i = 0; i < no_victims; i++)
         victim_macs[i] = (search_for_mac_addr(victims_ip[i]));
 
-
-#define BUFF_LEN 1024
-    char buff[BUFF_LEN];
-    memset(buff, 0, BUFF_LEN);
+#define BUFF_SZ 65536
+    uint8_t buff[BUFF_SZ] = {0};
 
     // prepare net_arp
     struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
@@ -174,8 +174,11 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
             ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
             ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
 
-            send_msg send = {buff, sizeof(ether_arp)};
-            ether_client.send_data(send);
+            int cnt = sizeof(ether_arp);
+            send_msg<> request;
+            memcpy(request.get_active_buff(), buff, cnt);
+            request.set_count(cnt);
+            ether_client.send_data(request);
 
         } else { // spoof every victim
             for (int i = 0; i < no_victims; i++) {
@@ -190,8 +193,11 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
                 ether_client.next_dest_addr.set_next_choice(victim_mac);
                 ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
 
-                send_msg send = {buff, sizeof(ether_arp)};
-                ether_client.send_data(send);
+                int cnt = sizeof(ether_arp);
+                send_msg<> request;
+                memcpy(request.get_active_buff(), buff, cnt);
+                request.set_count(cnt);
+                ether_client.send_data(request);
             }
 
         }

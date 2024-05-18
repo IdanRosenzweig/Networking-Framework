@@ -15,7 +15,7 @@ public:
         client.add_listener(this);
     }
 
-    int send_data(send_msg& val) override {
+    int send_data(send_msg<>& val) override {
         return client.send_data(val);
     }
 

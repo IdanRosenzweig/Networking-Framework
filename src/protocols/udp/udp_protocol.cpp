@@ -6,29 +6,28 @@
 using namespace std;
 
 
-int udp_protocol::send_data(send_msg& msg) {
-#define BUFF_LEN 1024
-    char buff[BUFF_LEN];
-    memset(buff, '\x00', BUFF_LEN);
+int udp_protocol::send_data(send_msg<>& msg) {
+    uint8_t* buff = msg.get_reserve_buff();
 
     // udp_client_server header
     struct udp_header *udp = reinterpret_cast<udp_header *>(buff);
 
     udp->source_port = htons(next_source_port.get_next_choice());
     udp->dest_port = htons(next_dest_port.get_next_choice());
-    udp->len = htons(sizeof(udp_header) + msg.count);
+    udp->len = htons(sizeof(udp_header) + msg.get_count());
     udp->checksum = 0;
 
     // msg
-    char *packet_data = buff + sizeof(udp_header);
-    memcpy(packet_data, msg.buff, msg.count);
+    uint8_t *packet_data = buff + sizeof(udp_header);
+    memcpy(packet_data, msg.get_active_buff(), msg.get_count());
 
-    send_msg send{buff, (int) sizeof(udp_header) + msg.count};
-    return gateway->send_data(send);
+    msg.toggle_active_buff();
+    msg.set_count(sizeof(udp_header) + msg.get_count());
+    return gateway->send_data(msg);
 }
 
 void udp_protocol::handle_received_event(received_msg& msg) {
-    uint8_t *buff = msg.data.get() + msg.curr_offset;
+    uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct udp_header *udp = (struct udp_header *) buff;
     uint16_t port = ntohs(udp->dest_port);

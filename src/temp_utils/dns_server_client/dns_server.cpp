@@ -4,19 +4,17 @@
 using namespace std;
 
 void dns_server::handle_received_event(socket_msg& event) {
-    uint8_t *buff = event.msg.data.get() + event.msg.curr_offset;
+    uint8_t *buff = event.msg.data.data() + event.msg.curr_offset;
 
     struct dns_header *request = (struct dns_header *) buff;
     int no_queries = ntohs(request->query_count);
 
-
-#define BUFF_SZ 1024
-    char reply_buff[BUFF_SZ];
-    memset(reply_buff, 0, BUFF_SZ);
-    memcpy(reply_buff, buff, event.msg.sz - event.msg.curr_offset);
+    send_msg msg;
+    uint8_t * reply_buff = msg.get_active_buff();
+    memcpy(reply_buff, buff, event.msg.data.size() - event.msg.curr_offset);
 
     uint8_t *curr_ptr = buff + sizeof(dns_header); // curr ptr to the query buffer
-    uint8_t* curr_reply_ptr = (uint8_t*) (reply_buff + (event.msg.sz - event.msg.curr_offset)); // curr ptr to the response buffer
+    uint8_t* curr_reply_ptr = (uint8_t*) (reply_buff + (event.msg.data.size() - event.msg.curr_offset)); // curr ptr to the response buffer
 
     for (int i  = 0; i < no_queries; i++) {
         struct dns_query query;
@@ -88,9 +86,8 @@ void dns_server::handle_received_event(socket_msg& event) {
 
     ((struct dns_header*) reply_buff)->ans_count = htons(no_queries);
 
-    send_msg msg;
-    msg.buff = reply_buff;
-    msg.count = ((long long) curr_reply_ptr) - ((long long) reply_buff);
-
+    int cnt = curr_reply_ptr - reply_buff;
+    memcpy(msg.get_active_buff(), reply_buff, cnt);
+    msg.set_count(cnt);
     udpServer.send_data_to_client(event.source_addr, event.source_port, msg);
 }

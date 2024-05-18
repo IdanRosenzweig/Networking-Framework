@@ -30,7 +30,7 @@ public:
         ((msg_gateway*) proxies_chain.back().proxy.get())->add_listener(this);
     }
 
-    int send_data(send_msg& val) override {
+    int send_data(send_msg<>& val) override {
         return proxies_chain.back().proxy->send_data(val);
     }
 

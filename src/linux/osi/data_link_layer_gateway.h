@@ -12,7 +12,7 @@ private:
 public:
     data_link_layer_gateway(const string& interface);
 
-    int send_data(send_msg& val) override;
+    int send_data(send_msg<>& val) override;
 };
 
 #endif //SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H

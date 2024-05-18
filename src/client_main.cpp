@@ -41,7 +41,7 @@ public:
 
     void print() {
         received_msg msg = front_data();
-        cout << "aggregator: " << (char *) (msg.data.get() + msg.curr_offset) << endl;
+        cout << "aggregator: " << (char *) (msg.data.data() + msg.curr_offset) << endl;
     }
 
     void send(string str) {
@@ -64,7 +64,7 @@ void udp_main() {
 
     // protocol stack
     ip4_protocol ip_client;
-    udp_protocol udp_client;
+    bs_port_multiplexing udp_client;
 
     udp_app_client app_system;
 
@@ -75,8 +75,8 @@ void udp_main() {
     ip_client.next_source_addr.set_next_choice(convert_to_ip4_addr(MY_IP));
 
     udp_client.gateway = &ip_client;
-    udp_client.next_source_port.set_next_choice(my_port);
-    udp_client.next_dest_port.set_next_choice(server_port);
+    udp_client.next_source_point.set_next_choice(my_port);
+    udp_client.next_dest_point.set_next_choice(server_port);
 
     app_system.gateway = &udp_client;
 

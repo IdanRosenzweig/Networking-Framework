@@ -16,7 +16,7 @@ public:
 
     icmp_connection_server(ip4_addr dest_ip, msg_gateway* gw = nullptr);
 
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 };
 
 #endif //SERVERCLIENT_ICMP_CONNECTION_SERVER_H

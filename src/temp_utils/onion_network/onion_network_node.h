@@ -28,7 +28,7 @@ class onion_network_node {
             this->multi_receiver::handle_received_event(event.msg);
         }
 
-        int send_data(send_msg& val) override {
+        int send_data(send_msg<>& val) override {
             return udpServer->send_data_to_client(ip_source, port_source, val);
         }
     };

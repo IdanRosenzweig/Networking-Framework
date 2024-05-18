@@ -21,7 +21,7 @@ public:
     next_choice<int> next_type;
     next_choice<int> next_code;
     next_choice<uint32_t> next_content;
-    int send_data(send_msg& msg) override;
+    int send_data(send_msg<>& msg) override;
 
     multiplexer<int, basic_receiver*> type_handlers;
     basic_receiver* default_handler = nullptr;

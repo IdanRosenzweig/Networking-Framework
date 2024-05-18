@@ -18,28 +18,27 @@ public:
         base_conn->add_listener(this);
     }
 
-    int send_data(send_msg& val) override {
-        MSG_SZ_FIELD sz = val.count;
+    int send_data(send_msg<>& val) override {
+        MSG_SZ_FIELD sz = val.get_count();
 
-#define BUFF_SZ 1024
-        char buff[BUFF_SZ];
-        memset(buff, 0, BUFF_SZ);
+        uint8_t *buff = val.get_reserve_buff();
 
         *(MSG_SZ_FIELD*) buff = sz;
-        memcpy(buff + sizeof(MSG_SZ_FIELD), val.buff, sz);
+        memcpy(buff + sizeof(MSG_SZ_FIELD), val.get_active_buff(), sz);
 
         int total_sz = sz + sizeof(MSG_SZ_FIELD);
-        send_msg send{buff, total_sz};
-        return base_conn->send_data(send);
+        val.toggle_active_buff();
+        val.set_count(total_sz);
+        return base_conn->send_data(val);
     }
 
     bool mid_packet = false; // in the middle of reading a packet
-    received_msg curr_msg; // curr constructing packet. contains the size of the curr packet and the allocated buffer for its data
+    received_msg curr_msg; // curr constructing packet. contains the size of the curr packet and the allocated buffer for its data_t
     MSG_SZ_FIELD curr_read; // amount of bytes received so far for the curr packet
 
     void handle_received_event(received_msg &event) override {
-        uint8_t *buff = event.data.get() + event.curr_offset;
-        MSG_SZ_FIELD cnt = event.sz - event.curr_offset;
+        uint8_t *buff = event.data.data() + event.curr_offset;
+        MSG_SZ_FIELD cnt = event.data.size() - event.curr_offset;
 
         while (cnt > 0) {
             if (!mid_packet) {
@@ -47,24 +46,26 @@ public:
                 buff += sizeof(MSG_SZ_FIELD);
                 cnt -= sizeof(MSG_SZ_FIELD);
 
-                curr_msg.data = std::unique_ptr<uint8_t>(new uint8_t[curr_sz]);
-                curr_msg.sz = curr_sz;
-                curr_msg.curr_offset = 0;
-                curr_msg.protocol_offsets.clear();
+//                received_msg msg;
+//                auto* alloc = new uint8_t[curr_sz];
+//                msg.data = data_t{udata(alloc, curr_sz)};
+//                curr_msg.curr_offset = 0;
+//                curr_msg.protocol_offsets.clear();
+// todo
 
                 curr_read = 0;
                 mid_packet = true;
             }
 
-            MSG_SZ_FIELD read_left = curr_msg.sz - curr_read;
+            MSG_SZ_FIELD read_left = curr_msg.data.size() - curr_read;
             MSG_SZ_FIELD reading = min(cnt, read_left);
 
-            memcpy(curr_msg.data.get() + curr_read, buff, reading);
+            memcpy(curr_msg.data.data() + curr_read, buff, reading);
             curr_read += reading;
             buff += reading;
             cnt -= reading;
 
-            if (curr_read == curr_msg.sz) {
+            if (curr_read == curr_msg.data.size()) {
                 multi_receiver::handle_received_event(curr_msg);
                 mid_packet = false;
             }

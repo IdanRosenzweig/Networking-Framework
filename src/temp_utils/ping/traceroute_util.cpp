@@ -40,7 +40,9 @@ void traceroute_util::trace_to_destination() {
     while (true) {
         ip_client.next_ttl.set_next_choice(curr_ttl);
 
-        send_msg send{data, data_sz};
+        send_msg send;
+        memcpy(send.get_active_buff(), data, data_sz);
+        send.set_count(data_sz);
         if (icmp_client.send_data(send) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
             continue;
@@ -50,7 +52,7 @@ void traceroute_util::trace_to_destination() {
 //        cout << "waiting for icmp reply" << endl;
         received_msg msg = raw_icmp.front();
         raw_icmp.pop_front();
-        uint8_t *buf = msg.data.get() + msg.protocol_offsets.back().first;
+        uint8_t *buf = msg.data.data() + msg.protocol_offsets.back().first;
 
         icmp_header *reply = reinterpret_cast<icmp_header *>(buf);
 
@@ -76,7 +78,7 @@ void traceroute_util::trace_to_destination() {
         if (err) continue;
 
         if (ttl_fail) {
-            struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(msg.data.get() +
+            struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(msg.data.data() +
                                                              (msg.protocol_offsets[msg.protocol_offsets.size() -
                                                                                    2]).first);
             ip4_addr ip;
