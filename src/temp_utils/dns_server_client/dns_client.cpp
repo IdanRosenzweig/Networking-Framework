@@ -6,27 +6,8 @@ using namespace std;
 
 #include "../../linux/hardware.h"
 
-dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) {
-    if (gw == nullptr) gateway = new network_layer_gateway("enp0s3");
-    else gateway = gw;
-
-    // setup send flow
-    ip_client.gateway = gateway;
-    ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
-    ip_client.next_dest_addr.set_next_choice(server_addr);
-    ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
-//        ip_client.next_source_addr.set_next_choice(convert_to_ip4_addr("10.100.102.31"));
-
-    udp_client.gateway = &ip_client;
-    udp_client.next_source_port.set_next_choice(1212);
-    udp_client.next_dest_port.set_next_choice(DNS_SERVER_PORT);
-
-    // setup recv flow
-    gateway->add_listener(&ip_client);
-
-    ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_client);
-
-    udp_client.port_handlers.assign_to_key(1212, this);
+dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) : udpClient(server_addr, DNS_SERVER_PORT, 1212, gw) {
+    udpClient.add_listener(this);
 }
 
 void dns_client::query(dns_record_type type, const std::string& key) {
@@ -35,34 +16,32 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     uint8_t buff[BUFF_SZ] = {0};
 
     // build the dns request header
-    struct dns_header *request = (struct dns_header *) buff;
-    request->id = (unsigned short) htons(3576);
-    request->qr = 0; //This is a dns_query
-    request->opcode = 0; //This is a standard dns_query
-    request->aa = 0; //Not Authoritative
-    request->tc = 0; //This message is not truncated
-    request->rd = 1; //Recursion Desired
-    request->ra = 0; //Recursion not available! hey we dont have it (lol)
-    request->z = 0;
-    request->ad = 0;
-    request->cd = 0;
-    request->rcode = 0;
-    request->query_count = htons(1); // the number of queries
-    request->ans_count = 0;
-    request->auth_count = 0;
-    request->add_count = 0;
+    struct dns_header request;
+    request.id = 3576;
+    request.qr = 0; // this is a query
+    request.opcode = 0; // standard
+    request.aa = 0;
+    request.tc = 0;
+    request.rd = 1;
+    request.ra = 0; // don't want to start handle recursion...
+//    request.z = 0;
+//    request.ad = 0;
+//    request.cd = 0;
+    request.rcode = 0;
+    request.query_count = 1; // the number of queries
+    request.ans_count = 0;
+    request.auth_count = 0;
+    request.add_count = 0;
+    write_in_network_order(buff, &request);
 
-
+    // add queries
     int queries_sz = 0;
 
-    // add one query
     struct dns_query query;
     query.q_name = ustring((unsigned char*) key.c_str(), key.size());
     query.q_type = type; // the type
     query.q_class = 1; // the class
-
-    queries_sz += write_query_to_buff(((uint8_t *) buff) + sizeof(struct dns_header) + queries_sz, &query);
-
+    queries_sz = write_in_network_order(buff + sizeof(struct dns_header) + queries_sz, &query);
 
     // send the dns request
     cout << "requesting 1 dns record" << endl;
@@ -70,13 +49,12 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);
-    udp_client.send_data(send);
+    udpClient.send_data(send);
 
 
     // receive answer
     received_msg reply = front_data();
     uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
-
 
     struct dns_header *response = (struct dns_header *) reply_buff;
 
@@ -86,7 +64,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     int no_addit_data = ntohs(response->add_count);
     cout << "- " << no_answers << " answers" << endl;
     cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
-    cout << "- " << no_addit_data << " additional records data_t" << endl << endl;
+    cout << "- " << no_addit_data << " additional records data" << endl << endl;
 
     // jump over the header and the query
     uint8_t *curr_ptr = &reply_buff[sizeof(struct dns_header) + queries_sz];
@@ -97,7 +75,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
         for (int i = 0; i < no_answers; i++) {
             struct dns_answer curr;
 
-            curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
+            curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
 
             answers.push_back(std::move(curr));
         }
@@ -123,7 +101,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
             } else if (answers[i].type == DNS_TYPE_MX) {
                 struct mx_rdata_t rdata;
-                mx_rdata_t::extract(&rdata, (uint8_t*) answers[i].rdata.c_str(), buff);
+                extract_from_network_order(&rdata, (uint8_t *) answers[i].rdata.c_str(), buff);
                 cout << "has mail aggregator : " << rdata.domain.c_str();
             }
 
@@ -137,7 +115,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
         for (int i = 0; i < no_authoritative_answers; i++) {
             struct dns_answer curr;
 
-            curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
+            curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
 
             auth.push_back(std::move(curr));
         }
@@ -146,8 +124,11 @@ void dns_client::query(dns_record_type type, const std::string& key) {
         for (int i = 0; i < no_authoritative_answers; i++) {
 
             cout << "Name : " << auth[i].name.c_str() << ", ";
-            if ((auth[i].type) == DNS_TYPE_NS) {
+            if (auth[i].type == DNS_TYPE_NS) {
                 cout << "has nameserver : " << auth[i].rdata.c_str();
+            } else if (auth[i].type == DNS_TYPE_SOA) {
+                cout << "start of authority : " << auth[i].rdata.c_str();
+
             }
 
             cout << endl;
@@ -160,7 +141,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
         for (int i = 0; i < no_addit_data; i++) {
             struct dns_answer curr;
 
-            curr_ptr += extract_response(&curr, curr_ptr, reply_buff);
+            curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
 
             addit.push_back(std::move(curr));
         }

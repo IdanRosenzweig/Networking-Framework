@@ -10,7 +10,7 @@ bs_emp_client::bs_emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, con
 
     // setup send flow
     ip_client.gateway = gateway;
-    ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
+    ip_client.next_protocol.set_next_choice(0xa0);
     ip_client.next_dest_addr.set_next_choice(dest_ip);
     ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
 
@@ -22,7 +22,7 @@ bs_emp_client::bs_emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, con
     gateway->add_listener(&ip_client);
 
     // todo change to both udp_client_server and tcpSession matching
-    ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &emp_client);
+    ip_client.protocol_handlers.assign_to_key(0xa0, &emp_client);
 
     emp_client.endpoints_handlers.add_word(src_endpoint)->key = this;
 }

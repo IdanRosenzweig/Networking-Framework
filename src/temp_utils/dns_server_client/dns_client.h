@@ -11,14 +11,18 @@
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/better_suite/bs_emp/bs_emp.h"
 
+#include "../../temp_prot_stacks/udp_client_server/udp_client.h"
 #include "dns.h"
 
 class dns_client : public recv_queue<received_msg> {
 public:
 
-    msg_gateway * gateway;
-    ip4_protocol ip_client;
-    udp_protocol udp_client;
+//    msg_gateway * gateway;
+//    ip4_protocol ip_client;
+//    udp_protocol udp_client;
+    udp_client udpClient;
+
+//    bs_emp empClient;
 
     dns_client(ip4_addr, msg_gateway* gw = nullptr);
 

@@ -10,7 +10,7 @@ class bs_emp_client : public msg_connection {
 public:
     msg_gateway * gateway;
     ip4_protocol ip_client;
-    bs_endpoint_multiplexing emp_client;
+    bs_emp emp_client;
 
     bs_emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, const udata_t& src_endpoint, msg_gateway * gw = nullptr);
 

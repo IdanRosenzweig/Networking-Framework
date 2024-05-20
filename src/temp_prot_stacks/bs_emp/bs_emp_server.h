@@ -8,13 +8,20 @@
 
 #include "../../protocols/socket/socket_msg.h"
 
-class bs_emp_server : public multi_msg_receiver {
+struct emp_packet_stack {
+    received_msg msg;
+    ip4_addr source_addr;
+    udata_t source_point;
+    udata_t dest_point;
+};
+
+class bs_emp_server : private msg_receiver, public multi_receiver<emp_packet_stack> {
     void handle_received_event(received_msg& event) override;
 
 public:
     network_layer_gateway gateway;
     ip4_protocol ip_server;
-    bs_endpoint_multiplexing emp_server;
+    bs_emp emp_server;
 
     udata_t server_endpoint;
 

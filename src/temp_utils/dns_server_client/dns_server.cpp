@@ -18,7 +18,7 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
 
     for (int i  = 0; i < no_queries; i++) {
         struct dns_query query;
-        curr_ptr += extract_query(&query, curr_ptr, buff);
+        curr_ptr += extract_from_network_order(&query, curr_ptr, buff);
 
         switch (query.q_type) {
             case DNS_TYPE_A: {
@@ -41,7 +41,7 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
                 ip4_addr addr = node->key;
                 write_in_network_order((uint8_t*) curr_ans.rdata.c_str(), &addr);
 
-                curr_reply_ptr += write_response_to_buff(curr_reply_ptr, &curr_ans);
+                curr_reply_ptr += write_in_network_order(curr_reply_ptr, &curr_ans);
                 break;
             }
             case DNS_TYPE_MX: {
@@ -60,7 +60,7 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
                 curr_ans.ttl = 3600; // one hour
 
                 mx_rdata_t rdata{10, ustring((uint8_t*) node->key.c_str()) };
-                curr_ans.rdata = mx_rdata_t::convert_to_ustring(&rdata);
+                curr_ans.rdata = convert_to_rdata(&rdata);
                 curr_ans.data_len = curr_ans.rdata.size();
 
 //                ustring decoded = encode_dns_name((uint8_t*) (*it).second.c_str());
@@ -73,7 +73,7 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
 //                *(uint16_t*) curr_ans.rdata.c_str() = htons(10);
 //                memcpy((uint8_t*) curr_ans.rdata.c_str() + 2, (uint8_t*) decoded.c_str(), decoded.size());
 
-                curr_reply_ptr += write_response_to_buff(curr_reply_ptr, &curr_ans);
+                curr_reply_ptr += write_in_network_order(curr_reply_ptr, &curr_ans);
                 break;
             }
             default: {

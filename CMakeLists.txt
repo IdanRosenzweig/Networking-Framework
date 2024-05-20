@@ -256,6 +256,7 @@ add_executable(dns_server
         src/temp_utils/dns_server_client/database/database_loader.cpp
         src/temp_utils/dns_server_client/dns.cpp
         src/temp_prot_stacks/udp_client_server/udp_server.cpp
+        src/temp_prot_stacks/bs_emp/bs_emp_server.cpp
 )
 target_link_libraries(dns_server ${PCAP_LIBRARY})
 target_link_libraries(dns_server ${LIBSSH_LIBRARIES})
@@ -269,6 +270,8 @@ add_executable(dns_client
         src/main/dns/dns_client.cpp
         src/temp_utils/dns_server_client/dns_client.cpp
         src/temp_utils/dns_server_client/dns.cpp
+        src/temp_prot_stacks/udp_client_server/udp_client.cpp
+        src/temp_prot_stacks/bs_emp/bs_emp_client.cpp
 )
 target_link_libraries(dns_client ${PCAP_LIBRARY})
 target_link_libraries(dns_client ${LIBSSH_LIBRARIES})
