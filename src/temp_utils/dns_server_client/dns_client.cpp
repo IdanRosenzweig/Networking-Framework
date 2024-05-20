@@ -16,23 +16,23 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     uint8_t buff[BUFF_SZ] = {0};
 
     // build the dns request header
-    struct dns_header request;
-    request.id = 3576;
-    request.qr = 0; // this is a query
-    request.opcode = 0; // standard
-    request.aa = 0;
-    request.tc = 0;
-    request.rd = 1;
-    request.ra = 0; // don't want to start handle recursion...
-//    request.z = 0;
-//    request.ad = 0;
-//    request.cd = 0;
-    request.rcode = 0;
-    request.query_count = 1; // the number of queries
-    request.ans_count = 0;
-    request.auth_count = 0;
-    request.add_count = 0;
-    write_in_network_order(buff, &request);
+    struct dns_header header;
+    header.id = 3576;
+    header.qr = 0; // this is a query
+    header.opcode = 0; // standard
+    header.aa = 0;
+    header.tc = 0;
+    header.rd = 1; // don't want to start handle recursion...
+    header.ra = 0;
+//    header.z = 0;
+//    header.ad = 0;
+//    header.cd = 0;
+    header.rcode = 0;
+    header.query_count = 1; // the number of queries
+    header.ans_count = 0;
+    header.auth_count = 0;
+    header.add_count = 0;
+    write_in_network_order(buff, &header);
 
     // add queries
     int queries_sz = 0;
@@ -43,7 +43,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     query.q_class = 1; // the class
     queries_sz = write_in_network_order(buff + sizeof(struct dns_header) + queries_sz, &query);
 
-    // send the dns request
+    // send the dns header
     cout << "requesting 1 dns record" << endl;
     int cnt = sizeof(struct dns_header) + queries_sz;
     send_msg send;
@@ -55,28 +55,28 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     // receive answer
     received_msg reply = front_data();
     uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
+    uint8_t *curr_ptr = reply_buff;
 
-    struct dns_header *response = (struct dns_header *) reply_buff;
+    struct dns_header response;
+    curr_ptr += extract_from_network_order(&response, curr_ptr);
 
     cout << "received response" << endl;
-    int no_answers = ntohs(response->ans_count);
-    int no_authoritative_answers = ntohs(response->auth_count);
-    int no_addit_data = ntohs(response->add_count);
+    uint16_t no_answers = response.ans_count;
     cout << "- " << no_answers << " answers" << endl;
+    uint16_t no_authoritative_answers = response.auth_count;
     cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
+    uint16_t no_addit_data = response.add_count;
     cout << "- " << no_addit_data << " additional records data" << endl << endl;
 
-    // jump over the header and the query
-    uint8_t *curr_ptr = &reply_buff[sizeof(struct dns_header) + queries_sz];
+    // jump over the queries we sent
+    curr_ptr += queries_sz;
 
     // read answers
     if (no_answers > 0) {
         vector<dns_answer> answers;
         for (int i = 0; i < no_answers; i++) {
             struct dns_answer curr;
-
             curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
-
             answers.push_back(std::move(curr));
         }
 
@@ -107,6 +107,8 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
             cout << endl;
         }
+
+        cout << endl;
     }
 
     // read authorities
@@ -114,25 +116,25 @@ void dns_client::query(dns_record_type type, const std::string& key) {
         vector<dns_answer> auth;
         for (int i = 0; i < no_authoritative_answers; i++) {
             struct dns_answer curr;
-
             curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
-
             auth.push_back(std::move(curr));
         }
 
         cout << "# authoritative server answers:" << endl;
         for (int i = 0; i < no_authoritative_answers; i++) {
 
-            cout << "Name : " << auth[i].name.c_str() << ", ";
             if (auth[i].type == DNS_TYPE_NS) {
-                cout << "has nameserver : " << auth[i].rdata.c_str();
+                cout << "has nameserver: " << auth[i].rdata.c_str();
             } else if (auth[i].type == DNS_TYPE_SOA) {
-                cout << "start of authority : " << auth[i].rdata.c_str();
-
+                struct soa_rdata_t rdata;
+                extract_from_network_order(&rdata, (uint8_t *) auth[i].rdata.c_str(), buff);
+                cout << "start of authority:" << endl;
+                cout << "\t" << "primary server: " << rdata.primary_server.c_str() << endl;
+                cout << "\t" << "responsible mailbox: " << rdata.admin_mail_server.c_str() << endl;
             }
-
-            cout << endl;
         }
+
+        cout << endl;
     }
 
     // read additional
@@ -140,13 +142,11 @@ void dns_client::query(dns_record_type type, const std::string& key) {
         vector<dns_answer> addit;
         for (int i = 0; i < no_addit_data; i++) {
             struct dns_answer curr;
-
             curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
-
             addit.push_back(std::move(curr));
         }
 
-        cout << "# additional record data_t:" << endl;
+        cout << "# additional records:" << endl;
         for (int i = 0; i < no_addit_data; i++) {
 
             cout << "Name : " << addit[i].name.c_str() << ", ";
@@ -159,6 +159,8 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
             cout << endl;
         }
+
+        cout << endl;
     }
 
 }

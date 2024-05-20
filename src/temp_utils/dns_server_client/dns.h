@@ -4,11 +4,11 @@
 #include <string>
 #include <cstring>
 #include <netinet/in.h>
+#include "../../abstract/utils/udata.h"
 using namespace std;
 
 #define DNS_SERVER_PORT 53
 
-typedef std::basic_string<uint8_t> ustring;
 
 // encode name such as nasa.com to 4nasa3com
 ustring encode_dns_name(unsigned char *name);

@@ -138,13 +138,13 @@ int extract_from_network_order(struct dns_header *dest, uint8_t *src) {
     dest->aa = ((*curr) & (0b1 << 2)) >> 2;
     dest->tc = ((*curr) & (0b1 << 1)) >> 1;
     dest->rd = (*curr) & 0b1;
-    dest++;
+    curr++;
 
     dest->ra = ((*curr) & (0b1 << 7)) >> 7;
     dest->ad = ((*curr) & (0b1 << 5)) >> 5;
     dest->cd = ((*curr) & (0b1 << 4)) >> 4;
     dest->rcode = (*curr) & 0b1111;
-    dest++;
+    curr++;
 
     dest->query_count = ntohs(*(uint16_t*) curr);
     curr += sizeof(uint16_t);

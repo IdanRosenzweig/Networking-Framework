@@ -5,20 +5,18 @@ using namespace std;
 
 void dns_server::handle_received_event(udp_packet_stack& event) {
     uint8_t *buff = event.msg.data.data() + event.msg.curr_offset;
+    uint8_t * curr_ptr = buff;
 
-    struct dns_header *request = (struct dns_header *) buff;
-    int no_queries = ntohs(request->query_count);
+    struct dns_header request_header;
+    curr_ptr += extract_from_network_order(&request_header, curr_ptr);
+    uint16_t no_queries = request_header.query_count;
 
-    send_msg msg;
-    uint8_t * reply_buff = msg.get_active_buff();
-    memcpy(reply_buff, buff, event.msg.data.size() - event.msg.curr_offset);
-
-    uint8_t *curr_ptr = buff + sizeof(dns_header); // curr ptr to the query buffer
-    uint8_t* curr_reply_ptr = (uint8_t*) (reply_buff + (event.msg.data.size() - event.msg.curr_offset)); // curr ptr to the response buffer
-
+    vector<dns_query> requested_queries;
+    vector<dns_answer> answers;
     for (int i  = 0; i < no_queries; i++) {
         struct dns_query query;
         curr_ptr += extract_from_network_order(&query, curr_ptr, buff);
+        requested_queries.push_back(query);
 
         switch (query.q_type) {
             case DNS_TYPE_A: {
@@ -41,7 +39,7 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
                 ip4_addr addr = node->key;
                 write_in_network_order((uint8_t*) curr_ans.rdata.c_str(), &addr);
 
-                curr_reply_ptr += write_in_network_order(curr_reply_ptr, &curr_ans);
+                answers.push_back(std::move(curr_ans));
                 break;
             }
             case DNS_TYPE_MX: {
@@ -63,17 +61,7 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
                 curr_ans.rdata = convert_to_rdata(&rdata);
                 curr_ans.data_len = curr_ans.rdata.size();
 
-//                ustring decoded = encode_dns_name((uint8_t*) (*it).second.c_str());
-//
-//                int data_len = 2 + // preference number
-//                        decoded.size(); // mail domain len
-//                curr_ans.data_len = data_len;
-//
-//                curr_ans.rdata = ustring (data_len, 0);
-//                *(uint16_t*) curr_ans.rdata.c_str() = htons(10);
-//                memcpy((uint8_t*) curr_ans.rdata.c_str() + 2, (uint8_t*) decoded.c_str(), decoded.size());
-
-                curr_reply_ptr += write_in_network_order(curr_reply_ptr, &curr_ans);
+                answers.push_back(std::move(curr_ans));
                 break;
             }
             default: {
@@ -84,10 +72,38 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
 
     }
 
-    ((struct dns_header*) reply_buff)->ans_count = htons(no_queries);
+    // reply
+    send_msg msg;
+    uint8_t * reply_buff = msg.get_active_buff();
+    uint8_t * curr_reply_buff = reply_buff;
 
-    int cnt = curr_reply_ptr - reply_buff;
-    memcpy(msg.get_active_buff(), reply_buff, cnt);
-    msg.set_count(cnt);
+    // header
+    struct dns_header header;
+    header.id = request_header.id;
+    header.qr = 1; // this is a response
+    header.opcode = 0; // standard
+    header.aa = 0;
+    header.tc = 0;
+    header.rd = 0; // don't want to start handle recursion...
+    header.ra = 0;
+//    header.z = 0;
+//    header.ad = 0;
+//    header.cd = 0;
+    header.rcode = 0;
+    header.query_count = no_queries;
+    header.ans_count = answers.size();
+    header.auth_count = 0;
+    header.add_count = 0;
+    curr_reply_buff += write_in_network_order(curr_reply_buff, &header);
+
+    // include the requested queries
+    for (struct dns_query& query : requested_queries)
+        curr_reply_buff += write_in_network_order(curr_reply_buff, &query);
+
+    // add our answers
+    for (struct dns_answer& ans : answers)
+        curr_reply_buff += write_in_network_order(curr_reply_buff, &ans);
+
+    msg.set_count(curr_reply_buff - reply_buff);
     udpServer.send_data_to_client(event.source_addr, event.source_port, msg);
 }

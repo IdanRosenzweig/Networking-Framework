@@ -6,6 +6,7 @@
 #include <vector>
 
 typedef std::basic_string<uint8_t> udata_t;
+typedef std::basic_string<uint8_t> ustring;
 
 enum class DATA_ENCODING {
     ESCAPE_BYTE,

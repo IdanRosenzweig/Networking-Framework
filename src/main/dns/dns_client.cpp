@@ -55,7 +55,6 @@ int main(int argc, char **argv) {
     string key = vm["key"].as<string>();
 
     dns_client_main(str_to_record_type(type), key, convert_to_ip4_addr(server_ip));
-//    dns_client_main(DNS_TYPE_A, "google.com", convert_to_ip4_addr("8.8.8.8"));
 
     return 0;
 
