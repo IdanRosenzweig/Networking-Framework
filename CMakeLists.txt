@@ -28,7 +28,7 @@ set(PROTOCOLS_SRC
         src/protocols/icmp/icmp_protocol.cpp
 
         src/protocols/msg_boundary/msg_boundary_protocol.cpp
-        src/protocols/better_suite/bs_endpoint_multiplexing/bs_endpoint_multiplexing.cpp
+        src/protocols/better_suite/bs_emp/bs_emp.cpp
 )
 
 set(ABSTRACT_SRC
@@ -57,11 +57,11 @@ add_executable(Server
 
         src/server_main.cpp
 
-        src/temp_connections/udp_client_server/udp_client.cpp
-        src/temp_connections/udp_client_server/udp_server.cpp
+        src/temp_prot_stacks/udp_client_server/udp_client.cpp
+        src/temp_prot_stacks/udp_client_server/udp_server.cpp
 
-        src/temp_connections/icmp/icmp_connection_client.cpp
-        src/temp_connections/icmp/icmp_connection_server.cpp
+        src/temp_prot_stacks/icmp/icmp_connection_client.cpp
+        src/temp_prot_stacks/icmp/icmp_connection_server.cpp
 
         src/temp_utils/dns_server_client/dns_server.cpp
         src/temp_utils/dns_server_client/dns.cpp
@@ -69,10 +69,10 @@ add_executable(Server
         src/temp_utils/analyzer/net_analyzer.cpp
 
 
-        src/temp_connections/ssh/ssh_server.cpp
+        src/temp_prot_stacks/ssh/ssh_server.cpp
 
-        src/temp_connections/tcp_client_server/tcp_server.cpp
-        src/temp_connections/tcp_client_server/tcp_boundary_preserving_server.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_server.cpp
 
         src/temp_utils/onion_network/onion_network_node.cpp
         src/temp_utils/onion_network/onion_network_node.h
@@ -88,11 +88,11 @@ add_executable(Client
 
         src/client_main.cpp
 
-        src/temp_connections/udp_client_server/udp_client.cpp
-        src/temp_connections/udp_client_server/udp_server.cpp
+        src/temp_prot_stacks/udp_client_server/udp_client.cpp
+        src/temp_prot_stacks/udp_client_server/udp_server.cpp
 
-        src/temp_connections/icmp/icmp_connection_client.cpp
-        src/temp_connections/icmp/icmp_connection_server.cpp
+        src/temp_prot_stacks/icmp/icmp_connection_client.cpp
+        src/temp_prot_stacks/icmp/icmp_connection_server.cpp
 
         src/temp_utils/dns_server_client/dns_client.cpp
         src/temp_utils/dns_server_client/dns.cpp
@@ -102,16 +102,18 @@ add_executable(Client
 
         src/linux/virtual_if.cpp
 
-        src/temp_connections/ssh/ssh_conn_session.cpp
+        src/temp_prot_stacks/ssh/ssh_conn_session.cpp
 
-        src/temp_connections/tcp_client_server/tcp_client.cpp
-        src/temp_connections/tcp_client_server/tcp_boundary_preserving_client.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_client.cpp
 
         src/temp_utils/onion_network/onion_network_client.h
 
         src/temp_utils/ping/ping_util.cpp
         src/temp_utils/bandwidth/bandwidth.cpp
         src/temp_utils/dns_server_client/database/database_loader.cpp
+        src/temp_prot_stacks/bs_emp/bs_emp_server.cpp
+        src/temp_prot_stacks/bs_emp/bs_emp_client.cpp
 
 )
 target_link_libraries(Client ${PCAP_LIBRARY})
@@ -147,7 +149,7 @@ add_executable(echo_server
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/temp_connections/tcp_client_server/tcp_server.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
         src/main/echo_server/echo_server.cpp
 )
 target_link_libraries(echo_server ${PCAP_LIBRARY})
@@ -158,7 +160,7 @@ add_executable(echo_client
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
-        src/temp_connections/tcp_client_server/tcp_client.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
         src/main/echo_server/echo_client.cpp
 )
 target_link_libraries(echo_client ${PCAP_LIBRARY})
@@ -172,7 +174,7 @@ add_executable(onion_network_node
 
         src/main/onion_network/network_node.cpp
         src/temp_utils/proxy/ip_proxy_server.cpp
-        src/temp_connections/udp_client_server/udp_server.cpp
+        src/temp_prot_stacks/udp_client_server/udp_server.cpp
 )
 target_link_libraries(onion_network_node ${PCAP_LIBRARY})
 target_link_libraries(onion_network_node ${LIBSSH_LIBRARIES})
@@ -186,7 +188,7 @@ add_executable(onion_network_client
         src/main/onion_network/network_client.cpp
         src/temp_utils/dns_server_client/dns_client.cpp
         src/temp_utils/dns_server_client/dns.cpp
-        src/temp_connections/udp_client_server/udp_client.cpp
+        src/temp_prot_stacks/udp_client_server/udp_client.cpp
 )
 target_link_libraries(onion_network_client ${PCAP_LIBRARY})
 target_link_libraries(onion_network_client ${LIBSSH_LIBRARIES})
@@ -236,8 +238,8 @@ add_executable(netcat
         ${LINUX_SRC}
 
         src/main/netcat/netcat.cpp
-        src/temp_connections/tcp_client_server/tcp_client.cpp
-        src/temp_connections/tcp_client_server/tcp_server.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
+        src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
 )
 target_link_libraries(netcat ${PCAP_LIBRARY})
 target_link_libraries(netcat ${LIBSSH_LIBRARIES})
@@ -253,7 +255,7 @@ add_executable(dns_server
         src/temp_utils/dns_server_client/dns_server.cpp
         src/temp_utils/dns_server_client/database/database_loader.cpp
         src/temp_utils/dns_server_client/dns.cpp
-        src/temp_connections/udp_client_server/udp_server.cpp
+        src/temp_prot_stacks/udp_client_server/udp_server.cpp
 )
 target_link_libraries(dns_server ${PCAP_LIBRARY})
 target_link_libraries(dns_server ${LIBSSH_LIBRARIES})

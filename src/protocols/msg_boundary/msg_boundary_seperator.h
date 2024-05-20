@@ -46,12 +46,10 @@ public:
                 buff += sizeof(MSG_SZ_FIELD);
                 cnt -= sizeof(MSG_SZ_FIELD);
 
-//                received_msg msg;
-//                auto* alloc = new uint8_t[curr_sz];
-//                msg.data = data_t{udata(alloc, curr_sz)};
-//                curr_msg.curr_offset = 0;
-//                curr_msg.protocol_offsets.clear();
-// todo
+// todo fix
+                curr_msg.data = udata_t(curr_sz, 0x00);
+                curr_msg.curr_offset = 0;
+                curr_msg.protocol_offsets.clear();
 
                 curr_read = 0;
                 mid_packet = true;

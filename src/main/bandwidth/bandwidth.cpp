@@ -1,5 +1,4 @@
 #include "../../linux/interface_gateway.h"
-#include "../../linux/interface_sniffer.h"
 #include "../../temp_utils/bandwidth/bandwidth.h"
 
 #include <unistd.h>

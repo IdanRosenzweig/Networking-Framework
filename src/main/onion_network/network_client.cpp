@@ -2,9 +2,9 @@
 
 #include "../../temp_utils/proxy/ip_proxy_client.h"
 
-#include "../../temp_connections/udp_client_server/udp_client.h"
+#include "../../temp_prot_stacks/udp_client_server/udp_client.h"
 #include "../../temp_utils/dns_server_client/dns_client.h"
-#include "../../temp_connections/icmp/icmp_connection_client.h"
+#include "../../temp_prot_stacks/icmp/icmp_connection_client.h"
 #include "../../temp_utils/onion_network/onion_network_client.h"
 
 #include "../../linux/virtual_if.h"

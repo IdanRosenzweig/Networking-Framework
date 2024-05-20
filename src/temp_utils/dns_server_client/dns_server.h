@@ -12,13 +12,13 @@
 #include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
-#include "../../temp_connections/udp_client_server/udp_server.h"
+#include "../../temp_prot_stacks/udp_client_server/udp_server.h"
 
 
-class dns_server : private basic_receiver<socket_msg> {
+class dns_server : private basic_receiver<udp_packet_stack> {
     udp_server udpServer;
 
-    void handle_received_event(socket_msg &event) override;
+    void handle_received_event(udp_packet_stack &event) override;
 
 public:
     // valid dns hostname chars are a-z, A-Z, 0-9, and hyphen

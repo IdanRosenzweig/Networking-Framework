@@ -25,6 +25,6 @@ icmp_connection_server::icmp_connection_server(ip4_addr dest_ip, msg_gateway *gw
     icmp_server.type_handlers.assign_to_key(ICMP_CONN_CLIENT_TYPE, this);
 }
 
-int icmp_connection_server::send_data(send_msg &msg) {
+int icmp_connection_server::send_data(send_msg<> &msg) {
     return icmp_server.send_data(msg);
 }

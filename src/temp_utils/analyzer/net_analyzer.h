@@ -28,7 +28,7 @@ class net_analyzer : public msg_sniffer {
         void handle_received_event(received_msg &event) override;
     } ip4Handler;
 
-    bs_port_multiplexing udpProtocol;
+    udp_protocol udpProtocol;
     class udp_handler : public msg_receiver {
     public:
         void handle_received_event(received_msg &event) override;

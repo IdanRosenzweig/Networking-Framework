@@ -8,6 +8,7 @@
 #include "../../linux/hardware.h"
 #include "common.h"
 
+// todo packet stack like in udp server
 class icmp_connection_server : public msg_connection {
 public:
     msg_gateway *gateway;

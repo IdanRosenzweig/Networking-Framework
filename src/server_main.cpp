@@ -10,10 +10,10 @@
 #include "abstract/receiving/recv_queue.h"
 #include "linux/osi/network_layer_gateway.h"
 #include "temp_utils/proxy/ip_proxy_server.h"
-#include "temp_connections/udp_client_server/udp_server.h"
+#include "temp_prot_stacks/udp_client_server/udp_server.h"
 #include "temp_utils/dns_server_client//dns_server.h"
 #include "abstract/connection/conn_aggregator.h"
-#include "temp_connections/ssh/ssh_server.h"
+#include "temp_prot_stacks/ssh/ssh_server.h"
 #include "temp_utils/vpn/vpn_daemon.h"
 #include "protocols/msg_boundary/msg_boundary_seperator.h"
 

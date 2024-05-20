@@ -1,12 +1,12 @@
 #include <iostream>
 
 #include <memory>
-#include "../../temp_connections/tcp_client_server/tcp_server.h"
-#include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_server.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_server.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_server.h"
 #include "../../abstract/session/basic_sessions_manager.h"
 #include "../../abstract/session/basic_session_generator.h"
 
-#define MY_IP "10.100.102.31"
+#define MY_IP "10.100.102.18"
 #define HOSTING_PORT 5678
 
 class app_handler : public basic_session_handler<tcp_boundary_preserving_session>, public msg_receiver {
@@ -20,7 +20,11 @@ public:
 private:
     void handle_received_event(received_msg &event) override {
         cout << "msg: " << event.data.data() + event.curr_offset << endl;
-        send_msg send{event.data.data() + event.curr_offset, event.data.size() - event.curr_offset};
+
+        int cnt = event.data.size() - event.curr_offset;
+        send_msg send;
+        memcpy(send.get_active_buff(), event.data.data() + event.curr_offset, cnt);
+        send.set_count(cnt);
         session->send_data(send);
     }
 };

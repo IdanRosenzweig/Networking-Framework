@@ -1,10 +1,11 @@
-#include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_client.h"
-#include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_server.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_client.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_server.h"
 #include "../../abstract/session/basic_sessions_manager.h"
 
 #include <boost/program_options.hpp>
 #include <unistd.h>
 #include <iostream>
+
 using namespace std;
 
 class app_handler : public basic_session_handler<tcp_boundary_preserving_session>, public msg_receiver {
@@ -25,7 +26,7 @@ private:
 
 class sess_manager : public basic_sessions_manager<tcp_boundary_preserving_session, app_handler> {
 public:
-    explicit sess_manager(basic_session_generator <tcp_boundary_preserving_session> *sessionsGenerator)
+    explicit sess_manager(basic_session_generator<tcp_boundary_preserving_session> *sessionsGenerator)
             : basic_sessions_manager<tcp_boundary_preserving_session, app_handler>(
             sessionsGenerator) {}
 };
@@ -39,8 +40,10 @@ void netcat_server_main(int port) {
         string str;
         getline(cin, str);
 
-        for (auto& session : app.sessions) {
-            send_msg send{(void*) str.c_str(), (int) str.size()};
+        for (auto &session: app.sessions) {
+            send_msg send;
+            memcpy(send.get_active_buff(), str.c_str(), str.size());
+            send.set_count(str.size());
             int res = session.session->send_data(send);
             if (res == -1 || res == 0) {
                 cerr << "can't send to connection, closing" << endl;
@@ -69,7 +72,9 @@ void netcat_client_main(ip4_addr dest_ip, int port) {
         string str;
         getline(cin, str);
 
-        send_msg send{(void *) str.c_str(), (int) str.size()};
+        send_msg send;
+        memcpy(send.get_active_buff(), str.c_str(), str.size());
+        send.set_count(str.size());
         int res = client.send_data(send);
         if (res == -1 || res == 0) {
             cerr << "can't send to connection, closing" << endl;
@@ -86,8 +91,9 @@ int main(int argc, char **argv) {
             ("help", "print tool use description")
             ("client", "use as client")
             ("server", "use as server")
-            ("dest", po::value<string>(),"used for client, dest ip address of the server to connect to")
-            ("port", po::value<int>(), "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
+            ("dest", po::value<string>(), "used for client, dest ip address of the server to connect to")
+            ("port", po::value<int>(),
+             "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);

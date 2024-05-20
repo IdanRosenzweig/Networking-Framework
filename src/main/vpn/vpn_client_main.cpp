@@ -63,7 +63,7 @@ void vpn_main() {
 //    {
 //        ethernet_protocol ether_prot;
 //        ip4_protocol ip_prot;
-//        bs_endpoint_multiplexing udp_prot;
+//        bs_emp udp_prot;
 //        dns_client dns_client;
 //
 //        // setup send flow

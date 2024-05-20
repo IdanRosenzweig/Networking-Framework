@@ -61,17 +61,17 @@ tcp_protocol::tcp_protocol(bool server) {
                 socklen_t len = sizeof(client_addr);
 
                 // accepting a new tcpSession
-                cout << "waiting for tcpSession..." << endl;
+                cout << "waiting for a tcp session..." << endl;
                 client_sd = accept(
                         sd,
                         (struct sockaddr *) &client_addr,
                         &len
                 );
                 if (client_sd == -1) {
-                    cout << "can't accept the tcpSession" << endl;
+                    cout << "can't accept the session" << endl;
                     continue;
                 }
-                cout << "tcpSession accepted..." << endl;
+                cout << "a new tcp session accepted..." << endl;
 
                 ip4_addr addr;
                 extract_from_network_order(&addr, (uint8_t *) &client_addr.sin_addr.s_addr);
@@ -131,16 +131,16 @@ std::unique_ptr<tcp_session> tcp_protocol::start_session() {
         }
     }
 
-    std::cout << "connecting to raw_tcp_server..." << std::endl;
+    std::cout << "connecting to the tcp server..." << std::endl;
     if (connect(session_sd,
                 (struct sockaddr *) &my_addr,
                 sizeof(my_addr)
     ) < 0) {
-        cerr << "can't connect to raw_tcp_server" << endl;
+        cerr << "can't connect to the server" << endl;
         return nullptr;
     }
 
-    std::cout << "connected to the raw_tcp_server" << std::endl;
+    std::cout << "connected to the tcp server" << std::endl;
 
     return std::move(std::make_unique<tcp_session>(
             session_sd,

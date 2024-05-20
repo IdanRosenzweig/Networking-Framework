@@ -1,13 +1,13 @@
-#ifndef SERVERCLIENT_BS_ENDPOINT_MULTIPLEXING_H
-#define SERVERCLIENT_BS_ENDPOINT_MULTIPLEXING_H
+#ifndef SERVERCLIENT_BS_EMP_H
+#define SERVERCLIENT_BS_EMP_H
 
 #include "../../../abstract/sending/msg/msg_sender.h"
 #include "../../../abstract/receiving/msg/msg_receiver.h"
 #include "../../../abstract/utils/next_choice.h"
-#include "../../../abstract/utils/common_data.h"
+#include "../../../abstract/utils/udata.h"
 #include "../../../abstract/utils/trie.h"
 
-class bs_endpoint_multiplexing : public msg_sender, public msg_receiver {
+class bs_emp : public msg_sender, public msg_receiver {
 public:
 
     // send

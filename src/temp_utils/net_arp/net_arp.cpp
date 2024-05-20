@@ -133,7 +133,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         res.emplace_back(res_ip, res_mac);
     }
 
-    cout << "got " << res.size() << " replies" << endl;
+    cout << "search completed, got " << res.size() << " replies" << endl;
 
     return res;
 }

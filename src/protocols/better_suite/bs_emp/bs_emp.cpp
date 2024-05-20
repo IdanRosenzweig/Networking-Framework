@@ -1,11 +1,11 @@
-#include "bs_endpoint_multiplexing.h"
+#include "bs_emp.h"
 #include <iostream>
 #include <netinet/in.h>
 #include <cstring>
 using namespace std;
 
 
-int bs_endpoint_multiplexing::send_data(send_msg<>& msg) {
+int bs_emp::send_data(send_msg<>& msg) {
     uint8_t *buff = msg.get_reserve_buff();
     uint8_t *curr_buff = buff;
 
@@ -20,7 +20,7 @@ int bs_endpoint_multiplexing::send_data(send_msg<>& msg) {
     return gateway->send_data(msg);
 }
 
-void bs_endpoint_multiplexing::handle_received_event(received_msg& msg) {
+void bs_emp::handle_received_event(received_msg& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
     uint8_t *curr_buff = buff;
 

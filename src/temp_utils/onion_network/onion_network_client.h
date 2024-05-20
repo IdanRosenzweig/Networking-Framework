@@ -2,14 +2,14 @@
 #define SERVERCLIENT_ONION_NETWORK_CLIENT_H
 
 #include "../proxy/ip_proxy_client.h"
-#include "../../temp_connections/udp_client_server/udp_client.h"
+#include "../../temp_prot_stacks/udp_client_server/udp_client.h"
 #include "onion_network_common.h"
 #include <vector>
 
 class onion_network_client : public msg_gateway {
 public:
     struct chain_node {
-        std::unique_ptr<udp_client> udp = nullptr;
+        std::unique_ptr<bs_emp_client> udp = nullptr;
         std::unique_ptr<ip_proxy_client> proxy = nullptr;
     };
     std::vector<chain_node> proxies_chain;
@@ -20,7 +20,7 @@ public:
             chain_node node;
 
             msg_gateway* gw = (i > 0) ? (msg_gateway*) proxies_chain.back().proxy.get() : nullptr;
-            node.udp = std::make_unique<udp_client>(chain[i], ONION_NETWORK_NODE_LISTEN_PORT, 2001, gw);
+            node.udp = std::make_unique<bs_emp_client>(chain[i], ONION_NETWORK_NODE_LISTEN_PORT, 2001, gw);
 
             node.proxy = std::make_unique<ip_proxy_client>(node.udp.get());
 

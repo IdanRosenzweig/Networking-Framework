@@ -3,20 +3,20 @@
 
 #include "../proxy/ip_proxy_server.h"
 #include "onion_network_common.h"
-#include "../../temp_connections/udp_client_server/udp_server.h"
+#include "../../temp_prot_stacks/udp_client_server/udp_server.h"
 
 // onion network node. currently only works with one connection.
 class onion_network_node {
 
     ip_proxy_server proxy;
 
-    class udp_server udpServer;
+    class bs_emp_server udpServer;
 
     class server_app_handler : public basic_receiver<socket_msg>, public msg_connection {
     public:
-        class udp_server* udpServer;
+        class bs_emp_server* udpServer;
 
-        server_app_handler(class udp_server* server) : udpServer(server) {
+        server_app_handler(class bs_emp_server* server) : udpServer(server) {
             udpServer->add_listener(this);
         }
 

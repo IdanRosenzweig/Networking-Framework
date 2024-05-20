@@ -1,5 +1,5 @@
-#include "../../temp_connections/tcp_client_server/tcp_client.h"
-#include "../../temp_connections/tcp_client_server/tcp_boundary_preserving_client.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_client.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_client.h"
 
 #include <string>
 #include <iostream>
@@ -12,7 +12,7 @@ using namespace std;
 class client_app_tcp : public msg_receiver {
 public:
     void handle_received_event(received_msg &event) override {
-        cout << "raw_tcp_server: " << event.data.data() + event.curr_offset << endl;
+        cout << "server: " << event.data.data() + event.curr_offset << endl;
     }
 };
 
@@ -25,32 +25,70 @@ void tcp_main() {
     client.add_listener(&app);
 
     std::cout << "sending msg" << std::endl;
-    char* msg;
+#define BUFF_SZ 1024
+    uint8_t buff[BUFF_SZ] = {0};
 
     sleep(1);
-    msg = "hello";
-    send_msg send{msg, (int) strlen(msg)};
-    client.send_data(send);
+    {
+        char* msg = "hello";
+        int len = strlen(msg);
+        memcpy(buff, msg, len);
+
+        send_msg send;
+        memcpy(send.get_active_buff(), msg, len);
+        send.set_count(len);
+        client.send_data(send);
+    }
+
+//    sleep(1);
+    {
+        char* msg = "this is second";
+        int len = strlen(msg);
+        memcpy(buff, msg, len);
+
+        send_msg send;
+        memcpy(send.get_active_buff(), msg, len);
+        send.set_count(len);
+        client.send_data(send);
+    }
+
+//    sleep(1);
+    {
+        char* msg = "third";
+        int len = strlen(msg);
+        memcpy(buff, msg, len);
+
+        send_msg send;
+        memcpy(send.get_active_buff(), msg, len);
+        send.set_count(len);
+        client.send_data(send);
+    }
+
+//    sleep(1);
+    {
+        char* msg = "fourth";
+        int len = strlen(msg);
+        memcpy(buff, msg, len);
+
+        send_msg send;
+        memcpy(send.get_active_buff(), msg, len);
+        send.set_count(len);
+        client.send_data(send);
+    }
+
+//    sleep(1);
+    {
+        char* msg = "fifth";
+        int len = strlen(msg);
+        memcpy(buff, msg, len);
+
+        send_msg send;
+        memcpy(send.get_active_buff(), msg, len);
+        send.set_count(len);
+        client.send_data(send);
+    }
 
     sleep(1);
-    msg = "thisis test msg";
-    send = send_msg{msg, (int) strlen(msg)};
-    client.send_data(send);
-
-    sleep(1);
-    msg = "another one";
-    send = send_msg{msg, (int) strlen(msg)};
-    client.send_data(send);
-
-    sleep(1);
-    msg = "another one2";
-    send = send_msg{msg, (int) strlen(msg)};
-    client.send_data(send);
-
-    sleep(1);
-    msg = "another one3";
-    send = send_msg{msg, (int) strlen(msg)};
-    client.send_data(send);
 
 //    while (true) {
 //

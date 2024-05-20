@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_COMMON_DATA_H
-#define SERVERCLIENT_COMMON_DATA_H
+#ifndef SERVERCLIENT_UDATA_H
+#define SERVERCLIENT_UDATA_H
 
 #include <stdint.h>
 #include <string>
@@ -120,4 +120,4 @@ int decode_number(NUM_TYPE* dest_num, void* buff) {
     return res_cnt;
 }
 
-#endif //SERVERCLIENT_COMMON_DATA_H
+#endif //SERVERCLIENT_UDATA_H

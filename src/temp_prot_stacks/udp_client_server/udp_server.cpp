@@ -18,25 +18,26 @@ udp_server::udp_server(int serverPort) : server_port(serverPort), gateway("enp0s
 
     ip_server.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_server);
 
-    _udp_server.port_handlers.assign_to_key(server_port, this);
+    _udp_server.port_handlers.assign_to_key(server_port, (basic_receiver<received_msg> *) this);
 }
 
 void udp_server::handle_received_event(received_msg &event) {
-    socket_msg sock_msg;
-    sock_msg.msg = event;
-    sock_msg.source_port =
+    udp_packet_stack pack_stack;
+    pack_stack.msg = event;
+    pack_stack.source_port =
             ntohs( ((struct udp_header*) (event.data.data() + event.protocol_offsets.rbegin()->first))->source_port );
-    sock_msg.dest_port =
+    pack_stack.dest_port =
             ntohs( ((struct udp_header*) (event.data.data() + event.protocol_offsets.rbegin()->first))->dest_port );
-    extract_from_network_order(&sock_msg.source_addr,
+    extract_from_network_order(&pack_stack.source_addr,
                                (uint8_t*) &((struct iphdr*) (event.data.data() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
-    this->multi_receiver::handle_received_event(sock_msg);
+    this->multi_receiver::handle_received_event(pack_stack);
 }
 
-int udp_server::send_data_to_client(ip4_addr client_addr, int dest_port, send_msg<> msg) {
-    ip_server.next_dest_addr.set_next_choice(client_addr);
+int udp_server::send_data_to_client(ip4_addr dest_addr, int dest_port, send_msg<> msg) {
+    ip_server.next_dest_addr.set_next_choice(dest_addr);
     _udp_server.next_dest_port.set_next_choice(dest_port);
 
     return _udp_server.send_data(msg);
 }
+

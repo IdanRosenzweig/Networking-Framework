@@ -9,6 +9,7 @@
 #include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
+#include "../../protocols/better_suite/bs_emp/bs_emp.h"
 
 #include "dns.h"
 

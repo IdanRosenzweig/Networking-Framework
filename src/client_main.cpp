@@ -18,7 +18,7 @@
 #include "temp_utils/proxy/ip_proxy_client.h"
 #include "abstract/utils/circular_buffer.h"
 #include "abstract/receiving/recv_queue.h"
-#include "temp_connections/udp_client_server/udp_client.h"
+#include "temp_prot_stacks/udp_client_server/udp_client.h"
 #include "protocols/tcp/tcp_protocol.h"
 
 #include "temp_utils/firewalls/firewall.h"
@@ -27,10 +27,10 @@
 
 #include "linux/virtual_if.h"
 
-#include "temp_connections/ssh/ssh_conn_session.h"
+#include "temp_prot_stacks/ssh/ssh_conn_session.h"
 #include "temp_utils/vpn/common.h"
 #include "temp_utils/vpn/vpn_client.h"
-#include "temp_connections/tcp_client_server/tcp_client.h"
+#include "temp_prot_stacks/tcp_client_server/tcp_client.h"
 #include "protocols/msg_boundary/msg_boundary_seperator.h"
 
 #define MY_IP "10.100.102.18"

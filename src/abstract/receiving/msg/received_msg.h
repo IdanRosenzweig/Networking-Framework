@@ -2,7 +2,7 @@
 #define SERVERCLIENT_RECEIVED_MSG_H
 
 #include "../../protocol_t.h"
-#include "../../utils/common_data.h"
+#include "../../utils/udata.h"
 #include <vector>
 #include <memory>
 #include <cstring>

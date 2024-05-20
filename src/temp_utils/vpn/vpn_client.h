@@ -2,7 +2,7 @@
 #define SERVERCLIENT_VPN_CLIENT_H
 
 #include "../../abstract/gateway/msg_gateway.h"
-#include "../../temp_connections/tcp_client_server/tcp_client.h"
+#include "../../temp_prot_stacks/tcp_client_server/tcp_client.h"
 #include "../../protocols/msg_boundary/msg_boundary_seperator.h"
 
 #include "common.h"
