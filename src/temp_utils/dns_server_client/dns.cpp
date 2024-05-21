@@ -77,7 +77,7 @@ int extract_encoded_name(ustring *dest, uint8_t *curr_ptr, uint8_t *packet_buff)
             *dest += *curr_ptr;
             curr_ptr++;
 
-            if (!jumped) // we are not after a jump, increment the count
+            if (!jumped) // we are not after a jump, next_item the count
                 count++;
 //            else // we are after a jump, this byte is not stored in our current answer space
         }

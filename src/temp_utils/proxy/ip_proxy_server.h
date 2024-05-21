@@ -62,7 +62,7 @@ public:
     // stored source
     ip4_addr server_ip;
 
-    ip_proxy_server(msg_gateway *gw = nullptr);
+    ip_proxy_server(ip4_addr src_ip, msg_gateway* network_layer_gw);
 
 //    void set_proxied_connection(msg_connection* conn) {
     void set_proxied_connection(msg_connection* conn) {

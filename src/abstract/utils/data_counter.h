@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_DATA_COUNTER_H
 #define SERVERCLIENT_DATA_COUNTER_H
 
-#include "../../abstract/receiving/msg/msg_receiver.h"
+#include "../receiving/msg/msg_receiver.h"
 
 class data_counter : public msg_receiver {
     int counter = 0;

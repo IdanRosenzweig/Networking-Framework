@@ -13,15 +13,17 @@
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../temp_prot_stacks/udp_client_server/udp_server.h"
-#include "../../temp_prot_stacks/bs_emp/bs_emp_server.h"
+#include "../../temp_prot_stacks/emp/emp_server.h"
 
 
 class dns_server : private basic_receiver<udp_packet_stack> {
+//class dns_server : private basic_receiver<emp_packet_stack> {
 
     udp_server udpServer;
-//    bs_emp_server empServer;
+//    emp_server empServer;
 
     void handle_received_event(udp_packet_stack &event) override;
+//    void handle_received_event(emp_packet_stack &event) override;
 
 public:
     // valid dns hostname chars are a-z, A-Z, 0-9, and hyphen
@@ -33,19 +35,15 @@ public:
             return ('z' - 'a' + 1) + ('Z' - 'A' + 1) + ('9' - '0' + 1);
     };
     trie_node<char, 256, assign, ip4_addr> mappings_type_a;
-//    std::map<string, ip4_addr> mappings_type_a = {
-//            {"google.com", convert_to_ip4_addr("172.217.22.78")}
-//    };
 
     trie_node<char, 256, assign, string> mappings_type_mx;
-//    std::map<string, string> mappings_type_mx = {
-//            {"google.com", "smtp.google.com"}
-//    };
 
-
-    dns_server() : udpServer(DNS_SERVER_PORT) {
+    dns_server(ip4_addr src_ip, msg_gateway* network_layer_gw) : udpServer(DNS_SERVER_PORT, src_ip, network_layer_gw) {
         udpServer.add_listener(this);
     }
+//    dns_server() : empServer({0x53}) {
+//        empServer.add_listener(this);
+//    }
 };
 
 

@@ -17,7 +17,7 @@ class ping_util : msg_receiver {
     }
 
 public:
-    ping_util(msg_gateway* gw = nullptr);
+    ping_util(ip4_addr src_ip, msg_gateway* network_layer_gw);
 
     next_choice<ip4_addr> dest_ip;
     next_choice<int> count;

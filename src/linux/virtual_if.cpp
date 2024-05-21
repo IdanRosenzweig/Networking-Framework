@@ -32,7 +32,7 @@ linux_virtual_iface::linux_virtual_iface(msg_gateway *gw, char *dev) : gateway(g
 
 void linux_virtual_iface::handle_received_event(received_msg &event) {
     int cnt = event.data.size() - event.curr_offset;
-//    cout << "tap received " << cnt << " bytes" << endl;
+    cout << "tap received " << cnt << " bytes" << endl;
     write(fd, event.data.data() + event.curr_offset, event.data.size() - event.curr_offset);
 //    write(fd, event.data_t.get(), event.data.size());
 }

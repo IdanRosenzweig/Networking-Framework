@@ -31,7 +31,7 @@ public:
             sessionsGenerator) {}
 };
 
-void netcat_server_main(int port) {
+void netcat_server_main(const string& iface, int port) {
     tcp_boundary_preserving_server server(port);
 
     sess_manager app(&server);
@@ -62,7 +62,7 @@ public:
     }
 };
 
-void netcat_client_main(ip4_addr dest_ip, int port) {
+void netcat_client_main(const string& iface, ip4_addr dest_ip, int port) {
     tcp_boundary_preserving_client client(dest_ip, port, 1212);
 
     client_app app;
@@ -86,54 +86,63 @@ void netcat_client_main(ip4_addr dest_ip, int port) {
 int main(int argc, char **argv) {
     namespace po = boost::program_options;
 
-    po::options_description desc("Allowed options");
-    desc.add_options()
+    po::options_description opts("Allowed options");
+    opts.add_options()
             ("help", "print tool use description")
+            ("interface,i", po::value<string>(), "linux interface to use")
+
             ("client", "use as client")
             ("server", "use as server")
+
             ("dest", po::value<string>(), "used for client, dest ip address of the server to connect to")
             ("port", po::value<int>(),
              "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(po::parse_command_line(argc, argv, opts), vm);
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << desc << endl;
+        cout << opts << endl;
         return 1;
     }
+
+    if (!vm.count("interface")) {
+        cout << opts << endl;
+        return 1;
+    }
+    string iface = vm["inteface"].as<string>();
 
     bool server;
     if (vm.count("server")) server = true;
     else if (vm.count("client")) server = false;
     else {
-        cout << desc << endl;
+        cout << opts << endl;
         return 1;
     }
 
     if (server) {
         if (!vm.count("port")) {
-            cout << desc << endl;
+            cout << opts << endl;
             return 1;
         }
         int port = vm["port"].as<int>();
 
-        netcat_server_main(port);
+        netcat_server_main(iface, port);
 
     } else {
         if (!vm.count("port")) {
-            cout << desc << endl;
+            cout << opts << endl;
             return 1;
         }
         int port = vm["port"].as<int>();
 
         if (!vm.count("dest")) {
-            cout << desc << endl;
+            cout << opts << endl;
             return 1;
         }
         string dest = vm["dest"].as<string>();
 
-        netcat_client_main(convert_to_ip4_addr(dest), port);
+        netcat_client_main(iface, convert_to_ip4_addr(dest), port);
     }
 }

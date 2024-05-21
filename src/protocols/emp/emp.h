@@ -1,13 +1,14 @@
-#ifndef SERVERCLIENT_BS_EMP_H
-#define SERVERCLIENT_BS_EMP_H
+#ifndef SERVERCLIENT_EMP_H
+#define SERVERCLIENT_EMP_H
 
-#include "../../../abstract/sending/msg/msg_sender.h"
-#include "../../../abstract/receiving/msg/msg_receiver.h"
-#include "../../../abstract/utils/next_choice.h"
-#include "../../../abstract/utils/udata.h"
-#include "../../../abstract/utils/trie.h"
+#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/receiving/msg/msg_receiver.h"
+#include "../../abstract/utils/next_choice.h"
+#include "../../abstract/utils/udata.h"
+#include "../../abstract/utils/trie.h"
 
-class bs_emp : public msg_sender, public msg_receiver {
+// endpoint multiplexing protocol
+class emp : public msg_sender, public msg_receiver {
 public:
 
     // send

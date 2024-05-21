@@ -21,16 +21,16 @@ class udp_server : private msg_receiver, public multi_receiver<udp_packet_stack>
 
 public:
 
-    network_layer_gateway gateway;
+    msg_gateway *gateway;
     ip4_protocol ip_server;
     udp_protocol _udp_server;
 
     int server_port;
 
-    udp_server(int serverPort);
+    udp_server(int serverPort, ip4_addr src_ip, msg_gateway* network_layer_gw);
 
     int send_data_to_client(ip4_addr dest_addr, int dest_port, send_msg<> msg);
 
 };
 
-#endif //SERVERCLIENT_BS_EMP_SERVER_H
+#endif //SERVERCLIENT_EMP_SERVER_H

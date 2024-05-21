@@ -6,11 +6,10 @@
 #include <iostream>
 using namespace std;
 
-ip_proxy_server::ip_proxy_server(msg_gateway *gw) {
-    server_ip = get_my_priv_ip_addr("enp0s3");
+ip_proxy_server::ip_proxy_server(ip4_addr src_ip, msg_gateway* network_layer_gw) {
+    server_ip = src_ip;
 
-    if (gw == nullptr) network_layer_gateway = new class network_layer_gateway("enp0s3");
-    else network_layer_gateway = gw;
+    network_layer_gateway = network_layer_gw;
     network_layer_gateway->add_listener(&network_handler);
 
     network_handler.server = this;

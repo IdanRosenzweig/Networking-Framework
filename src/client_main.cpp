@@ -21,8 +21,8 @@
 #include "temp_prot_stacks/udp_client_server/udp_client.h"
 #include "protocols/tcp/tcp_protocol.h"
 
-#include "temp_utils/firewalls/firewall.h"
-#include "temp_utils/firewalls/network_layer/only_udp_filter.h"
+#include "abstract/firewall/firewall.h"
+#include "only_udp_filter.h"
 #include "temp_utils/analyzer/net_analyzer.h"
 
 #include "linux/virtual_if.h"
@@ -60,7 +60,7 @@ void udp_main() {
     network_layer_gateway networkLayerGateway("enp0s3");
 
 //    firewall fw(&networkLayerGateway);
-//    fw.filters.push_back(new only_udp_filter<my_port>());
+//    fw.outgoing_filters.push_back(new only_udp_filter<my_port>());
 
     // protocol stack
     ip4_protocol ip_client;

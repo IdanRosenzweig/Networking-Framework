@@ -15,7 +15,7 @@ public:
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
 
-    icmp_connection_client(ip4_addr dest_ip, msg_gateway * gw = nullptr);
+    icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip, msg_gateway * network_layer_gw);
 
     int send_data(send_msg<>& msg) override;
 

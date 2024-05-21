@@ -1,18 +1,16 @@
 #include "traceroute_util.h"
-#include "../../linux/hardware.h"
 #include <linux/ip.h>
 #include <linux/icmp.h>
 #include <iostream>
 using namespace std;
 
-traceroute_util::traceroute_util(msg_gateway* gw) {
-    if (gw == nullptr) gateway = new network_layer_gateway("enp0s3");
-    else gateway = gw;
+traceroute_util::traceroute_util(ip4_addr src_ip, msg_gateway* network_layer_gw) {
+    gateway = network_layer_gw;
 
     // setup send flow
     ip_client.gateway = gateway;
     ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
-    ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
+    ip_client.next_source_addr.set_next_choice(src_ip);
 
     icmp_client.gateway = &ip_client;
 

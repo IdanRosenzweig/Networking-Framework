@@ -14,7 +14,7 @@ class traceroute_util : msg_receiver {
     }
 
 public:
-    traceroute_util(msg_gateway * gw = nullptr);
+    traceroute_util(ip4_addr src_ip, msg_gateway* network_layer_gw);
 
     next_choice<ip4_addr> dest_ip;
 

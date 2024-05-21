@@ -20,7 +20,7 @@ void onion_network_node_main(const vector<ip4_addr>& path) {
     char dev[6] = "virt0";
     linux_virtual_iface iface(&proxy, dev);
 
-    cout << "virtual interface \"" << dev << "\" is open. send your ip network through it" << endl;
+    cout << "virtual interface \"" << dev << "\" is open. send your ip traffic through it" << endl;
     while (true) {
 
     }

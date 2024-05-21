@@ -4,6 +4,7 @@
 using namespace std;
 
 void dns_server::handle_received_event(udp_packet_stack& event) {
+//void dns_server::handle_received_event(emp_packet_stack& event) {
     uint8_t *buff = event.msg.data.data() + event.msg.curr_offset;
     uint8_t * curr_ptr = buff;
 
@@ -106,4 +107,5 @@ void dns_server::handle_received_event(udp_packet_stack& event) {
 
     msg.set_count(curr_reply_buff - reply_buff);
     udpServer.send_data_to_client(event.source_addr, event.source_port, msg);
+//    empServer.send_data_to_client(event.source_addr, event.source_point, msg);
 }

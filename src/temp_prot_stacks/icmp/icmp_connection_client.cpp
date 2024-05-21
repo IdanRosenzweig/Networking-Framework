@@ -1,14 +1,13 @@
 #include "icmp_connection_client.h"
 
-icmp_connection_client::icmp_connection_client(ip4_addr dest_ip, msg_gateway *gw) {
-    if (gw == nullptr) gateway = new network_layer_gateway("enp0s3");
-    else gateway = gw;
+icmp_connection_client::icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip, msg_gateway * network_layer_gw) {
+    gateway = network_layer_gw;
 
     // setup send flow
     ip_client.gateway = gateway;
     ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
     ip_client.next_dest_addr.set_next_choice(dest_ip);
-    ip_client.next_source_addr.set_next_choice(get_my_priv_ip_addr("enp0s3"));
+    ip_client.next_source_addr.set_next_choice(src_ip);
 
     icmp_client.gateway = &ip_client;
     icmp_client.next_type.set_next_choice(ICMP_CONN_CLIENT_TYPE);

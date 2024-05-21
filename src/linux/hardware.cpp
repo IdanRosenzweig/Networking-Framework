@@ -7,10 +7,10 @@
 #include <unistd.h>
 #include <netinet/in.h>
 
-mac_addr get_my_mac_address(const char *interface_name) {
+mac_addr get_mac_addr_of_iface(const string &iface) {
     struct ifreq ifr;
     memset(&ifr, 0, sizeof ifr);
-    snprintf(ifr.ifr_name, IFNAMSIZ, "%s", interface_name);
+    snprintf(ifr.ifr_name, IFNAMSIZ, "%s", iface.c_str());
 
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (ioctl(temp_fd, SIOCGIFHWADDR, &ifr) < 0)
@@ -24,13 +24,13 @@ mac_addr get_my_mac_address(const char *interface_name) {
     return addr;
 }
 
-ip4_addr get_my_priv_ip_addr(const char *interface) {
+ip4_addr get_ip_addr_of_iface(const string &iface) {
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     // Get the private ip address of our device
     struct ifreq my_priv_ip;
     memset(&my_priv_ip, 0, sizeof(struct ifreq));
-    strncpy(my_priv_ip.ifr_name, interface, IFNAMSIZ - 1);
+    strncpy(my_priv_ip.ifr_name, iface.c_str(), IFNAMSIZ - 1);
     if (ioctl(temp_fd, SIOCGIFADDR, &my_priv_ip) < 0)
         perror("SIOCGIFADDR");
 

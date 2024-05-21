@@ -4,9 +4,9 @@
 #include "../protocols/ether/mac_addr.h"
 #include "../protocols/ip4/ip4_addr.h"
 
-mac_addr get_my_mac_address(const char *interface_name);
+mac_addr get_mac_addr_of_iface(const string &iface);
 
-ip4_addr get_my_priv_ip_addr(const char *interface);
+ip4_addr get_ip_addr_of_iface(const string &iface);
 
 
 #endif //SERVERCLIENT_HARDWARE_H

@@ -4,11 +4,12 @@
 #include <iostream>
 using namespace std;
 
-#include "../../linux/hardware.h"
-
-dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) : udpClient(server_addr, DNS_SERVER_PORT, 1212, gw) {
+dns_client::dns_client(ip4_addr dest_server_ip, ip4_addr src_ip, msg_gateway* network_layer_gw) : udpClient(dest_server_ip, DNS_SERVER_PORT, 1212, src_ip, network_layer_gw) {
     udpClient.add_listener(this);
 }
+//dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) : empClient(server_addr,{0x53}, {0x12,0x12}, gw) {
+//    empClient.add_listener(this);
+//}
 
 void dns_client::query(dns_record_type type, const std::string& key) {
 
@@ -50,6 +51,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);
     udpClient.send_data(send);
+//    empClient.send_data(send);
 
 
     // receive answer

@@ -2,9 +2,14 @@
 #define SERVERCLIENT_VPN_DAEMON_H
 
 #include "../../abstract/connection/conn_aggregator.h"
+#include "../../abstract/firewall/firewall.h"
+#include "../../abstract/firewall/block_udp.h"
+#include "../../abstract/firewall/block_tcp.h"
 #include "../../temp_prot_stacks/udp_client_server/udp_server.h"
 #include "../../protocols/msg_boundary/msg_boundary_seperator.h"
 #include "../../temp_prot_stacks/tcp_client_server/tcp_server.h"
+#include "../../linux/osi/data_link_layer_gateway.h"
+
 #include "common.h"
 
 class vpn_daemon {
@@ -23,21 +28,27 @@ class vpn_daemon {
 
             master->sessions.emplace_back(master->tcpSession.back().get());
             master->aggregator.add_connection(&master->sessions.back());
-//            master->aggregator.add_connection(master->tcpSession.back().get());
         }
 
     };
     sessions_handler handler;
 
-    interface_gateway dataLinkLayerGateway;
+    data_link_layer_gateway dataLinkLayerGateway;
+    block_tcp_filter block_filter;
+    firewall gateway_firewall;
+
     vector<std::unique_ptr<tcp_session>> tcpSession;
     vector<msg_boundary_seperator<>> sessions;
 
     conn_aggregator aggregator;
 
 public:
-    vpn_daemon(const string& local_interface) : dataLinkLayerGateway(local_interface), handler(this) {
-        aggregator.add_connection(&dataLinkLayerGateway);
+    vpn_daemon(const string& local_interface) : dataLinkLayerGateway(local_interface)
+    , gateway_firewall(&dataLinkLayerGateway), block_filter(5678)
+    , handler(this)
+                                                {
+        gateway_firewall.incoming_filters.push_back(&block_filter);
+        aggregator.add_connection(&gateway_firewall);
     }
 
 

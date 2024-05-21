@@ -3,11 +3,11 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <boost/program_options.hpp>
 using namespace std;
 
-void bandwidth_main(const string& interface) {
-    interface_sniffer sniffer("enp0s3");
-
+void bandwidth_main(const string& iface) {
+    interface_sniffer sniffer(iface);
     bandwidth indicator(&sniffer);
 
     while (true) {
@@ -20,9 +20,29 @@ void bandwidth_main(const string& interface) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        cout << "usage: bandwidth [interface name]" << endl;
+    namespace po = boost::program_options;
+
+    po::options_description opts("Allowed options");
+    opts.add_options()
+            ("help", "print tool use description")
+            ("interface,i", po::value<string>(), "linux interface to use")
+            ;
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, opts), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << opts << endl;
         return 1;
     }
-    bandwidth_main(argv[1]);
+
+    if (!vm.count("interface")) {
+        cout << opts << endl;
+        return 1;
+    }
+    string iface = vm["interface"].as<string>();
+
+    bandwidth_main(iface);
+
 }

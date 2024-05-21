@@ -12,7 +12,7 @@ public:
     ip4_protocol ip_client;
     udp_protocol _udp_client;
 
-    udp_client(ip4_addr dest_ip, int dest_port, int my_port, msg_gateway * gw = nullptr);
+    udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr src_ip, msg_gateway * network_layer_gw);
 
     int send_data(send_msg<>& msg) override;
 

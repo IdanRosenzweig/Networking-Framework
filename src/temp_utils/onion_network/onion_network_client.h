@@ -9,18 +9,18 @@
 class onion_network_client : public msg_gateway {
 public:
     struct chain_node {
-        std::unique_ptr<bs_emp_client> udp = nullptr;
+        std::unique_ptr<udp_client> udp = nullptr;
         std::unique_ptr<ip_proxy_client> proxy = nullptr;
     };
     std::vector<chain_node> proxies_chain;
 
-    onion_network_client(const vector<ip4_addr>& chain) {
+    onion_network_client(const vector<ip4_addr>& chain, ip4_addr src_ip, msg_gateway* network_layer_gw) {
         int len = chain.size();
         for (int i = 0; i < len; i++) {
             chain_node node;
 
-            msg_gateway* gw = (i > 0) ? (msg_gateway*) proxies_chain.back().proxy.get() : nullptr;
-            node.udp = std::make_unique<bs_emp_client>(chain[i], ONION_NETWORK_NODE_LISTEN_PORT, 2001, gw);
+            msg_gateway* gw = (i > 0) ? (msg_gateway*) proxies_chain.back().proxy.get() : network_layer_gw;
+            node.udp = std::make_unique<udp_client>(chain[i], ONION_NETWORK_NODE_LISTEN_PORT, 2001, src_ip, gw);
 
             node.proxy = std::make_unique<ip_proxy_client>(node.udp.get());
 

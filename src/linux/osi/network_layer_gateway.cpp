@@ -9,7 +9,7 @@ network_layer_gateway::network_layer_gateway(const string& interface) : interfac
     ether_prot.next_dest_addr.set_next_choice(
             {0xc4, 0xeb, 0x42, 0xed, 0xc5, 0xb7} // gateway
     );
-    ether_prot.next_source_addr.set_next_choice(get_my_mac_address("enp0s3"));
+    ether_prot.next_source_addr.set_next_choice(get_mac_addr_of_iface(interface));
 
     // recv
     interfaceGateway.add_listener(&ether_prot);
