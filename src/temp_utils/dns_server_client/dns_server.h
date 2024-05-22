@@ -22,7 +22,7 @@ class dns_server : private basic_receiver<udp_packet_stack> {
     udp_server udpServer;
 //    emp_server empServer;
 
-    void handle_received_event(udp_packet_stack &event) override;
+    void handle_received_event(udp_packet_stack &&event) override;
 //    void handle_received_event(emp_packet_stack &event) override;
 
 public:
@@ -38,7 +38,7 @@ public:
 
     trie_node<char, 256, assign, string> mappings_type_mx;
 
-    dns_server(ip4_addr src_ip, msg_gateway* network_layer_gw) : udpServer(DNS_SERVER_PORT, src_ip, network_layer_gw) {
+    dns_server(ip4_addr src_ip, gateway* network_layer_gw) : udpServer(DNS_SERVER_PORT, src_ip, network_layer_gw) {
         udpServer.add_listener(this);
     }
 //    dns_server() : empServer({0x53}) {

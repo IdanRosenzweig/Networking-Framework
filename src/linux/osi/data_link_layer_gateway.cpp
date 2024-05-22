@@ -6,10 +6,10 @@ data_link_layer_gateway::data_link_layer_gateway(const string &interface) : if_g
     if_gateway.add_listener(this);
 }
 
-int data_link_layer_gateway::send_data(send_msg<>& val) {
-    return if_gateway.send_data(val);
+int data_link_layer_gateway::send_data(send_msg<>&& val) {
+    return if_gateway.send_data(std::move(val));
 }
 
-void data_link_layer_gateway::handle_received_event(received_msg &event) {
-    basic_connection::handle_received_event(event);
+void data_link_layer_gateway::handle_received_event(received_msg &&event) {
+    connection::handle_received_event(std::move(event));
 }

@@ -12,7 +12,7 @@ template <typename T>
 class basic_receiver {
 public:
     // this function would be interrupted when receiving msg
-    virtual void handle_received_event(T& event) = 0;
+    virtual void handle_received_event(T&& event) = 0;
 };
 
 #endif //SERVERCLIENT_BASIC_RECEIVER_H

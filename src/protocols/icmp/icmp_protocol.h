@@ -12,8 +12,8 @@ public:
 
     icmp_protocol() {
         // prevent linux from sending various response icmp packets that interfere
-        system("echo 1 | sudo tee /proc/sys/net/ipv4/icmp_echo_ignore_all");
-        system("echo 1 | sudo tee /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
+        system("echo 1 | sudo tee /proc/sys/net/ipv4/icmp_echo_ignore_all > /dev/null");
+        system("echo 1 | sudo tee /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts > /dev/null");
     }
 
     // send
@@ -21,12 +21,13 @@ public:
     next_choice<int> next_type;
     next_choice<int> next_code;
     next_choice<uint32_t> next_content;
-    int send_data(send_msg<>& msg) override;
+    int send_data(send_msg<>&& msg) override;
 
+
+    // recv
     multiplexer<int, basic_receiver*> type_handlers;
     basic_receiver* default_handler = nullptr;
-
-    void handle_received_event(received_msg& msg) override;
+    void handle_received_event(received_msg&& msg) override;
 
 };
 

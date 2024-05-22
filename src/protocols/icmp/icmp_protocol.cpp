@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int icmp_protocol::send_data(send_msg<>& msg) {
+int icmp_protocol::send_data(send_msg<>&& msg) {
     uint8_t* buff = msg.get_reserve_buff();
 
     icmp_header *packet = reinterpret_cast<icmp_header*>(buff);
@@ -23,10 +23,10 @@ int icmp_protocol::send_data(send_msg<>& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(icmp_header) + msg.get_count());
-    return gateway->send_data(msg);
+    return gateway->send_data(std::move(msg));
 }
 
-void icmp_protocol::handle_received_event(received_msg& msg) {
+void icmp_protocol::handle_received_event(received_msg&& msg) {
 //    raw_message_q.push_back(msg);
 
     uint8_t *buff = msg.data.data() + msg.curr_offset;
@@ -37,11 +37,13 @@ void icmp_protocol::handle_received_event(received_msg& msg) {
     msg.protocol_offsets.push_back({msg.curr_offset, ICMP});
     msg.curr_offset += sizeof(struct icmp_header);
 
-    if (default_handler != nullptr)
-        default_handler->handle_received_event(msg);
+    if (default_handler != nullptr) {
+        received_msg copy(msg);
+        default_handler->handle_received_event(std::move(msg));
+    }
 
     if (type_handlers.is_key_assigned(type)) {
-        type_handlers.get_val_of_key(type)->handle_received_event(msg);
+        type_handlers.get_val_of_key(type)->handle_received_event(std::move(msg));
 //        return;
     }
 

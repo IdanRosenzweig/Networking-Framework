@@ -23,7 +23,7 @@ public:
         explicit examiner(block_tcp_filter *master) : master(master) {}
 
     public:
-        void handle_received_event(received_msg &event) override {
+        void handle_received_event(received_msg &&event) override {
             struct tcphdr *tcp_hdr = reinterpret_cast<tcphdr *>(event.data.data() + event.curr_offset);
             int dest_port = ntohs(tcp_hdr->dest);
 //            cout << "tcp examiner got " << dest_port << endl;

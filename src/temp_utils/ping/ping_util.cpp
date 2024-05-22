@@ -4,18 +4,16 @@
 #include <iostream>
 using namespace std;
 
-ping_util::ping_util(ip4_addr src_ip, msg_gateway* network_layer_gw) {
-    gateway = network_layer_gw;
-
+ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
     // setup send flow
-    ip_client.gateway = gateway;
+    ip_client.gateway = network_layer_gw;
     ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
     ip_client.next_source_addr.set_next_choice(src_ip);
 
     icmp_client.gateway = &ip_client;
 
     // setup recv flow
-    gateway->add_listener(&ip_client);
+    network_layer_gw->add_listener(&ip_client);
     ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
 
     icmp_client.default_handler = this;
@@ -45,7 +43,7 @@ void ping_util::ping_node() {
         send_msg send;
         memcpy(send.get_active_buff(), data, data_sz);
         send.set_count(data_sz);
-        if (icmp_client.send_data(send) < 1) {
+        if (icmp_client.send_data(std::move(send)) < 1) {
             std::cerr << "Failed to send packet" << std::endl;
             continue;
         }

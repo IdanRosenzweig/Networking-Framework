@@ -40,14 +40,14 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
     send_msg<> request;
     memcpy(request.get_active_buff(), buff, cnt);
     request.set_count(cnt);
-    ether_client.send_data(request);
+    ether_client.send_data(std::move(request));
 
     // wait some reasonable time
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(1000ms);
 
     // receive reply
-    if (income_queue.empty()) return mac_addr{0};
+    if (event_queue.empty()) return mac_addr{0};
 
     auto reply = front_data();
     uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
@@ -100,7 +100,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         send_msg<> request;
         memcpy(request.get_active_buff(), buff, cnt);
         request.set_count(cnt);
-        ether_client.send_data(request);
+        ether_client.send_data(std::move(request));
 
         curr_ip = generate_next_ip(curr_ip);
     }
@@ -112,7 +112,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
     std::this_thread::sleep_for(3000ms);
 
     vector<pair<ip4_addr, mac_addr>> res;
-    while (!income_queue.empty()) {
+    while (!event_queue.empty()) {
         auto reply = front_data();
         uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
 
@@ -174,7 +174,7 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
             send_msg<> request;
             memcpy(request.get_active_buff(), buff, cnt);
             request.set_count(cnt);
-            ether_client.send_data(request);
+            ether_client.send_data(std::move(request));
 
         } else { // spoof every victim
             for (int i = 0; i < no_victims; i++) {
@@ -193,7 +193,7 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
                 send_msg<> request;
                 memcpy(request.get_active_buff(), buff, cnt);
                 request.set_count(cnt);
-                ether_client.send_data(request);
+                ether_client.send_data(std::move(request));
             }
 
         }
@@ -205,8 +205,8 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
 
 void net_arp::intercept_device_traffic(const vector<ip4_addr> &victim_devices, ip4_addr dest, bool block, mac_addr src_mac, ip4_addr src_ip) {
     // block/allow traffic (linux)
-    if (block) system("echo 0 | sudo tee /proc/sys/net/ipv4/ip_forward");
-    else system("echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward");
+    if (block) system("echo 0 | sudo tee /proc/sys/net/ipv4/ip_forward > /dev/null");
+    else system("echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward > /dev/null");
 
     spoof_as_device(victim_devices, dest, src_mac, src_ip);
 //    if (bidirectional)

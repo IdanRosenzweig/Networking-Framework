@@ -16,13 +16,13 @@ public:
     next_choice<udata_t> next_dest_point;
     msg_sender* gateway;
 
-    int send_data(send_msg<>& msg) override;
+    int send_data(send_msg<>&& msg) override;
 
     // recv
     trie_node<uint8_t, 256, [](uint8_t val) -> size_t {return val;}, basic_receiver*> endpoints_handlers;
     basic_receiver* default_handler = nullptr;
 
-    void handle_received_event(received_msg& msg) override;
+    void handle_received_event(received_msg&& msg) override;
 
 };
 

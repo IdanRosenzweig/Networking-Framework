@@ -1,13 +1,13 @@
 #ifndef SERVERCLIENT_VPN_CLIENT_H
 #define SERVERCLIENT_VPN_CLIENT_H
 
-#include "../../abstract/gateway/msg_gateway.h"
+#include "../../abstract/gateway/gateway.h"
 #include "../../temp_prot_stacks/tcp_client_server/tcp_client.h"
 #include "../../protocols/msg_boundary/msg_boundary_seperator.h"
 
 #include "common.h"
 
-class vpn_client : public msg_gateway {
+class vpn_client : public gateway {
     tcp_client tcp;
     msg_boundary_seperator<> client;
 
@@ -18,7 +18,7 @@ public:
 //tcp_client_server.add_listener(this);
     }
 
-    int send_data(send_msg<>& val) override {
+    int send_data(send_msg<>&& val) override {
         return client.send_data(val);
 //        return tcp_client_server.send_data(val);
     }

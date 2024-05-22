@@ -35,7 +35,7 @@ interface_sniffer::interface_sniffer(const string& interface) {
 
     // traffic in
     {
-        traffic_in = pcap_open_live(interface.c_str(), BUFSIZ, 1, 10, errbuf);
+        traffic_in = pcap_open_live(interface.c_str(), BUFSIZ, 1, 50, errbuf);
         if (traffic_in == nullptr) {
             cerr << "can't open interface: " << interface << ", err: " << errbuf << endl;
             throw;
@@ -62,7 +62,7 @@ interface_sniffer::interface_sniffer(const string& interface) {
 
     // traffic out
     {
-        traffic_out = pcap_open_live(interface.c_str(), BUFSIZ, 1, 10, errbuf);
+        traffic_out = pcap_open_live(interface.c_str(), BUFSIZ, 1, 50, errbuf);
         if (traffic_out == nullptr) {
             cerr << "can't open interface: " << interface << ", err: " << errbuf << endl;
             throw;
@@ -86,6 +86,13 @@ interface_sniffer::interface_sniffer(const string& interface) {
         });
     }
 
+    // todo sleep here?
+//    while (!worker_out.joinable()) {
+//        std::this_thread::sleep_for(10ms);
+//    }
+//    while (!worker_in.joinable()) {
+//        std::this_thread::sleep_for(10ms);
+//    }
     sleep(2); // ensure the pcap_loop has started
 }
 

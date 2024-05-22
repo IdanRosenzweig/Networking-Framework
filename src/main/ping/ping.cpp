@@ -7,8 +7,8 @@ using namespace std;
 
 void ping_main(const string& iface, ip4_addr dest_ip, int count) {
 
-    ping_util pinger(convert_to_ip4_addr("10.100.102.31"), new network_layer_gateway(iface));
-//    ping_util pinger(get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
+//    ping_util pinger(convert_to_ip4_addr("10.100.102.31"), new network_layer_gateway(iface));
+    ping_util pinger(get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
 
     pinger.dest_ip.set_next_choice(dest_ip);
     pinger.count.set_next_choice(count);

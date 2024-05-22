@@ -5,11 +5,11 @@
 //#include <thread>
 //#include <pcap/pcap.h>
 
-#include "../abstract/gateway/msg_gateway.h"
+#include "../abstract/gateway/gateway.h"
 #include "interface_sniffer.h"
 
-// wrapper class for the raw interface_sniffer that exposes gateway api
-class interface_gateway : private msg_sniffer , public msg_gateway {
+// wrapper class for the raw interface_sniffer that exposes data_link_layer_gateway api
+class interface_gateway : private msg_sniffer , public gateway {
 private:
     int fd;
     struct sockaddr_ll dest_addr; // used only for hardware interface
@@ -22,12 +22,12 @@ public:
 
     ~interface_gateway();
 
-    int send_data(send_msg<>& msg) override;
+    int send_data(send_msg<>&& msg) override;
 
 private:
-    void handle_outgoing_packet(received_msg &msg) override;
+    void handle_outgoing_packet(const received_msg &msg) override;
 
-    void handle_incoming_packet(received_msg &msg) override;
+    void handle_incoming_packet(const received_msg &msg) override;
 
 };
 

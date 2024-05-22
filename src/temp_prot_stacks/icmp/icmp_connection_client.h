@@ -3,21 +3,21 @@
 
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
-#include "../../abstract/connection/msg_connection.h"
-#include "../../abstract/gateway/msg_gateway.h"
+#include "../../abstract/connection/connection.h"
+#include "../../abstract/gateway/gateway.h"
 #include "../../linux/hardware.h"
 #include "../../linux/osi/network_layer_gateway.h"
 #include "common.h"
 
-class icmp_connection_client : public msg_connection {
+class icmp_connection_client : public connection {
 public:
-    msg_gateway * gateway;
+    gateway * network_layer_gw;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
 
-    icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip, msg_gateway * network_layer_gw);
+    icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip, gateway * gw);
 
-    int send_data(send_msg<>& msg) override;
+    int send_data(send_msg<>&& msg) override;
 
 };
 

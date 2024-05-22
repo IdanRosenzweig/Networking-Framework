@@ -6,20 +6,17 @@
 #include <iostream>
 using namespace std;
 
-ip_proxy_server::ip_proxy_server(ip4_addr src_ip, msg_gateway* network_layer_gw) {
-    server_ip = src_ip;
-
-    network_layer_gateway = network_layer_gw;
+ip_proxy_server::ip_proxy_server(ip4_addr src_ip, gateway* gw) : network_layer_gateway(gw), server_ip(src_ip) {
     network_layer_gateway->add_listener(&network_handler);
 
     network_handler.server = this;
 }
 
-int conn_side_handler::send_data(send_msg<>& msg) {
-    return my_conn->send_data(msg);
+int conn_side_handler::send_data(send_msg<>&& msg) {
+    return my_conn->send_data(std::move(msg));
 }
 
-void conn_side_handler::handle_received_event(received_msg& msg) {
+void conn_side_handler::handle_received_event(received_msg&& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
     int cnt = msg.data.size() - msg.curr_offset;
 
@@ -53,14 +50,14 @@ void conn_side_handler::handle_received_event(received_msg& msg) {
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);
-    server->network_handler.send_data(send);
+    server->network_handler.send_data(std::move(send));
 }
 
-int network_side_handler::send_data(send_msg<>& msg) {
-    return server->network_layer_gateway->send_data(msg);
+int network_side_handler::send_data(send_msg<>&& msg) {
+    return server->network_layer_gateway->send_data(std::move(msg));
 }
 
-void network_side_handler::handle_received_event(received_msg& msg) {
+void network_side_handler::handle_received_event(received_msg&& msg) {
     // make sure there are connections to send the packet to
     // so no nullptr dereference or something like that happens
     if (server->conn_handler == nullptr) return;
@@ -106,7 +103,7 @@ void network_side_handler::handle_received_event(received_msg& msg) {
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);
-    server->conn_handler->send_data(send);
+    server->conn_handler->send_data(std::move(send));
 
 }
 

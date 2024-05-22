@@ -8,7 +8,7 @@ class data_counter : public msg_receiver {
 public:
     int get_count() {return counter;}
     void reset() {counter = 0;}
-    void handle_received_event(received_msg& event) override {
+    void handle_received_event(received_msg&& event) override {
         counter++;
     }
 };

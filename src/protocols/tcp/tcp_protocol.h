@@ -5,16 +5,16 @@
 #include <cstring>
 #include <thread>
 
-#include "../../abstract/session/basic_session.h"
-#include "../../abstract/session/msg_session.h"
+#include "../../abstract/session/session_conn.h"
+#include "../../abstract/session/session_generator.h"
 #include "../../abstract/utils/next_choice.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"
 
 #include "tcp_session.h"
 
-//class tcp_protocol : public multi_receiver<std::unique_ptr<tcp_session>> {
-class tcp_protocol : public basic_session_generator<tcp_session> {
+//class tcp_protocol : public receive_multiplexer<std::unique_ptr<tcp_session>> {
+class tcp_protocol : public session_generator<tcp_session> {
 
     int sd;
     std::thread worker;
@@ -29,7 +29,7 @@ public:
     next_choice<int> next_dest_port;
     next_choice<int> next_source_port;
 
-    std::unique_ptr<tcp_session> start_session();
+    session_t<tcp_session> start_session();
 
 };
 

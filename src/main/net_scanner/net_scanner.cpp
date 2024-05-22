@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
         cout << opts << endl;
         return 1;
     }
-    string iface = vm["inteface"].as<string>();
+    string iface = vm["interface"].as<string>();
 
     if (vm.count("ip")) {
         arp_scan_single_main(iface, convert_to_ip4_addr(vm["ip"].as<string>()));

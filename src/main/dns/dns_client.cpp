@@ -65,4 +65,6 @@ int main(int argc, char **argv) {
 
     dns_client_main(iface, str_to_record_type(type), key, convert_to_ip4_addr(server_ip));
 
+//    dns_client_main("enp0s3", str_to_record_type("A"), "google.com", convert_to_ip4_addr("8.8.8.8"));
+
 }

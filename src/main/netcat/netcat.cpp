@@ -1,6 +1,6 @@
 #include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_client.h"
 #include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_server.h"
-#include "../../abstract/session/basic_sessions_manager.h"
+#include "../../abstract/session/session_manager.h"
 
 #include <boost/program_options.hpp>
 #include <unistd.h>
@@ -8,26 +8,25 @@
 
 using namespace std;
 
-class app_handler : public basic_session_handler<tcp_boundary_preserving_session>, public msg_receiver {
+class app_handler : public session_handler<tcp_boundary_preserving_session>, public msg_receiver {
 public:
-    void
-    session_started() override { // when session starts, just add this class to its listeners. this calls just receives the messages and echos them
-        session->add_listener(this);
+    void on_session_start() override { // when session starts, just add this class to its listeners. this calls just receives the messages and echos them
+        session.session->add_listener(this);
     }
 
-    explicit app_handler(unique_ptr<tcp_boundary_preserving_session> &session) : basic_session_handler(session) {}
+    explicit app_handler(session_t<tcp_boundary_preserving_session> &session) : session_handler(session) {}
 
 private:
-    void handle_received_event(received_msg &event) override {
+    void handle_received_event(received_msg &&event) override {
         cout << event.data.data() + event.curr_offset << endl;
 //        session->send_data({event.data_t.get() + event.curr_offset, event.data.size() - event.curr_offset});
     }
 };
 
-class sess_manager : public basic_sessions_manager<tcp_boundary_preserving_session, app_handler> {
+class sess_manager : public session_manager<tcp_boundary_preserving_session, app_handler> {
 public:
-    explicit sess_manager(basic_session_generator<tcp_boundary_preserving_session> *sessionsGenerator)
-            : basic_sessions_manager<tcp_boundary_preserving_session, app_handler>(
+    explicit sess_manager(session_generator<tcp_boundary_preserving_session> *sessionsGenerator)
+            : session_manager<tcp_boundary_preserving_session, app_handler>(
             sessionsGenerator) {}
 };
 
@@ -44,7 +43,7 @@ void netcat_server_main(const string& iface, int port) {
             send_msg send;
             memcpy(send.get_active_buff(), str.c_str(), str.size());
             send.set_count(str.size());
-            int res = session.session->send_data(send);
+            int res = session.session.session->send_data(std::move(send));
             if (res == -1 || res == 0) {
                 cerr << "can't send to connection, closing" << endl;
                 break;
@@ -57,7 +56,7 @@ void netcat_server_main(const string& iface, int port) {
 
 class client_app : public msg_receiver {
 public:
-    void handle_received_event(received_msg &event) override {
+    void handle_received_event(received_msg &&event) override {
         cout << event.data.data() + event.curr_offset << endl;
     }
 };
@@ -75,7 +74,7 @@ void netcat_client_main(const string& iface, ip4_addr dest_ip, int port) {
         send_msg send;
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
-        int res = client.send_data(send);
+        int res = client.send_data(std::move(send));
         if (res == -1 || res == 0) {
             cerr << "can't send to connection, closing" << endl;
             break;
@@ -111,7 +110,7 @@ int main(int argc, char **argv) {
         cout << opts << endl;
         return 1;
     }
-    string iface = vm["inteface"].as<string>();
+    string iface = vm["interface"].as<string>();
 
     bool server;
     if (vm.count("server")) server = true;

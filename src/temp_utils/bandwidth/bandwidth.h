@@ -1,7 +1,7 @@
 #ifndef SERVERCLIENT_BANDWIDTH_H
 #define SERVERCLIENT_BANDWIDTH_H
 
-#include "../../abstract/connection/msg_connection.h"
+#include "../../abstract/connection/connection.h"
 #include "../../abstract/sniffer/msg_sniffer.h"
 
 class bandwidth {
@@ -12,9 +12,9 @@ class bandwidth {
     public:
         explicit my_sniff(bandwidth *master) : master(master) {}
 
-        void handle_outgoing_packet(received_msg &msg) override;
+        void handle_outgoing_packet(const received_msg &msg) override;
 
-        void handle_incoming_packet(received_msg &msg) override;
+        void handle_incoming_packet(const received_msg &msg) override;
     };
     my_sniff my_sniff;
 

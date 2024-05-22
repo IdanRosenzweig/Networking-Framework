@@ -61,7 +61,7 @@ interface_gateway::~interface_gateway() {
 //    worker.detach();
 }
 
-int interface_gateway::send_data(send_msg<>& msg) {
+int interface_gateway::send_data(send_msg<>&& msg) {
 //    return sendto(fd,
 //                msg.buff, msg.count,
 //                0,
@@ -71,10 +71,11 @@ int interface_gateway::send_data(send_msg<>& msg) {
                   0);
 }
 
-void interface_gateway::handle_outgoing_packet(received_msg &msg) {
+void interface_gateway::handle_outgoing_packet(const received_msg &msg) {
     // nothing
 }
 
-void interface_gateway::handle_incoming_packet(received_msg &msg) {
-    this->handle_received_event(msg);
+void interface_gateway::handle_incoming_packet(const received_msg &msg) {
+    received_msg copy(msg);
+    this->handle_received_event(std::move(copy));
 }

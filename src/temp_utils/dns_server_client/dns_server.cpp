@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-void dns_server::handle_received_event(udp_packet_stack& event) {
+void dns_server::handle_received_event(udp_packet_stack &&event) {
 //void dns_server::handle_received_event(emp_packet_stack& event) {
     uint8_t *buff = event.msg.data.data() + event.msg.curr_offset;
     uint8_t * curr_ptr = buff;

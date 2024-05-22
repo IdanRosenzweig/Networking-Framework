@@ -4,17 +4,17 @@
 #include "ping_util.h"
 
 class traceroute_util : msg_receiver {
-    msg_gateway * gateway;
+    gateway * network_layer_gw;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
 
     circular_buffer<received_msg> raw_icmp;
-    void handle_received_event(received_msg &event) override {
+    void handle_received_event(received_msg &&event) override {
         raw_icmp.push_back(event);
     }
 
 public:
-    traceroute_util(ip4_addr src_ip, msg_gateway* network_layer_gw);
+    traceroute_util(ip4_addr src_ip, gateway* gw);
 
     next_choice<ip4_addr> dest_ip;
 

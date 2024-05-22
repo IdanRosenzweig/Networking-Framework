@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-void net_analyzer::ether_handler::handle_received_event(received_msg &event) {
+void net_analyzer::ether_handler::handle_received_event(received_msg &&event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "ethernet\t";
 
@@ -21,7 +21,7 @@ void net_analyzer::ether_handler::handle_received_event(received_msg &event) {
     cout << endl;
 }
 
-void net_analyzer::ip4_handler::handle_received_event(received_msg &event) {
+void net_analyzer::ip4_handler::handle_received_event(received_msg &&event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "ip4\t\t";
 
@@ -36,7 +36,7 @@ void net_analyzer::ip4_handler::handle_received_event(received_msg &event) {
     cout << endl;
 }
 
-void net_analyzer::udp_handler::handle_received_event(received_msg &event) {
+void net_analyzer::udp_handler::handle_received_event(received_msg &&event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "udp\t\t";
 
@@ -47,7 +47,7 @@ void net_analyzer::udp_handler::handle_received_event(received_msg &event) {
     cout << endl;
 }
 
-void net_analyzer::icmp_handler::handle_received_event(received_msg &event) {
+void net_analyzer::icmp_handler::handle_received_event(received_msg &&event) {
     cout << "offset: 0x" << hex << event.protocol_offsets.back().first << "\t";
     cout << "icmp\t";
 
@@ -77,10 +77,11 @@ net_analyzer::net_analyzer(const string& interface) : raw_sniffer(interface) {
 //    icmpProtocol.default_handler = &displayer;
 }
 
-void net_analyzer::handle_outgoing_packet(received_msg &msg) {
+void net_analyzer::handle_outgoing_packet(const received_msg &msg) {
     cout << "##### outgoing packet" << endl;
     cout << "##### protocol stack" << endl;
-    ethernetProtocol.handle_received_event(msg);
+    received_msg copy(msg);
+    ethernetProtocol.handle_received_event(std::move(copy));
 
     cout << "##### hex dump" << endl;
     FILE* pipe = popen("/usr/bin/hd", "w");
@@ -91,10 +92,11 @@ void net_analyzer::handle_outgoing_packet(received_msg &msg) {
 
 }
 
-void net_analyzer::handle_incoming_packet(received_msg &msg) {
+void net_analyzer::handle_incoming_packet(const received_msg &msg) {
     cout << "##### incoming packet" << endl;
     cout << "### protocol stack" << endl;
-    ethernetProtocol.handle_received_event(msg);
+    received_msg copy(msg);
+    ethernetProtocol.handle_received_event(std::move(copy));
 
     cout << "### hex dump" << endl;
     FILE* pipe = popen("/usr/bin/hd", "w");

@@ -12,9 +12,9 @@ ip4_protocol::ip4_protocol() {
 }
 
 
-int ip4_protocol::send_data(send_msg<>& msg) {
+int ip4_protocol::send_data(send_msg<>&& msg) {
     if (next_dest_addr.get_next_choice() == empty_ip4_addr) {
-//        cout << "tcpSession is null" << endl;
+        cout << "ip dest is null" << endl;
         return 0;
     }
 
@@ -46,11 +46,10 @@ int ip4_protocol::send_data(send_msg<>& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(ip_packet_len);
-    return gateway->send_data(msg);
+    return gateway->send_data(std::move(msg));
 }
 
-void ip4_protocol::handle_received_event(received_msg& msg) {
-//    cout << "ip aggregator app_handler called" << endl;
+void ip4_protocol::handle_received_event(received_msg&& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct iphdr *iph = (struct iphdr *) buff;
@@ -59,12 +58,14 @@ void ip4_protocol::handle_received_event(received_msg& msg) {
     msg.protocol_offsets.push_back({msg.curr_offset, IP4});
     msg.curr_offset += sizeof(struct iphdr);
 
-    if (default_handler != nullptr)
-        default_handler->handle_received_event(msg);
+
+    if (default_handler != nullptr) {
+        received_msg copy(msg);
+        default_handler->handle_received_event(std::move(copy));
+    }
 
     if (protocol_handlers.is_key_assigned(protocol)) {
-        protocol_handlers.get_val_of_key(protocol)->handle_received_event(msg);
+        protocol_handlers.get_val_of_key(protocol)->handle_received_event(std::move(msg));
     }
 
 }
-

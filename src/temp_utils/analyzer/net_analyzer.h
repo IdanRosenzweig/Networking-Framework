@@ -17,7 +17,7 @@ class net_analyzer : public msg_sniffer {
     ethernet_protocol ethernetProtocol;
     class ether_handler : public msg_receiver {
     public:
-        void handle_received_event(received_msg &event) override;
+        void handle_received_event(received_msg &&event) override;
     } etherHandler;
 
 //    net_arp arpProtocol;
@@ -25,13 +25,13 @@ class net_analyzer : public msg_sniffer {
     ip4_protocol ip4Protocol;
     class ip4_handler : public msg_receiver {
     public:
-        void handle_received_event(received_msg &event) override;
+        void handle_received_event(received_msg &&event) override;
     } ip4Handler;
 
     udp_protocol udpProtocol;
     class udp_handler : public msg_receiver {
     public:
-        void handle_received_event(received_msg &event) override;
+        void handle_received_event(received_msg &&event) override;
     } udpHandler;
 
 //    tcp_protocol tcpProtocol;
@@ -39,15 +39,15 @@ class net_analyzer : public msg_sniffer {
     icmp_protocol icmpProtocol;
     class icmp_handler : public msg_receiver {
     public:
-        void handle_received_event(received_msg &event) override;
+        void handle_received_event(received_msg &&event) override;
     } icmpHandler;
 
 public:
     net_analyzer(const string& interface);
 
-    void handle_outgoing_packet(received_msg &msg) override;
+    void handle_outgoing_packet(const received_msg &msg) override;
 
-    void handle_incoming_packet(received_msg &msg) override;
+    void handle_incoming_packet(const received_msg &msg) override;
 };
 
 

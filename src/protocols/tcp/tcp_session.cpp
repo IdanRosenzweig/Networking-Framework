@@ -42,7 +42,7 @@ tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(
 //            msg.data = unique_ptr<uint8_t>(alloc_msg);
 //            msg.data.size() = data_sz;
 //            msg.curr_offset = 0;
-            this->handle_received_event(msg);
+            this->handle_received_event(std::move(msg));
         }
     });
 }
@@ -53,7 +53,7 @@ tcp_session::~tcp_session() {
     close(sd);
 }
 
-int tcp_session::send_data(send_msg<>& msg) {
+int tcp_session::send_data(send_msg<>&& msg) {
     if (!alive) return -1;
 
     int error = 0;
@@ -76,8 +76,8 @@ int tcp_session::send_data(send_msg<>& msg) {
     return send(sd, msg.get_active_buff(), msg.get_count(), 0);
 }
 
-void tcp_session::handle_received_event(received_msg &event) {
-    multi_receiver::handle_received_event(event);
+void tcp_session::handle_received_event(received_msg &&event) {
+    receive_multiplexer::handle_received_event(std::move(event));
 }
 
 

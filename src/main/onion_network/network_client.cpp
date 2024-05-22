@@ -1,4 +1,3 @@
-#include <iostream>
 
 #include "../../temp_utils/proxy/ip_proxy_client.h"
 
@@ -8,28 +7,28 @@
 #include "../../temp_utils/onion_network/onion_network_client.h"
 
 #include "../../linux/virtual_if.h"
-#include <unistd.h>
+#include "../../linux/hardware.h"
+
 #include <boost/program_options.hpp>
+#include <iostream>
+using namespace std;
 
-#define MY_IP "10.100.102.18"
 
-
-void onion_network_node_main(const vector<ip4_addr>& path) {
-    onion_network_client proxy(path);
+void onion_network_node_main(const string& iface, const vector<ip4_addr>& path) {
+    onion_network_client proxy(path, get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
 
     char dev[6] = "virt0";
-    linux_virtual_iface iface(&proxy, dev);
+    linux_virtual_iface virt_iface(&proxy, dev);
 
-    cout << "virtual interface \"" << dev << "\" is open. send your ip traffic through it" << endl;
+    cout << "virtual interface \"" << dev << "\" is open. send your ip traffic through it" << endl << endl;
+
     while (true) {
 
     }
 
 //     regular dns communication
     {
-//        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), &proxy);
-        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), new interface_gateway("virt0"));
-//        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"));
+        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), convert_to_ip4_addr("10.100.102.18"), new interface_gateway("virt0"));
 
         // communicate
         vector<string> hosts = {
@@ -54,7 +53,7 @@ void onion_network_node_main(const vector<ip4_addr>& path) {
         };
         for (string &str: hosts) {
             dns_client.query(DNS_TYPE_A, str);
-            cout << endl << endl << endl;
+            cout << endl;
         }
 
     }
@@ -63,23 +62,30 @@ void onion_network_node_main(const vector<ip4_addr>& path) {
 int main(int argc, char** argv) {
     namespace po = boost::program_options;
 
-    po::options_description desc("Allowed options");
-    desc.add_options()
+    po::options_description opts("Allowed options");
+    opts.add_options()
             ("help", "print tool use description")
+            ("interface,i", po::value<string>(), "linux interface to use")
             ("path,p", po::value<vector<string>>()->multitoken(),
              "the path along the onion network to use");
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(po::parse_command_line(argc, argv, opts), vm);
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << desc << endl;
+        cout << opts << endl;
         return 1;
     }
 
+    if (!vm.count("interface")) {
+        cout << opts << endl;
+        return 1;
+    }
+    string iface = vm["interface"].as<string>();
+
     if (!vm.count("path")) {
-        cout << desc << endl;
+        cout << opts << endl;
         return 1;
     }
     vector<string> path = vm["path"].as<vector<string>>();
@@ -87,6 +93,6 @@ int main(int argc, char** argv) {
     vector<ip4_addr> ip_path;
     for (string& node : path) ip_path.push_back(convert_to_ip4_addr(node));
 
-    onion_network_node_main(ip_path);
+    onion_network_node_main(iface, ip_path);
 
 }

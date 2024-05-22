@@ -4,10 +4,10 @@
 #include <iostream>
 using namespace std;
 
-dns_client::dns_client(ip4_addr dest_server_ip, ip4_addr src_ip, msg_gateway* network_layer_gw) : udpClient(dest_server_ip, DNS_SERVER_PORT, 1212, src_ip, network_layer_gw) {
+dns_client::dns_client(ip4_addr dest_server_ip, ip4_addr src_ip, gateway* network_layer_gw) : udpClient(dest_server_ip, DNS_SERVER_PORT, 1212, src_ip, network_layer_gw) {
     udpClient.add_listener(this);
 }
-//dns_client::dns_client(ip4_addr server_addr, msg_gateway *gw) : empClient(server_addr,{0x53}, {0x12,0x12}, gw) {
+//dns_client::dns_client(ip4_addr server_addr, data_link_layer_gateway *data_link_layer_gateway) : empClient(server_addr,{0x53}, {0x12,0x12}, data_link_layer_gateway) {
 //    empClient.add_listener(this);
 //}
 
@@ -50,7 +50,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);
-    udpClient.send_data(send);
+    udpClient.send_data(std::move(send));
 //    empClient.send_data(send);
 
 

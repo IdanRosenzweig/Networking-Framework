@@ -6,9 +6,10 @@
 #include <unistd.h>
 #include <boost/program_options.hpp>
 #include <iostream>
+
 using namespace std;
 
-void net_intercept_main(const string& iface, const vector<ip4_addr> &victim, ip4_addr dest, bool block) {
+void net_intercept_main(const string &iface, const vector<ip4_addr> &victim, ip4_addr dest, bool block) {
     net_arp scanner(new data_link_layer_gateway(iface));
 
     scanner.intercept_device_traffic(victim, dest, block, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface));
@@ -67,12 +68,14 @@ int main(int argc, char **argv) {
     }
 
 
-    cout << "victims:" << endl;
+    cout << "victims: ";
     vector<ip4_addr> victims_ip;
-    for (string &victim: victims) {
-        cout << victim << " ";
-        victims_ip.push_back(convert_to_ip4_addr(victim));
-    }
+    if (victims.empty()) cout << "all broadcast";
+    else
+        for (string &victim: victims) {
+            cout << victim << ", ";
+            victims_ip.push_back(convert_to_ip4_addr(victim));
+        }
     cout << endl;
 
     net_intercept_main(interface, victims_ip, convert_to_ip4_addr(dest), block);

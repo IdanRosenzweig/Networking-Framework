@@ -1,8 +1,6 @@
 #include "tcp_protocol.h"
 #include <netinet/ip.h>
 #include <iostream>
-#include <memory>
-#include <arpa/inet.h>
 #include <netinet/tcp.h>
 
 tcp_protocol::tcp_protocol(bool server) {
@@ -60,7 +58,7 @@ tcp_protocol::tcp_protocol(bool server) {
                 struct sockaddr_in client_addr;
                 socklen_t len = sizeof(client_addr);
 
-                // accepting a new tcpSession
+                // accepting a new session
                 cout << "waiting for a tcp session..." << endl;
                 client_sd = accept(
                         sd,
@@ -76,10 +74,9 @@ tcp_protocol::tcp_protocol(bool server) {
                 ip4_addr addr;
                 extract_from_network_order(&addr, (uint8_t *) &client_addr.sin_addr.s_addr);
 
-                std::unique_ptr<tcp_session> session = std::make_unique<tcp_session>(
-                        client_sd, tcp_session_data{addr, ntohs(client_addr.sin_port), 5678}
-                );
-                this->multi_receiver::handle_received_event(session);
+                auto ptr = std::make_unique<tcp_session>(client_sd,
+                                                         tcp_session_data{addr, ntohs(client_addr.sin_port), 5678});
+                this->session_generator::generate_event(session_t<tcp_session>(1, std::move(ptr)));
 
             }
         });
@@ -93,23 +90,20 @@ tcp_protocol::~tcp_protocol() {
     close(sd);
 }
 
-std::unique_ptr<tcp_session> tcp_protocol::start_session() {
+session_t<tcp_session> tcp_protocol::start_session() {
     int session_sd = socket(AF_INET,
                             SOCK_STREAM,
                             IPPROTO_TCP);
     if (session_sd == -1) {
-        cerr << "can't open socket" << endl;
-        return nullptr;
+        throw "can't open socket";
     }
 
     int enabled = 1;
     if (setsockopt(session_sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == -1) {
-        cerr << "can't setsockopt reuseaddr" << endl;
-        return nullptr;
+        throw "can't setsockopt reuseaddr";
     }
     if (setsockopt(session_sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == -1) {
-        cerr << "can't setsockopt tcp_nodelay" << endl;
-        return nullptr;
+        throw "can't setsockopt tcp_nodelay";
     }
 
     struct sockaddr_in my_addr;
@@ -126,8 +120,7 @@ std::unique_ptr<tcp_session> tcp_protocol::start_session() {
         address.sin_addr.s_addr = INADDR_ANY;
         address.sin_port = htons(next_source_port.get_next_choice());
         if (bind(session_sd, (struct sockaddr *) &address, sizeof(address)) == -1) {
-            cerr << "can't bind to local port" << endl;
-            return nullptr;
+            throw "can't bind to local port";
         }
     }
 
@@ -136,16 +129,17 @@ std::unique_ptr<tcp_session> tcp_protocol::start_session() {
                 (struct sockaddr *) &my_addr,
                 sizeof(my_addr)
     ) < 0) {
-        cerr << "can't connect to the server" << endl;
-        return nullptr;
+        throw "can't connect to the server";
     }
 
     std::cout << "connected to the tcp server" << std::endl;
 
-    return std::move(std::make_unique<tcp_session>(
-            session_sd,
-            tcp_session_data{ip4_addr{next_addr.get_next_choice()}, next_source_port.get_next_choice(),
-                             next_dest_port.get_next_choice()}
-    ));
+    return session_t<tcp_session>(1,
+                                  std::make_unique<tcp_session>(session_sd,
+                                                                tcp_session_data{
+                                                                        ip4_addr{next_addr.get_next_choice()},
+                                                                        next_source_port.get_next_choice(),
+                                                                        next_dest_port.get_next_choice()})
+    );
 
 }

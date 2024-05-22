@@ -10,7 +10,7 @@ ethernet_protocol::ethernet_protocol() {
 }
 
 
-int ethernet_protocol::send_data(send_msg<>& msg) {
+int ethernet_protocol::send_data(send_msg<>&& msg) {
     uint8_t* buff = msg.get_reserve_buff();
 
     // setup ethernet
@@ -35,12 +35,11 @@ int ethernet_protocol::send_data(send_msg<>& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(struct ether_header) + msg.get_count());
-    return gateway->send_data(msg);
+    return gateway->send_data(std::move(msg));
 
 }
 
-void ethernet_protocol::handle_received_event(received_msg& msg) {
-//    cout << "ethernet aggregator app_handler called" << endl;
+void ethernet_protocol::handle_received_event(received_msg&& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct ether_header *eth_header = (struct ether_header *) buff;
@@ -49,11 +48,13 @@ void ethernet_protocol::handle_received_event(received_msg& msg) {
     msg.protocol_offsets.push_back({msg.curr_offset, ETHERNET});
     msg.curr_offset += sizeof(struct ether_header);
 
-    if (default_handler != nullptr)
-        default_handler->handle_received_event(msg);
+    if (default_handler != nullptr) {
+        received_msg copy(msg);
+        default_handler->handle_received_event(std::move(copy));
+    }
 
     if (protocol_handlers.is_key_assigned(ethertype)) {
-        protocol_handlers.get_val_of_key(ethertype)->handle_received_event(msg);
+        protocol_handlers.get_val_of_key(ethertype)->handle_received_event(std::move(msg));
 //        return;
     }
 

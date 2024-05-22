@@ -5,19 +5,19 @@
 #include <vector>
 #include <iostream>
 #include "basic_firewall_filter.h"
-#include "../connection/msg_connection.h"
+#include "../connection/connection.h"
 
-class firewall : public msg_connection {
-    msg_connection * base;
+class firewall : public connection {
+    connection * base;
 public:
-    explicit firewall(msg_connection *base) : base(base) {
+    explicit firewall(connection *base) : base(base) {
         base->add_listener(this);
     }
 
     std::vector<basic_firewall_filter<send_msg<>>*> outgoing_filters; // filters to apply on outgoing packets
     std::vector<basic_firewall_filter<received_msg>*> incoming_filters; // filters to apply to incoming packets
 
-    int send_data(send_msg<> &val) override { // todo fix the override of multi_sender
+    int send_data(send_msg<> &&val) override { // todo fix the override of send_multiplexer
         for (const auto& filter : outgoing_filters) {
             // create a copy of the message and pass it to the filter
             send_msg<> msg_copy = val;
@@ -39,7 +39,7 @@ public:
         return base->send_data(val);
     }
 
-    void handle_received_event(received_msg &event) override {
+    void handle_received_event(received_msg &&event) override {
         for (const auto& filter : incoming_filters) {
             // create a copy of the message and pass it to the filter
             received_msg msg_copy = event;
@@ -58,7 +58,7 @@ public:
         }
 
 //        std::cout << "firewall accepted incoming packet" << std::endl;
-        multi_receiver::handle_received_event(event);
+        receive_multiplexer::handle_received_event(event);
     }
 
 

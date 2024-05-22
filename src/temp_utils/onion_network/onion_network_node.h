@@ -13,7 +13,7 @@ class onion_network_node {
 
     class udp_server udpServer;
 
-    class server_app_handler : public basic_receiver<udp_packet_stack>, public msg_connection {
+    class server_app_handler : public basic_receiver<udp_packet_stack>, public connection {
     public:
         onion_network_node* master;
 
@@ -23,20 +23,20 @@ class onion_network_node {
 
         ip4_addr ip_source;
         int port_source;
-        void handle_received_event(udp_packet_stack& event) override {
+        void handle_received_event(udp_packet_stack&& event) override {
             ip_source = event.source_addr;
             port_source = event.source_port;
-            this->multi_receiver::handle_received_event(event.msg);
+            this->receive_multiplexer::handle_received_event(std::move(event.msg));
         }
 
-        int send_data(send_msg<>& val) override {
+        int send_data(send_msg<>&& val) override {
             return master->udpServer.send_data_to_client(ip_source, port_source, val);
         }
     };
     server_app_handler udp_single_conn;
 
 public:
-    onion_network_node(ip4_addr src_ip, msg_gateway* network_layer_gw) : proxy(src_ip, network_layer_gw), udpServer(ONION_NETWORK_NODE_LISTEN_PORT, src_ip, network_layer_gw), udp_single_conn(this) {
+    onion_network_node(ip4_addr src_ip, gateway* network_layer_gw) : proxy(src_ip, network_layer_gw), udpServer(ONION_NETWORK_NODE_LISTEN_PORT, src_ip, network_layer_gw), udp_single_conn(this) {
         // add a single connection to the onion_network
         proxy.set_proxied_connection(&udp_single_conn);
     }

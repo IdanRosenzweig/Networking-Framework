@@ -6,7 +6,7 @@
 using namespace std;
 
 
-int udp_protocol::send_data(send_msg<>& msg) {
+int udp_protocol::send_data(send_msg<>&& msg) {
     uint8_t* buff = msg.get_reserve_buff();
 
     // udp_client_server header
@@ -23,27 +23,26 @@ int udp_protocol::send_data(send_msg<>& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(udp_header) + msg.get_count());
-    return gateway->send_data(msg);
+    return gateway->send_data(std::move(msg));
 }
 
-void udp_protocol::handle_received_event(received_msg& msg) {
+void udp_protocol::handle_received_event(received_msg&& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct udp_header *udp = (struct udp_header *) buff;
     uint16_t port = ntohs(udp->dest_port);
 
-
     msg.protocol_offsets.push_back({msg.curr_offset, UDP});
     msg.curr_offset += sizeof(struct udp_header);
 
-//    cout << "udp_client_server aggregator app_handler called on port " << port << endl;
 
-    if (default_handler != nullptr)
-        default_handler->handle_received_event(msg);
+    if (default_handler != nullptr) {
+        received_msg copy(msg);
+        default_handler->handle_received_event(std::move(copy));
+    }
 
     if (port_handlers.is_key_assigned(port)) {
-//        cout << "found assigned port: " << port << endl;
-         port_handlers.get_val_of_key(port)->handle_received_event(msg);
+         port_handlers.get_val_of_key(port)->handle_received_event(std::move(msg));
 //         return;
     }
 

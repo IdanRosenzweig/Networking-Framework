@@ -6,7 +6,7 @@
 #include "onion_network_common.h"
 #include <vector>
 
-class onion_network_client : public msg_gateway {
+class onion_network_client : public gateway {
 public:
     struct chain_node {
         std::unique_ptr<udp_client> udp = nullptr;
@@ -14,12 +14,12 @@ public:
     };
     std::vector<chain_node> proxies_chain;
 
-    onion_network_client(const vector<ip4_addr>& chain, ip4_addr src_ip, msg_gateway* network_layer_gw) {
+    onion_network_client(const vector<ip4_addr>& chain, ip4_addr src_ip, gateway* network_layer_gw) {
         int len = chain.size();
         for (int i = 0; i < len; i++) {
             chain_node node;
 
-            msg_gateway* gw = (i > 0) ? (msg_gateway*) proxies_chain.back().proxy.get() : network_layer_gw;
+            gateway* gw = (i > 0) ? (gateway*) proxies_chain.back().proxy.get() : network_layer_gw;
             node.udp = std::make_unique<udp_client>(chain[i], ONION_NETWORK_NODE_LISTEN_PORT, 2001, src_ip, gw);
 
             node.proxy = std::make_unique<ip_proxy_client>(node.udp.get());
@@ -27,15 +27,15 @@ public:
             proxies_chain.push_back(std::move(node));
         }
 
-        ((msg_gateway*) proxies_chain.back().proxy.get())->add_listener(this);
+        ((gateway*) proxies_chain.back().proxy.get())->add_listener(this);
     }
 
-    int send_data(send_msg<>& val) override {
-        return proxies_chain.back().proxy->send_data(val);
+    int send_data(send_msg<>&& val) override {
+        return proxies_chain.back().proxy->send_data(std::move(val));
     }
 
-    void handle_received_event(received_msg &event) override {
-        multi_receiver::handle_received_event(event);
+    void handle_received_event(received_msg &&event) override {
+        receive_multiplexer::handle_received_event(std::move(event));
     }
 
 };

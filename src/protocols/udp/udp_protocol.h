@@ -11,23 +11,22 @@ class udp_protocol : public msg_sender, public msg_receiver {
 public:
 
     udp_protocol() {
-        system("sudo iptables -A OUTPUT -p icmp --icmp-type destination-unreachable -j DROP");
+        system("sudo iptables -A OUTPUT -p icmp --icmp-type destination-unreachable -j DROP > /dev/null");
 
     }
 
     // send
     next_choice<int> next_source_port;
     next_choice<int> next_dest_port;
-
     msg_sender* gateway;
 
-    int send_data(send_msg<>& msg) override;
+    int send_data(send_msg<>&& msg) override;
+
 
     // recv
     multiplexer<int, basic_receiver*> port_handlers;
     basic_receiver* default_handler = nullptr;
-
-    void handle_received_event(received_msg& msg) override;
+    void handle_received_event(received_msg&& msg) override;
 
 };
 

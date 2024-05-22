@@ -5,7 +5,7 @@
 using namespace std;
 
 
-int emp::send_data(send_msg<>& msg) {
+int emp::send_data(send_msg<>&& msg) {
     uint8_t *buff = msg.get_reserve_buff();
     uint8_t *curr_buff = buff;
 
@@ -17,10 +17,10 @@ int emp::send_data(send_msg<>& msg) {
 
     msg.toggle_active_buff();
     msg.set_count((int) (curr_buff - buff));
-    return gateway->send_data(msg);
+    return gateway->send_data(std::move(msg));
 }
 
-void emp::handle_received_event(received_msg& msg) {
+void emp::handle_received_event(received_msg&& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
     uint8_t *curr_buff = buff;
 
@@ -32,10 +32,13 @@ void emp::handle_received_event(received_msg& msg) {
     msg.protocol_offsets.push_back({msg.curr_offset, BS_PORT});
     msg.curr_offset += (int) (curr_buff - buff);
 
-    if (default_handler != nullptr)
-        default_handler->handle_received_event(msg);
+
+    if (default_handler != nullptr) {
+        received_msg copy(msg);
+        default_handler->handle_received_event(std::move(copy));
+    }
 
     auto it = endpoints_handlers.search(dest);
-    if (it != nullptr) it->key->handle_received_event(msg);
+    if (it != nullptr) it->key->handle_received_event(std::move(msg));
 
 }

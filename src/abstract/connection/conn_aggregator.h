@@ -3,8 +3,8 @@
 
 #include "../sending/msg/msg_sender.h"
 #include "../receiving/msg/msg_receiver.h"
-#include "msg_connection.h"
-#include "../gateway/basic_gateway.h"
+#include "connection.h"
+#include "../gateway/gateway.h"
 #include <vector>
 class conn_aggregator;
 
@@ -17,22 +17,22 @@ public:
 
     conn_aggregator() {}
 
-    void add_connection(msg_connection* conn);
+    void add_connection(connection* conn);
 
 };
 
 
 class conn_handler : public msg_sender, public msg_receiver {
     conn_aggregator* master;
-    msg_connection* my_conn;
+    connection* my_conn;
 
 public:
 
-    conn_handler(conn_aggregator *master, msg_connection *conn);
+    conn_handler(conn_aggregator *master, connection *conn);
 
-    int send_data(send_msg<>& val) override;
+    int send_data(send_msg<>&& val) override;
 
-    void handle_received_event(received_msg &event) override;
+    void handle_received_event(received_msg &&event) override;
 
 };
 

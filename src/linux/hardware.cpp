@@ -6,6 +6,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <iostream>
+using namespace std;
 
 mac_addr get_mac_addr_of_iface(const string &iface) {
     struct ifreq ifr;
@@ -40,4 +42,35 @@ ip4_addr get_ip_addr_of_iface(const string &iface) {
     extract_from_network_order(&ip,
                                (uint8_t*) &((struct sockaddr_in *) &my_priv_ip.ifr_addr)->sin_addr.s_addr);
     return ip;
+}
+
+ip4_addr get_default_gateway_of_iface(const string &iface) {
+#define ROUTE_FILE "/proc/net/route"
+    FILE *fp = fopen(ROUTE_FILE, "r");
+    if (fp == nullptr)
+        throw "can't open /proc/net/route";
+
+    // Skip the first line (header)
+    char buffer[2000];
+    if (fgets(buffer, sizeof(buffer), fp) == nullptr)
+        throw "invalid header of /proc/net/route";
+
+    char curr_iface[IFNAMSIZ];
+    uint32_t dest, gw;
+    while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
+        memset(curr_iface, 0, IFNAMSIZ);
+        int res = sscanf(buffer, "%s %x %x", curr_iface, &dest, &gw);
+        if (res != 3) continue;
+        if (strcmp(curr_iface, iface.c_str()) != 0 || dest != 0) continue;
+
+        ip4_addr gw_ip;
+        extract_from_network_order(&gw_ip, (uint8_t*) &gw);
+
+        fclose(fp);
+        return gw_ip;
+    }
+
+    fclose(fp);
+    return empty_ip4_addr;
+
 }

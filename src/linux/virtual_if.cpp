@@ -5,8 +5,8 @@
 #include <iostream>
 using namespace std;
 
-linux_virtual_iface::linux_virtual_iface(msg_gateway *gw, char *dev) : gateway(gw) {
-    gateway->add_listener(this);
+linux_virtual_iface::linux_virtual_iface(gateway *gw, char *dev) : base_gw(gw) {
+    base_gw->add_listener(this);
 
     fd = open_raw_tap(dev);
     if (fd == -1)
@@ -25,14 +25,14 @@ linux_virtual_iface::linux_virtual_iface(msg_gateway *gw, char *dev) : gateway(g
 
 //            cout << "tap sending " << cnt << " bytes" << endl;
             send.set_count(cnt);
-            this->gateway->send_data(send);
+            this->base_gw->send_data(std::move(send));
         }
     });
 }
 
-void linux_virtual_iface::handle_received_event(received_msg &event) {
+void linux_virtual_iface::handle_received_event(received_msg &&event) {
     int cnt = event.data.size() - event.curr_offset;
-    cout << "tap received " << cnt << " bytes" << endl;
+//    cout << "tap received " << cnt << " bytes" << endl;
     write(fd, event.data.data() + event.curr_offset, event.data.size() - event.curr_offset);
 //    write(fd, event.data_t.get(), event.data.size());
 }
