@@ -44,7 +44,8 @@ public:
     }
 
     firewall_policy calc_policy(received_msg &msg) override {
-        ether_prot.handle_received_event(msg);
+        received_msg copy = msg;
+        ether_prot.handle_received_event(std::move(copy));
 
         if (blocked_flag) {
             blocked_flag = false;

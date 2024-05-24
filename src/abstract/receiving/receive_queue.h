@@ -9,16 +9,10 @@
 template <typename T>
 class receive_queue : public basic_receiver<T> {
 public:
-    circular_buffer<T> event_queue;
+    circular_buffer<T> recv_queue;
 
     void handle_received_event(T&& event) override {
-        event_queue.push_back(event);
-    }
-
-    T front_data() {
-        T front(event_queue.front());
-        event_queue.pop_front();
-        return front;
+        recv_queue.push_back(event);
     }
 
 };

@@ -9,8 +9,10 @@ linux_virtual_iface::linux_virtual_iface(gateway *gw, string& iface_name) : base
     base_gw->add_listener(this);
 
     fd = open_raw_tap(iface_name);
-    if (fd == -1)
-        throw "can't create virual tap interface";
+    if (fd == -1) {
+        std::cerr << "can't create virual tap interface" << endl;
+        throw;
+    }
 
     set_up_tun_tap(iface_name);
 

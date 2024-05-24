@@ -50,7 +50,7 @@ public:
 
 
     // spoof the victims_ip devices into thinking that the target_ip address
-    // is associated with the source (empty victim list means broadcast)
+    // is associated with the source (is_empty victim list means broadcast)
     void spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr target_ip,
                          mac_addr src_mac, ip4_addr src_ip);
 

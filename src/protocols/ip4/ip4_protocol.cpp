@@ -27,7 +27,7 @@ int ip4_protocol::send_data(send_msg<>&& msg) {
     iph->tos = 0;
     int ip_packet_len = sizeof(struct iphdr) + msg.get_count();
     iph->tot_len = htons(ip_packet_len);
-    iph->id = htons(0x1234);
+    iph->id = htons(4444);
     iph->frag_off = 0;
     iph->ttl = next_ttl.get_next_choice();
     iph->protocol = next_protocol.get_next_choice();

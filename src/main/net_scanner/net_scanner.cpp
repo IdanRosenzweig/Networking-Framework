@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "scan for single ip address")
             ("subnet", po::value<string>(), "scan all ip addresses in a subnet");
 
@@ -49,11 +49,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string iface = vm["interface"].as<string>();
+    string iface = vm["iface"].as<string>();
 
     if (vm.count("ip")) {
         arp_scan_single_main(iface, convert_to_ip4_addr(vm["ip"].as<string>()));

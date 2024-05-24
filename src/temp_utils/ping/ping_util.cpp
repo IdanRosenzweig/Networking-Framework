@@ -45,59 +45,69 @@ void ping_util::ping_node() {
 
         std::this_thread::sleep_for(delay_interval.get_next_choice());
 
-        // count start time
-        const auto start = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::high_resolution_clock::now(); // count start time
 
-        send_msg send;
-        memcpy(send.get_active_buff(), data, data_sz);
-        send.set_count(data_sz);
-        if (icmp_client.send_data(std::move(send)) < 1) {
-            std::cerr << "Failed to send packet" << std::endl;
-            continue;
-        }
-
-        std::cout << "waiting for icmp reply" << endl;
+        recv_queue.clear();
         while (true) {
-            received_msg msg = raw_icmp.front();
-            raw_icmp.pop_front();
-            uint8_t *buf = msg.data.data() + msg.protocol_offsets.back().first;
+            // send
+            send_msg send;
+            memcpy(send.get_active_buff(), data, data_sz);
+            send.set_count(data_sz);
 
-            const auto end = std::chrono::high_resolution_clock::now();
+            if (icmp_client.send_data(std::move(send)) < 1) {
+                std::cerr << "Failed to send packet" << std::endl;
+                continue;
+            }
+
+            // recv
+            std::cout << "sent icmp echo" << endl;
+
+            received_msg* msg = recv_queue.front<500>();
+            if (msg == nullptr) {
+                std::cerr << "no reply was received after reasonable time, sending again" << endl;
+                continue;
+            }
+            recv_queue.clear();
+
+            // handle response
+            auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-            icmp_header *reply = reinterpret_cast<icmp_header *>(buf);
+            uint8_t *buf = msg->data.data() + msg->protocol_offsets.back().first;
+            icmp_header *icmp_reply = reinterpret_cast<icmp_header *>(buf);
 
             bool failed = false;
-            switch (reply->type) {
+            switch (icmp_reply->type) {
                 case ICMP_TIME_EXCEEDED: {
-                    std::cout << "Time Exceeded" << std::endl;
+                    std::cerr << "received time Exceeded" << std::endl;
                     failed = true;
                     break;
                 }
                 case ICMP_DEST_UNREACH: {
-                    std::cout << "Destination Unreachable" << std::endl;
+                    std::cerr << "received destination unreachable" << std::endl;
                     failed = true;
                     break;
                 }
                 case ICMP_ECHOREPLY: {
-                    if (reply->content.echo.id != content.id) {
-                        std::cout << "echo id doesn't match" << std::endl;
+                    if (icmp_reply->content.echo.id != content.id) {
+                        std::cerr << "received icmp reply with non-matching id" << std::endl;
                         failed = true;
                         break;
                     }
-                    std::cout << "received icmp reply: seq=" << content.sequence
-                              << " rrt=" << duration.count() << " millisecs" << std::endl;
+                    std::cout << "received icmp reply\tseq_num=" << content.sequence
+                              << "\tdelay=" << duration.count() << " millisecs" << std::endl;
                     break;
                 }
                 default:
                     failed = true;
             }
-            if (failed) continue;
 
-            break;
+            if (!failed) break;
+
         }
 
         content.sequence++;
+        icmp_client.next_content.set_next_choice(*(uint32_t*) &content);
         i++;
 
     } while (i < count.get_next_choice());

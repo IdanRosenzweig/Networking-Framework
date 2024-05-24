@@ -31,35 +31,35 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
 //    memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
 
 
-    // send
     ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
     ether_client.next_source_addr.set_next_choice(src_mac);
     ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
 
-    int cnt = sizeof(ether_arp);
-    send_msg<> request;
-    memcpy(request.get_active_buff(), buff, cnt);
-    request.set_count(cnt);
-    ether_client.send_data(std::move(request));
+    while (true) {
+        // send frame
+        int cnt = sizeof(ether_arp);
+        send_msg<> request;
+        memcpy(request.get_active_buff(), buff, cnt);
+        request.set_count(cnt);
+        ether_client.send_data(std::move(request));
 
-    // wait some reasonable time
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(2000ms);
+        // recv frame
+        received_msg* reply = recv_queue.front<50>();
+        if (reply == nullptr) continue; // didn't receive a response in a reasonable time, continue and send again
+        recv_queue.clear();
 
-    // receive reply
-    if (event_queue.empty()) return mac_addr{0};
+        uint8_t *reply_buff = reply->data.data() + reply->curr_offset;
 
-    auto reply = front_data();
-    uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
+        struct ether_arp *arp_reply = (struct ether_arp *) reply_buff;
+        if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
+            cerr << "received arp not of type reply" << endl;
+            continue;
+        }
 
-    struct ether_arp *arp_reply = (struct ether_arp *) reply_buff;
-    if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY) {
-        return mac_addr{0};
+        mac_addr res{};
+        memcpy(res.octets, arp_reply->arp_sha, sizeof(res.octets));
+        return res;
     }
-
-    mac_addr res{};
-    memcpy(res.octets, arp_reply->arp_sha, sizeof(res.octets));
-    return res;
 }
 
 vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip) {
@@ -112,9 +112,10 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
     std::this_thread::sleep_for(3000ms);
 
     vector<pair<ip4_addr, mac_addr>> res;
-    while (!event_queue.empty()) {
-        auto reply = front_data();
-        uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
+    while (!recv_queue.is_empty()) {
+        received_msg* reply = recv_queue.front<0>();
+        recv_queue.pop_front();
+        uint8_t *reply_buff = reply->data.data() + reply->curr_offset;
 
         struct ether_arp *arp_reply = (struct ether_arp *) reply_buff;
         if (ntohs(arp_reply->ea_hdr.ar_op) != ARPOP_REPLY)

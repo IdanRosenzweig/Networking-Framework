@@ -5,14 +5,14 @@
 #include <iostream>
 using namespace std;
 
-void ping_main(const string& iface, ip4_addr dest_ip, int count) {
+void ping_main(const string& iface, ip4_addr dest_ip, int count, std::chrono::milliseconds interval) {
 
 //    ping_util pinger(convert_to_ip4_addr("10.100.102.31"), new network_layer_gateway(iface));
     ping_util pinger(get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
 
     pinger.dest_ip.set_next_choice(dest_ip);
     pinger.count.set_next_choice(count);
-    pinger.delay_interval.set_next_choice(1000ms);
+    pinger.delay_interval.set_next_choice(interval);
 
     pinger.ping_node();
 
@@ -24,9 +24,10 @@ int main(int argc, char** argv) {
     po::options_description opts("ping devices on ip network");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "dest ip to ping")
-            ("count", po::value<int>(), "number of times to ping. if no specified, 10 by default");
+            ("interval,i", po::value<int>(), "interval in ms between pings. 1000ms by default")
+    ("count", po::value<int>(), "number of times to ping. 10 by default");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);
@@ -37,11 +38,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string interface = vm["interface"].as<string>();
+    string interface = vm["iface"].as<string>();
 
     if (!vm.count("ip")) {
         std::cout << opts << endl;
@@ -53,7 +54,11 @@ int main(int argc, char** argv) {
     if (!vm.count("count")) count = 10;
     else count = vm["count"].as<int>();
 
-    ping_main(interface, convert_to_ip4_addr(dest), count);
+    int interval;
+    if (!vm.count("interval")) interval = 1000;
+    else interval = vm["interval"].as<int>();
 
-//    ping_main("enp0s3", convert_to_ip4_addr("10.100.102.3"), 10);
+    ping_main(interface, convert_to_ip4_addr(dest), count, std::chrono::milliseconds(interval));
+
+//    ping_main("enp0s3", convert_to_ip4_addr("74.6.231.20"), 10);
 }

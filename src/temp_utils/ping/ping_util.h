@@ -7,15 +7,10 @@
 #include "../../abstract/utils/circular_buffer.h"
 #include "../../abstract/gateway/gateway.h"
 
-class ping_util : msg_receiver {
+class ping_util : private receive_queue<received_msg> {
     gateway *network_layer_gw;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
-
-    circular_buffer<received_msg> raw_icmp;
-    void handle_received_event(received_msg &&event) override {
-        raw_icmp.push_back(event);
-    }
 
 public:
     ping_util(ip4_addr src_ip, gateway* gw);

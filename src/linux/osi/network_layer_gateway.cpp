@@ -11,7 +11,7 @@ network_layer_gateway::network_layer_gateway(const string &interface) : interfac
     mac_addr my_mac = get_mac_addr_of_iface(interface);
     ip4_addr my_ip = get_ip_addr_of_iface(interface);
     ip4_addr default_gw = get_default_gateway_of_iface(interface);
-    std::cout << "default gateway is " << convert_to_str(default_gw) << endl;
+//    std::cout << "default gateway is " << convert_to_str(default_gw) << endl;
 
     // send
     ether_prot.gateway = &interfaceGateway;

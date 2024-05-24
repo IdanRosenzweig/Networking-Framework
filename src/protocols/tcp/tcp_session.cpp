@@ -59,7 +59,7 @@ int tcp_session_conn::send_data(send_msg<>&& msg) {
     int error = 0;
     socklen_t len = sizeof(error);
     if (getsockopt(sd, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
-        perror("getsockopt");
+        std::cerr << "can't getsockopt" << std::endl;
         throw;
     }
     if (error != 0) {
@@ -68,7 +68,10 @@ int tcp_session_conn::send_data(send_msg<>&& msg) {
                 alive = false;
                 break;
             }
-            default: throw "socket err";
+            default: {
+                std::cerr << "socket err" << std::endl;
+                throw;
+            }
         }
         return 0;
     }

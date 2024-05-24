@@ -24,7 +24,8 @@ public:
     }
 
     firewall_policy calc_policy(received_msg& msg) override {
-        ip_prot.handle_received_event(msg);
+        received_msg copy = msg;
+        ip_prot.handle_received_event(std::move(copy));
 
         int cnt = counter.get_count();
         counter.reset();

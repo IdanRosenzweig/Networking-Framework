@@ -1,4 +1,5 @@
 #include "protocol_t.h"
+#include <iostream>
 
 std::string convert_to_str(protocol_t prot) {
     switch (prot) {
@@ -22,6 +23,8 @@ protocol_t convert_str_to_protocol_t(const std::string& prot) {
     else if (prot == "tcp") return TCP;
     else if (prot == "icmp") return ICMP;
     else if (prot == "dns") return DNS;
-    else
-        throw "invalid protocol";
+    else {
+        std::cerr << "invalid protocol" << std::endl;
+        throw;
+    }
 }

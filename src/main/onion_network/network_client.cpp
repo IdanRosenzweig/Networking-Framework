@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use to connect to the first node in the path")
+            ("iface", po::value<string>(), "linux interface to use to connect to the first node in the path")
             ("path,p", po::value<vector<string>>()->multitoken(),
              "the path along the onion network to use");
 
@@ -116,11 +116,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string iface = vm["interface"].as<string>();
+    string iface = vm["iface"].as<string>();
 
     if (!vm.count("path")) {
         std::cout << opts << endl;

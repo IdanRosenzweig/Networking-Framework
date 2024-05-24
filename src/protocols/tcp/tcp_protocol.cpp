@@ -97,15 +97,18 @@ tcp_session_type tcp_protocol::start_session() {
                             SOCK_STREAM,
                             IPPROTO_TCP);
     if (session_sd == -1) {
-        throw "can't open socket";
+        std::cerr << "can't open socket" << std::endl;
+        throw;
     }
 
     int enabled = 1;
     if (setsockopt(session_sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == -1) {
-        throw "can't setsockopt reuseaddr";
+        std::cerr << "can't setsockopt reuseaddr" << std::endl;
+        throw;
     }
     if (setsockopt(session_sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == -1) {
-        throw "can't setsockopt tcp_nodelay";
+        std::cerr << "can't setsockopt tcp_nodelay" << std::endl;
+        throw;
     }
 
     struct sockaddr_in my_addr;
@@ -122,7 +125,8 @@ tcp_session_type tcp_protocol::start_session() {
         address.sin_addr.s_addr = INADDR_ANY;
         address.sin_port = htons(next_source_port.get_next_choice());
         if (bind(session_sd, (struct sockaddr *) &address, sizeof(address)) == -1) {
-            throw "can't bind to local port";
+            std::cerr << "can't bind to local port" << std::endl;
+            throw;
         }
     }
 
@@ -131,7 +135,8 @@ tcp_session_type tcp_protocol::start_session() {
                 (struct sockaddr *) &my_addr,
                 sizeof(my_addr)
     ) < 0) {
-        throw "can't connect to the server";
+        std::cerr << "can't connect to the server" << std::endl;
+        throw;
     }
 
     std::cout << "connected to the tcp server" << std::endl;

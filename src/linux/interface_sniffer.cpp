@@ -6,8 +6,12 @@ using namespace std;
 void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
     interface_sniffer *sniffer = reinterpret_cast<interface_sniffer *>(user);
 
-    int data_sz = pkthdr->len;
-    if (data_sz <= 0) return;
+    int data_sz = pkthdr->caplen;
+    if (data_sz <= 0) {
+//        cerr << "pcap recieved size " << data_sz << endl;
+        return;
+    }
+//    cout << "pcap recieved size " << data_sz << endl;
 
     received_msg msg;
     msg.data = udata_t(data_sz, 0x00);
@@ -19,8 +23,12 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
 void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
     interface_sniffer *sniffer = reinterpret_cast<interface_sniffer *>(user);
 
-    int data_sz = pkthdr->len;
-    if (data_sz <= 0) return;
+    int data_sz = pkthdr->caplen;
+    if (data_sz <= 0) {
+//        cerr << "pcap recieved size " << data_sz << endl;
+        return;
+    }
+//    cout << "pcap recieved size " << data_sz << endl;
 
     received_msg msg;
     msg.data = udata_t(data_sz, 0x00);
@@ -72,11 +80,11 @@ interface_sniffer::interface_sniffer(const string& interface) {
 //        }
 //
 //        // Step 3: Set the timeout to 10 ms (optional, since immediate mode should bypass this)
-//        if (pcap_set_timeout(traffic_in, 10) != 0) {
-//            std::cerr << "pcap_set_timeout() failed: " << pcap_geterr(traffic_in) << std::endl;
-//            pcap_close(traffic_in);
-//            return;
-//        }
+////        if (pcap_set_timeout(traffic_in, 10) != 0) {
+////            std::cerr << "pcap_set_timeout() failed: " << pcap_geterr(traffic_in) << std::endl;
+////            pcap_close(traffic_in);
+////            return;
+////        }
 //
 //        // Step 4: Activate the handle
 //        if (pcap_activate(traffic_in) != 0) {
@@ -150,11 +158,11 @@ interface_sniffer::interface_sniffer(const string& interface) {
 //        }
 //
 //        // Step 3: Set the timeout to 10 ms (optional, since immediate mode should bypass this)
-//        if (pcap_set_timeout(traffic_out, 10) != 0) {
-//            std::cerr << "pcap_set_timeout() failed: " << pcap_geterr(traffic_out) << std::endl;
-//            pcap_close(traffic_out);
-//            return;
-//        }
+////        if (pcap_set_timeout(traffic_out, 10) != 0) {
+////            std::cerr << "pcap_set_timeout() failed: " << pcap_geterr(traffic_out) << std::endl;
+////            pcap_close(traffic_out);
+////            return;
+////        }
 //
 //        // Step 4: Activate the handle
 //        if (pcap_activate(traffic_out) != 0) {
@@ -188,14 +196,8 @@ interface_sniffer::interface_sniffer(const string& interface) {
 //        });
 //    }
 
-    // todo sleep here?
-//    while (!worker_out.joinable()) {
-//        std::this_thread::sleep_for(10ms);
-//    }
-//    while (!worker_in.joinable()) {
-//        std::this_thread::sleep_for(10ms);
-//    }
-    sleep(2); // ensure the pcap_loop has started
+//    std::this_thread::sleep_for(2000ms); // ensure the pcap_loop has started
+
 }
 
 interface_sniffer::~interface_sniffer() {

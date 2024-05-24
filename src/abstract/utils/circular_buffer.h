@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <thread>
+#include <thread>
 
 template <typename T, int BUFF_SZ = 1024>
 struct circular_buffer {
@@ -18,41 +19,47 @@ public:
 
     circular_buffer() {}
 
-    inline bool empty() {
+    inline bool is_empty() {
         return count == 0;
     }
 
-    inline bool full() {
+    inline bool is_full() {
         return count == BUFF_SZ;
     }
 
-    template <bool WAIT_FOR_NON_EMPTY = true>
-    inline T front() {
-        if constexpr (WAIT_FOR_NON_EMPTY) {
-            while (empty()) { // todo this can be optimized by interrupting
-                using namespace std::chrono_literals;
-                std::this_thread::sleep_for(5ms);
-            }
-            return buff[base_in];
-        } else
-            return buff[base_in];
+    template <int MAX_MILLISEC_TIMEOUT = 1000>
+    inline T* front() {
+        if (!is_empty()) return &buff[base_in];
+
+        const auto start = std::chrono::high_resolution_clock::now();
+        while (is_empty()) {
+            const auto curr = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(curr - start);
+
+            if (duration > std::chrono::milliseconds(MAX_MILLISEC_TIMEOUT)) return nullptr;
+        }
+
+        return &buff[base_in];
     }
 
-    template <bool WAIT_FOR_NON_EMPTY = true>
-    inline T rear() {
-        if constexpr (WAIT_FOR_NON_EMPTY) {
-            while (empty()) { // todo this can be optimized by interrupting
-                using namespace std::chrono_literals;
-                std::this_thread::sleep_for(5ms);
-            }
-            return buff[(base_in + count - 1) % BUFF_SZ];
-        } else
-            return buff[(base_in + count - 1) % BUFF_SZ];
+    template <int MAX_MILLISEC_TIMEOUT = 1000>
+    inline T* rear() {
+        if (!is_empty()) return &buff[(base_in + count - 1) % BUFF_SZ];
+
+        const auto start = std::chrono::high_resolution_clock::now();
+        while (is_empty()) {
+            const auto curr = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(curr - start);
+
+            if (duration > std::chrono::milliseconds(MAX_MILLISEC_TIMEOUT)) return nullptr;
+        }
+
+        return &buff[(base_in + count - 1) % BUFF_SZ];
     }
 
 
     inline bool pop_front() {
-        if (empty()) return false;
+        if (is_empty()) return false;
 
         base_in = (base_in + 1) % BUFF_SZ;
         count--;
@@ -60,14 +67,18 @@ public:
     }
 
     inline bool pop_back() {
-        if (empty()) return false;
+        if (is_empty()) return false;
 
         count--;
         return true;
     }
 
+    inline void clear() {
+        count = 0;
+    }
+
     inline bool push_back(T val) {
-        if (full()) return false;
+        if (is_full()) return false;
 
         buff[(base_in + count) % BUFF_SZ] = std::move(val);
         count++;
@@ -75,7 +86,7 @@ public:
     }
 
     inline bool push_front(T val) {
-        if (full()) return false;
+        if (is_full()) return false;
 
         base_in = (base_in - 1 + BUFF_SZ) % BUFF_SZ;
         buff[base_in] = std::move(val);

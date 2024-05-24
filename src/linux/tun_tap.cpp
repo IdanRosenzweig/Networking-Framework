@@ -6,13 +6,15 @@
 #include <linux/if_tun.h>
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
 
 int open_tun_tap(std::string& iface_name, int flags) {
 #define CLONE_PATH "/dev/net/tun"
 
     int fd;
     if ((fd = open(CLONE_PATH, O_RDWR)) < 0) {
-        throw "can't open " CLONE_PATH;
+        std::cerr << "can't open " CLONE_PATH << std::endl;
+        throw;
     }
 
     struct ifreq ifr;
@@ -24,7 +26,8 @@ int open_tun_tap(std::string& iface_name, int flags) {
 
     if (ioctl(fd, TUNSETIFF, (void *) &ifr) < 0) {
         close(fd);
-        throw "error calling ioctl";
+        std::cerr << "error calling ioctl" << std::endl;
+        throw;
     }
 
     iface_name = ifr.ifr_name;

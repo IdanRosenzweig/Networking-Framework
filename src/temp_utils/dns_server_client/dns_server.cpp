@@ -165,5 +165,5 @@ void load_database(dns_server *server, const string& db_path) {
         }
 
     }
-    std::cout << "finished loading dns config" << endl;
+    std::cout << "finished loading dns database" << endl;
 }

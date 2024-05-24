@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     po::options_description opts("search path on ip network to dest device");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "dest ip to search path to");
 
     po::variables_map vm;
@@ -32,11 +32,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string interface = vm["interface"].as<string>();
+    string interface = vm["iface"].as<string>();
 
     if (!vm.count("ip")) {
         std::cout << opts << endl;

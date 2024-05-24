@@ -99,7 +99,8 @@ dns_record_type str_to_record_type(const string& str) {
     else if (str == "MX") return DNS_TYPE_MX;
     else if (str == "PTR") return DNS_TYPE_PTR;
     else {
-        throw "invalid record type";
+        std::cerr <<  "invalid record type" << endl;
+        throw;
     }
 }
 

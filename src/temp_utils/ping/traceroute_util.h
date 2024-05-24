@@ -3,15 +3,10 @@
 
 #include "ping_util.h"
 
-class traceroute_util : msg_receiver {
+class traceroute_util : private receive_queue<received_msg> {
     gateway * network_layer_gw;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;
-
-    circular_buffer<received_msg> raw_icmp;
-    void handle_received_event(received_msg &&event) override {
-        raw_icmp.push_back(event);
-    }
 
 public:
     traceroute_util(ip4_addr src_ip, gateway* gw);

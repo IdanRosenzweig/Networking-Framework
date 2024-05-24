@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("iface", po::value<string>(), "linux interface to use")
 
             ("client", "use as client")
             ("server", "use as server")
@@ -106,11 +106,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string iface = vm["interface"].as<string>();
+    string iface = vm["iface"].as<string>();
 
     bool server;
     if (vm.count("server")) server = true;

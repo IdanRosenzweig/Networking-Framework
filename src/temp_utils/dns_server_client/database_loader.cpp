@@ -33,7 +33,7 @@
 //        string type;
 //        input >> type;
 //
-//        if (type.empty()) continue;
+//        if (type.is_empty()) continue;
 //
 //        if (type == "a")
 //            add_a_record(server, input);

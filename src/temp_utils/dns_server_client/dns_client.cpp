@@ -44,125 +44,137 @@ void dns_client::query(dns_record_type type, const std::string& key) {
     query.q_class = 1; // the class
     queries_sz = write_in_network_order(buff + sizeof(struct dns_header) + queries_sz, &query);
 
-    // send the dns header
-    std::cout << "requesting 1 dns record" << endl;
-    int cnt = sizeof(struct dns_header) + queries_sz;
-    send_msg send;
-    memcpy(send.get_active_buff(), buff, cnt);
-    send.set_count(cnt);
-    udpClient.send_data(std::move(send));
+    while (true) {
+
+        // send the dns request
+        std::cout << "requesting 1 dns record" << endl;
+
+        int cnt = sizeof(struct dns_header) + queries_sz;
+        send_msg send;
+        memcpy(send.get_active_buff(), buff, cnt);
+        send.set_count(cnt);
+
+        udpClient.send_data(std::move(send));
 //    empClient.send_data(send);
 
-
-    // receive answer
-    received_msg reply = front_data();
-    uint8_t *reply_buff = reply.data.data() + reply.curr_offset;
-    uint8_t *curr_ptr = reply_buff;
-
-    struct dns_header response;
-    curr_ptr += extract_from_network_order(&response, curr_ptr);
-
-    std::cout << "received response" << endl;
-    uint16_t no_answers = response.ans_count;
-    std::cout << "- " << no_answers << " answers" << endl;
-    uint16_t no_authoritative_answers = response.auth_count;
-    std::cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
-    uint16_t no_addit_data = response.add_count;
-    std::cout << "- " << no_addit_data << " additional records data" << endl << endl;
-
-    // jump over the queries we sent
-    curr_ptr += queries_sz;
-
-    // read answers
-    if (no_answers > 0) {
-        vector<dns_answer> answers;
-        for (int i = 0; i < no_answers; i++) {
-            struct dns_answer curr;
-            curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
-            answers.push_back(std::move(curr));
+        // receive answer
+        received_msg* reply = recv_queue.front<200>();
+        if (reply == nullptr) {
+            std::cerr << "didn't receive dns resopnse in reasonable time, sending again" << endl;
+            continue;
         }
+        recv_queue.clear();
 
-        std::cout << "# answers:" << endl;
-        for (int i = 0; i < no_answers; i++) {
+        uint8_t *reply_buff = reply->data.data() + reply->curr_offset;
+        uint8_t *curr_ptr = reply_buff;
 
-            std::cout << "Name : " << answers[i].name.c_str() << ", ";
-            if (answers[i].type == DNS_TYPE_A)
-            {
-                struct sockaddr_in a;
-                a.sin_addr.s_addr = (*(uint32_t *) (answers[i].rdata.c_str()));
-                std::cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
+        struct dns_header response;
+        curr_ptr += extract_from_network_order(&response, curr_ptr);
 
-            } else if (answers[i].type == DNS_TYPE_CNAME) {
-                ustring decoded_name;
-                extract_encoded_name(
-                        &decoded_name, (uint8_t*) answers[i].rdata.c_str(), buff
-                );
-                decode_dns_name(decoded_name);
+        std::cout << "received response" << endl;
+        uint16_t no_answers = response.ans_count;
+        std::cout << "- " << no_answers << " answers" << endl;
+        uint16_t no_authoritative_answers = response.auth_count;
+        std::cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
+        uint16_t no_addit_data = response.add_count;
+        std::cout << "- " << no_addit_data << " additional records data" << endl << endl;
 
-                std::cout << "has alias key : " << decoded_name.c_str();
+        // jump over the queries we sent
+        curr_ptr += queries_sz;
 
-            } else if (answers[i].type == DNS_TYPE_MX) {
-                struct mx_rdata_t rdata;
-                extract_from_network_order(&rdata, (uint8_t *) answers[i].rdata.c_str(), buff);
-                std::cout << "has mail aggregator : " << rdata.domain.c_str();
+        // read answers
+        if (no_answers > 0) {
+            vector<dns_answer> answers;
+            for (int i = 0; i < no_answers; i++) {
+                struct dns_answer curr;
+                curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
+                answers.push_back(std::move(curr));
+            }
+
+            std::cout << "# answers:" << endl;
+            for (int i = 0; i < no_answers; i++) {
+
+                std::cout << "Name : " << answers[i].name.c_str() << ", ";
+                if (answers[i].type == DNS_TYPE_A)
+                {
+                    struct sockaddr_in a;
+                    a.sin_addr.s_addr = (*(uint32_t *) (answers[i].rdata.c_str()));
+                    std::cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
+
+                } else if (answers[i].type == DNS_TYPE_CNAME) {
+                    ustring decoded_name;
+                    extract_encoded_name(
+                            &decoded_name, (uint8_t*) answers[i].rdata.c_str(), buff
+                    );
+                    decode_dns_name(decoded_name);
+
+                    std::cout << "has alias key : " << decoded_name.c_str();
+
+                } else if (answers[i].type == DNS_TYPE_MX) {
+                    struct mx_rdata_t rdata;
+                    extract_from_network_order(&rdata, (uint8_t *) answers[i].rdata.c_str(), buff);
+                    std::cout << "has mail aggregator : " << rdata.domain.c_str();
+                }
+
+                std::cout << endl;
             }
 
             std::cout << endl;
         }
 
-        std::cout << endl;
-    }
-
-    // read authorities
-    if (no_authoritative_answers > 0) {
-        vector<dns_answer> auth;
-        for (int i = 0; i < no_authoritative_answers; i++) {
-            struct dns_answer curr;
-            curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
-            auth.push_back(std::move(curr));
-        }
-
-        std::cout << "# authoritative server answers:" << endl;
-        for (int i = 0; i < no_authoritative_answers; i++) {
-
-            if (auth[i].type == DNS_TYPE_NS) {
-                std::cout << "has nameserver: " << auth[i].rdata.c_str();
-            } else if (auth[i].type == DNS_TYPE_SOA) {
-                struct soa_rdata_t rdata;
-                extract_from_network_order(&rdata, (uint8_t *) auth[i].rdata.c_str(), buff);
-                std::cout << "start of authority:" << endl;
-                std::cout << "\t" << "primary server: " << rdata.primary_server.c_str() << endl;
-                std::cout << "\t" << "responsible mailbox: " << rdata.admin_mail_server.c_str() << endl;
+        // read authorities
+        if (no_authoritative_answers > 0) {
+            vector<dns_answer> auth;
+            for (int i = 0; i < no_authoritative_answers; i++) {
+                struct dns_answer curr;
+                curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
+                auth.push_back(std::move(curr));
             }
-        }
 
-        std::cout << endl;
-    }
+            std::cout << "# authoritative server answers:" << endl;
+            for (int i = 0; i < no_authoritative_answers; i++) {
 
-    // read additional
-    if (no_addit_data > 0) {
-        vector<dns_answer> addit;
-        for (int i = 0; i < no_addit_data; i++) {
-            struct dns_answer curr;
-            curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
-            addit.push_back(std::move(curr));
-        }
-
-        std::cout << "# additional records:" << endl;
-        for (int i = 0; i < no_addit_data; i++) {
-
-            std::cout << "Name : " << addit[i].name.c_str() << ", ";
-            if ((addit[i].type) == DNS_TYPE_A) {
-                struct sockaddr_in a;
-                a.sin_addr.s_addr = (*(uint32_t *) (addit[i].rdata.c_str()));
-                std::cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
-
+                if (auth[i].type == DNS_TYPE_NS) {
+                    std::cout << "has nameserver: " << auth[i].rdata.c_str();
+                } else if (auth[i].type == DNS_TYPE_SOA) {
+                    struct soa_rdata_t rdata;
+                    extract_from_network_order(&rdata, (uint8_t *) auth[i].rdata.c_str(), buff);
+                    std::cout << "start of authority:" << endl;
+                    std::cout << "\t" << "primary server: " << rdata.primary_server.c_str() << endl;
+                    std::cout << "\t" << "responsible mailbox: " << rdata.admin_mail_server.c_str() << endl;
+                }
             }
 
             std::cout << endl;
         }
 
-        std::cout << endl;
+        // read additional
+        if (no_addit_data > 0) {
+            vector<dns_answer> addit;
+            for (int i = 0; i < no_addit_data; i++) {
+                struct dns_answer curr;
+                curr_ptr += extract_from_network_order(&curr, curr_ptr, reply_buff);
+                addit.push_back(std::move(curr));
+            }
+
+            std::cout << "# additional records:" << endl;
+            for (int i = 0; i < no_addit_data; i++) {
+
+                std::cout << "Name : " << addit[i].name.c_str() << ", ";
+                if ((addit[i].type) == DNS_TYPE_A) {
+                    struct sockaddr_in a;
+                    a.sin_addr.s_addr = (*(uint32_t *) (addit[i].rdata.c_str()));
+                    std::cout << "has IPv4 address : " << inet_ntoa(a.sin_addr);
+
+                }
+
+                std::cout << endl;
+            }
+
+            std::cout << endl;
+        }
+
+        break;
     }
 
 }

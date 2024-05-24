@@ -6,12 +6,12 @@
 #include <boost/program_options.hpp>
 using namespace std;
 
-void bandwidth_main(const string& iface) {
+void bandwidth_main(const string& iface, std::chrono::milliseconds interval) {
     interface_sniffer sniffer(iface);
     bandwidth indicator(&sniffer);
 
     while (true) {
-        sleep(1);
+        std::this_thread::sleep_for(interval);
 
         std::cout << "in: " << indicator.bytes_in_cnt << " B\t" << "out: " << indicator.bytes_out_cnt << " B" << endl;
         indicator.bytes_in_cnt = 0;
@@ -25,7 +25,8 @@ int main(int argc, char** argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("iface", po::value<string>(), "linux interface to use")
+            ("interval,i", po::value<int>(), "interval (in ms) between status checks. 1000ms by default")
             ;
 
     po::variables_map vm;
@@ -37,12 +38,17 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string iface = vm["interface"].as<string>();
+    string iface = vm["iface"].as<string>();
 
-    bandwidth_main(iface);
+    int interval;
+    if (!vm.count("interval"))
+        interval = 1000;
+    else interval = vm["interval"].as<int>();
+
+    bandwidth_main(iface, std::chrono::milliseconds(interval));
 
 }

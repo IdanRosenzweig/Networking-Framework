@@ -40,7 +40,7 @@ public:
         }
 
 //        std::cout << "firewall accepted outgoing packet" << std::endl;
-        return base->send_data(val);
+        return base->send_data(std::move(val));
     }
 
     void handle_received_event(received_msg &&event) override {
@@ -62,7 +62,7 @@ public:
         }
 
 //        std::cout << "firewall accepted incoming packet" << std::endl;
-        receive_multiplexer::handle_received_event(event);
+        receive_multiplexer::handle_received_event(std::move(event));
     }
 
 

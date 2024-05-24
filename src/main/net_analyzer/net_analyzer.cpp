@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "interface to sniff traffic from")
+            ("iface", po::value<string>(), "interface to sniff traffic from")
 //            ("show-hexdump,h", po::value<bool>(), "show hexdump of packets")
             ;
 
@@ -33,11 +33,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string iface = vm["interface"].as<string>();
+    string iface = vm["iface"].as<string>();
 
     net_analyzer_main(iface);
 

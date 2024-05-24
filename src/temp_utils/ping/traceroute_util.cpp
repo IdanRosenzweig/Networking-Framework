@@ -41,46 +41,58 @@ void traceroute_util::trace_to_destination() {
     while (true) {
         ip_client.next_ttl.set_next_choice(curr_ttl);
 
-        send_msg send;
-        memcpy(send.get_active_buff(), data, data_sz);
-        send.set_count(data_sz);
-        if (icmp_client.send_data(std::move(send)) < 1) {
-            std::cerr << "Failed to send packet" << std::endl;
-            continue;
-        }
-
-
-//        std::cout << "waiting for icmp reply" << endl;
-        received_msg msg = raw_icmp.front();
-        raw_icmp.pop_front();
-        uint8_t *buf = msg.data.data() + msg.protocol_offsets.back().first;
-
-        icmp_header *reply = reinterpret_cast<icmp_header *>(buf);
-
         bool completed = false;
         bool ttl_fail = false;
-        bool err = false;
-        switch (reply->type) {
-            case ICMP_ECHOREPLY: {
-                if (reply->content.echo.id != content.id) {
-                    err = true;
+
+        recv_queue.clear();
+        received_msg* msg = nullptr;
+        while (true) {
+            // send
+            send_msg send;
+            memcpy(send.get_active_buff(), data, data_sz);
+            send.set_count(data_sz);
+
+            if (icmp_client.send_data(std::move(send)) < 1) {
+                std::cerr << "Failed to send packet" << std::endl;
+                continue;
+            }
+
+            // recv
+            msg = recv_queue.front<500>();
+            if (msg == nullptr) {
+//                std::cerr << "no reply was received after reasonable time, sending again" << endl;
+                continue;
+            }
+            recv_queue.clear();
+
+            // handle response
+            uint8_t *buf = msg->data.data() + msg->protocol_offsets.back().first;
+            icmp_header *icmp_reply = reinterpret_cast<icmp_header *>(buf);
+
+            bool failed = false;
+            switch (icmp_reply->type) {
+                case ICMP_ECHOREPLY: {
+                    if (icmp_reply->content.echo.id != content.id) {
+                        failed = true;
+                        break;
+                    }
+                    completed = true;
                     break;
                 }
-                completed = true;
-                break;
+                case ICMP_TIME_EXCEEDED: {
+                    ttl_fail = true;
+                    break;
+                }
+                default:
+                    failed = true;
             }
-            case ICMP_TIME_EXCEEDED: {
-                ttl_fail = true;
-                break;
-            }
-            default:
-                err = true;
+            if (!failed) break;
+
         }
-        if (err) continue;
 
         if (ttl_fail) {
-            struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(msg.data.data() +
-                                                             (msg.protocol_offsets[msg.protocol_offsets.size() -
+            struct iphdr *ip_hdr = reinterpret_cast<iphdr *>(msg->data.data() +
+                                                             (msg->protocol_offsets[msg->protocol_offsets.size() -
                                                                                    2]).first);
             ip4_addr ip;
             extract_from_network_order(&ip, reinterpret_cast<uint8_t *>(&ip_hdr->saddr));
@@ -93,7 +105,6 @@ void traceroute_util::trace_to_destination() {
             std::cout << "trace completed" << std::endl;
             break;
         }
-
     }
 
 }

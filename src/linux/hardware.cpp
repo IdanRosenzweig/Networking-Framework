@@ -47,13 +47,17 @@ ip4_addr get_ip_addr_of_iface(const string &iface) {
 ip4_addr get_default_gateway_of_iface(const string &iface) {
 #define ROUTE_FILE "/proc/net/route"
     FILE *fp = fopen(ROUTE_FILE, "r");
-    if (fp == nullptr)
-        throw "can't open /proc/net/route";
+    if (fp == nullptr) {
+        std::cerr << "can't open " ROUTE_FILE << std::endl;
+        throw;
+    }
 
     // Skip the first line (header)
     char buffer[2000];
-    if (fgets(buffer, sizeof(buffer), fp) == nullptr)
-        throw "invalid header of /proc/net/route";
+    if (fgets(buffer, sizeof(buffer), fp) == nullptr) {
+        std::cerr << "invalid header of " ROUTE_FILE << std::endl;
+        throw;
+    }
 
     char curr_iface[IFNAMSIZ];
     uint32_t dest, gw;

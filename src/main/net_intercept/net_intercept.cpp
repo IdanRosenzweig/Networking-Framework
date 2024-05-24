@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("iface", po::value<string>(), "linux interface to use")
             ("victims", po::value<vector<string>>()->multitoken(),
              "victims' ip for the attack. if not specified, sends to whole network (broadcast)")
             ("dest", po::value<string>(),
@@ -41,11 +41,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!vm.count("interface")) {
+    if (!vm.count("iface")) {
         std::cout << opts << endl;
         return 1;
     }
-    string interface = vm["interface"].as<string>();
+    string interface = vm["iface"].as<string>();
 
     if (!vm.count("dest")) {
         std::cout << opts << endl;
