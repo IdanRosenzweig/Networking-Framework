@@ -27,6 +27,10 @@ public:
         my_conn->add_listener(this);
     }
 
+    ~conn_side_handler() {
+        my_conn->remove_listener(this);
+    }
+
     ip_proxy_server *server;
 
     int send_data(send_msg<>&& msg) override; // send to the raw_session
@@ -52,7 +56,7 @@ public:
     std::unique_ptr<conn_side_handler> conn_handler; // the connection to be proxied
 
     // data_link_layer_gateway to the network
-    gateway *network_layer_gateway;
+    gateway *network_layer_gw;
     class network_side_handler network_handler;
 
     // onion_network mappings
@@ -63,6 +67,8 @@ public:
     ip4_addr server_ip;
 
     ip_proxy_server(ip4_addr src_ip, gateway* gw);
+
+    ~ip_proxy_server();
 
 //    void set_proxied_connection(connection* conn) {
     void set_proxied_connection(connection* conn) {

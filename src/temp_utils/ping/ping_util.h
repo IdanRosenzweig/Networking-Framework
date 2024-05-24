@@ -20,6 +20,8 @@ class ping_util : msg_receiver {
 public:
     ping_util(ip4_addr src_ip, gateway* gw);
 
+    ~ping_util();
+
     next_choice<ip4_addr> dest_ip;
     next_choice<int> count;
     next_choice<std::chrono::duration<uint64_t, milli>> delay_interval;

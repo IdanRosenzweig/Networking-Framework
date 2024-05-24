@@ -30,6 +30,8 @@ public:
 
     conn_handler(conn_aggregator *master, connection *conn);
 
+    ~conn_handler();
+
     int send_data(send_msg<>&& val) override;
 
     void handle_received_event(received_msg &&event) override;

@@ -6,10 +6,14 @@
 #include <iostream>
 using namespace std;
 
-ip_proxy_server::ip_proxy_server(ip4_addr src_ip, gateway* gw) : network_layer_gateway(gw), server_ip(src_ip) {
-    network_layer_gateway->add_listener(&network_handler);
+ip_proxy_server::ip_proxy_server(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw), server_ip(src_ip) {
+    network_layer_gw->add_listener(&network_handler);
 
     network_handler.server = this;
+}
+
+ip_proxy_server::~ip_proxy_server() {
+    network_layer_gw->remove_listener(&network_handler);
 }
 
 int conn_side_handler::send_data(send_msg<>&& msg) {
@@ -20,7 +24,6 @@ void conn_side_handler::handle_received_event(received_msg&& msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
     int cnt = msg.data.size() - msg.curr_offset;
 
-    cout << "received proxied packet, size " << cnt << endl;
     if (cnt <= 0) return;
 
     struct iphdr * ip_hdr = reinterpret_cast<iphdr *>(buff);
@@ -46,7 +49,7 @@ void conn_side_handler::handle_received_event(received_msg&& msg) {
     ip_hdr->check = 0;
     ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
-    cout << "sending raw bytes to ip level" << endl;
+    std::cout << "received " << cnt << " proxied bytes. sending to to ip network" << endl;
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);
@@ -54,7 +57,7 @@ void conn_side_handler::handle_received_event(received_msg&& msg) {
 }
 
 int network_side_handler::send_data(send_msg<>&& msg) {
-    return server->network_layer_gateway->send_data(std::move(msg));
+    return server->network_layer_gw->send_data(std::move(msg));
 }
 
 void network_side_handler::handle_received_event(received_msg&& msg) {
@@ -86,7 +89,7 @@ void network_side_handler::handle_received_event(received_msg&& msg) {
 //        ip_hdr->check = 0;
 //        ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 //
-//        cout << "sending reply back to connection" << endl;
+//        std::cout << "sending reply back to connection" << endl;
 //        app_handler->send_data({buff, cnt});
 //    }
     struct iphdr* ip_hdr = reinterpret_cast<iphdr *>(buff);
@@ -99,7 +102,7 @@ void network_side_handler::handle_received_event(received_msg&& msg) {
     ip_hdr->check = 0;
     ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
-    cout << "sending reply back to connection " << convert_to_str(server->conn_handler->my_source) << "_" << endl;
+    std::cout << "sending reply back to " << convert_to_str(server->conn_handler->my_source) << endl;
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);

@@ -44,7 +44,7 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
 
     // wait some reasonable time
     using namespace std::chrono_literals;
-    std::this_thread::sleep_for(1000ms);
+    std::this_thread::sleep_for(2000ms);
 
     // receive reply
     if (event_queue.empty()) return mac_addr{0};
@@ -68,7 +68,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
 
     ip4_addr curr_ip = smallest_ip_addr_in_subnet(mask);
     while (true) {
-        cout << "sending search for ip: " << convert_to_str(curr_ip) << endl;
+        std::cout << "sending search for ip: " << convert_to_str(curr_ip) << endl;
         if (!is_inside_subnet(mask, curr_ip)) {
             break;
         }
@@ -105,7 +105,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         curr_ip = generate_next_ip(curr_ip);
     }
 
-    cout << "search sends completed, waiting for replies" << endl;
+    std::cout << "search sends completed, waiting for replies" << endl;
 
     // wait some reasonable time for all the replies
     using namespace std::chrono_literals;
@@ -129,7 +129,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         res.emplace_back(res_ip, res_mac);
     }
 
-    cout << "search completed, got " << res.size() << " replies" << endl;
+    std::cout << "search completed, got " << res.size() << " replies" << endl;
 
     return res;
 }
@@ -198,7 +198,7 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
 
         }
 
-        cout << "spoofed frames sent" << endl;
+        std::cout << "spoofed frames sent" << endl;
     }
 
 }

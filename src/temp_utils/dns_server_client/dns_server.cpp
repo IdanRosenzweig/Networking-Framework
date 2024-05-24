@@ -14,6 +14,7 @@ void dns_server::handle_received_event(udp_packet_stack &&event) {
 
     vector<dns_query> requested_queries;
     vector<dns_answer> answers;
+    vector<dns_answer> auth_ans;
     for (int i  = 0; i < no_queries; i++) {
         struct dns_query query;
         curr_ptr += extract_from_network_order(&query, curr_ptr, buff);
@@ -21,11 +22,13 @@ void dns_server::handle_received_event(udp_packet_stack &&event) {
 
         switch (query.q_type) {
             case DNS_TYPE_A: {
-                cout << "received A query for name: " << query.q_name.c_str() << endl;
+                std::cout << "received A query for name: " << query.q_name.c_str() << endl;
 
                 auto node = mappings_type_a.search(string((char*) query.q_name.c_str()));
                 if (node == nullptr) {
-                    cerr << "no mapping for this name" << endl;
+                    std::cerr << "no mapping for this name" << endl;
+                    // just send my start of authority
+                    auth_ans.push_back(my_start_of_authority);
                     break;
                 }
 
@@ -44,11 +47,13 @@ void dns_server::handle_received_event(udp_packet_stack &&event) {
                 break;
             }
             case DNS_TYPE_MX: {
-                cout << "received MX query for name: " << query.q_name.c_str() << endl;
+                std::cout << "received MX query for name: " << query.q_name.c_str() << endl;
 
                 auto node = mappings_type_mx.search(string((char*) query.q_name.c_str()));
                 if (node == nullptr) {
-                    cerr << "no mapping for this name" << endl;
+                    std::cerr << "no mapping for this name" << endl;
+                    // just send my start of authority
+                    auth_ans.push_back(my_start_of_authority);
                     break;
                 }
 
@@ -66,8 +71,10 @@ void dns_server::handle_received_event(udp_packet_stack &&event) {
                 break;
             }
             default: {
-                cerr << "got query with unknown type" << endl;
-                throw;
+                std::cerr << "received query of unsupported type" << endl;
+                // just send my start of authority
+                auth_ans.push_back(my_start_of_authority);
+                break;
             }
         }
 
@@ -93,7 +100,7 @@ void dns_server::handle_received_event(udp_packet_stack &&event) {
     header.rcode = 0;
     header.query_count = no_queries;
     header.ans_count = answers.size();
-    header.auth_count = 0;
+    header.auth_count = auth_ans.size();
     header.add_count = 0;
     curr_reply_buff += write_in_network_order(curr_reply_buff, &header);
 
@@ -105,7 +112,58 @@ void dns_server::handle_received_event(udp_packet_stack &&event) {
     for (struct dns_answer& ans : answers)
         curr_reply_buff += write_in_network_order(curr_reply_buff, &ans);
 
+    // add the auth answers
+    for (struct dns_answer& ans : auth_ans)
+        curr_reply_buff += write_in_network_order(curr_reply_buff, &ans);
+
     msg.set_count(curr_reply_buff - reply_buff);
     udpServer.send_data_to_client(event.source_addr, event.source_port, msg);
 //    empServer.send_data_to_client(event.source_addr, event.source_point, msg);
+}
+
+
+void add_a_record(dns_server *server, std::ifstream &input) {
+    string domain;
+    input >> domain;
+
+    string ip;
+    input >> ip;
+
+    auto node = server->mappings_type_a.add_word(domain);
+    node->key = convert_to_ip4_addr(ip);
+}
+
+void add_mx_record(dns_server *server, std::ifstream &input) {
+    string domain;
+    input >> domain;
+
+    string server_domain;
+    input >> server_domain;
+
+    auto node = server->mappings_type_mx.add_word(domain);
+    node->key = server_domain;
+}
+
+
+void load_database(dns_server *server, const string& db_path) {
+    std::ifstream input(db_path);
+    while (true) {
+        if (input.eof()) break;
+
+        string type;
+        input >> type;
+
+        if (type.empty()) continue;
+
+        if (type == "a")
+            add_a_record(server, input);
+        else if (type == "mx")
+            add_mx_record(server, input);
+        else {
+            std::cerr << "invalid type of dns record" << endl;
+            break;
+        }
+
+    }
+    std::cout << "finished loading dns config" << endl;
 }

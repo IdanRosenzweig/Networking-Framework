@@ -3,15 +3,16 @@
 
 #include <memory>
 
-template <typename SESSION_CONN>
+template <typename SESSION_CONN, typename SESSION_DATA>
 struct session_t {
     static_assert(std::is_base_of_v<session_conn, SESSION_CONN>, "type of SESSION_CONN must be derived class of session_conn");
 
     int id;
-    std::unique_ptr<SESSION_CONN> session;
+    SESSION_DATA sess_data;
+    std::unique_ptr<SESSION_CONN> sess_conn;
 
-    session_t() : id(0), session(nullptr) {}
-    session_t(int id, std::unique_ptr<SESSION_CONN> &&session) : id(id), session(std::move(session)) {}
+    session_t() : id(0), sess_conn(nullptr) {}
+    session_t(int id, const SESSION_DATA data, std::unique_ptr<SESSION_CONN> &&session) : id(id), sess_data(data), sess_conn(std::move(session)) {}
 
 };
 

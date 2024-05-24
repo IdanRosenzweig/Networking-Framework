@@ -30,12 +30,12 @@ public:
         ssh_options_set(session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
 
-        cout << "conencting..." << endl;
+        std::cout << "conencting..." << endl;
         if (ssh_connect(session) != SSH_OK) {
-            cerr << "error connection to host: " << host.c_str() << ", " << ssh_get_error(session) << endl;
+            std::cerr << "error connection to host: " << host.c_str() << ", " << ssh_get_error(session) << endl;
             exit(-1);
         }
-        cout << "connected" << endl;
+        std::cout << "connected" << endl;
 
 //        ssh_set_auth_methods(session, SSH_AUTH_METHOD_PASSWORD);
         sleep(2);
@@ -43,24 +43,24 @@ public:
 //        while (true) {
             std::string password = "123"; // Replace with actual password logic
             if (ssh_userauth_password(session, nullptr, password.c_str()) != SSH_AUTH_SUCCESS) {
-                cerr << "Authentication failed: " << ssh_get_error(session) << endl;
+                std::cerr << "Authentication failed: " << ssh_get_error(session) << endl;
                 throw;
 //                return;
             }
 //            return;
 //        }
 
-        cout << "authenticated" << endl;
+        std::cout << "authenticated" << endl;
 
 
         raw_channel = ssh_channel_new(session);
         if (raw_channel == nullptr) {
-            cerr << "err opening raw_channel" << endl;
+            std::cerr << "err opening raw_channel" << endl;
             throw SSH_ERROR;
         }
 
         if (ssh_channel_open_session(raw_channel) != SSH_OK) {
-            cerr << "err opening raw_channel session" << endl;
+            std::cerr << "err opening raw_channel session" << endl;
             ssh_channel_free(raw_channel);
             throw;
         }
@@ -106,19 +106,19 @@ public:
 //    void execute_remote_cli_command(const string& command) {
 //        ssh_channel raw_channel = ssh_channel_new(session);
 //        if (raw_channel == nullptr) {
-//            cerr << "err opening raw_channel" << endl;
+//            std::cerr << "err opening raw_channel" << endl;
 //            throw SSH_ERROR;
 //        }
 //
 //        if (ssh_channel_open_session(raw_channel) != SSH_OK) {
-//            cerr << "err opening raw_channel session" << endl;
+//            std::cerr << "err opening raw_channel session" << endl;
 //            ssh_channel_free(raw_channel);
 //            throw;
 //        }
 //
 //
 //        if (ssh_channel_request_exec(raw_channel, command.c_str()) != SSH_OK) {
-//            cerr << "err executing command" << endl;
+//            std::cerr << "err executing command" << endl;
 //            ssh_channel_close(raw_channel);
 //            ssh_channel_free(raw_channel);
 //            throw;
@@ -131,14 +131,14 @@ public:
 //            int cnt = ssh_channel_read(raw_channel, buff, BUFF_SZ, 0);
 //
 //            if (cnt < 0) {
-//                cerr << "err reading back" << endl;
+//                std::cerr << "err reading back" << endl;
 //                ssh_channel_close(raw_channel);
 //                ssh_channel_free(raw_channel);
 //                throw SSH_ERROR;
 //            } else if (cnt == 0) break;
 //
 //            if (write(1, buff, cnt) != cnt) {
-//                cerr << "err printing result" << endl;
+//                std::cerr << "err printing result" << endl;
 //                ssh_channel_close(raw_channel);
 //                ssh_channel_free(raw_channel);
 //                throw SSH_ERROR;

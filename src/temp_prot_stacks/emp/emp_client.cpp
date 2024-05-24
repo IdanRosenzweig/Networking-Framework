@@ -22,6 +22,10 @@ emp_client::emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, const uda
     emp_prot.endpoints_handlers.add_word(src_endpoint)->key = this;
 }
 
+emp_client::~emp_client() {
+    network_layer_gw->remove_listener(&ip_prot);
+}
+
 int emp_client::send_data(send_msg<> &&msg) {
     return emp_prot.send_data(std::move(msg));
 }

@@ -5,67 +5,105 @@
 #include "../../temp_utils/dns_server_client/dns_client.h"
 #include "../../temp_prot_stacks/icmp/icmp_connection_client.h"
 #include "../../temp_utils/onion_network/onion_network_client.h"
+#include "../../temp_utils/ping/ping_util.h"
 
 #include "../../linux/virtual_if.h"
 #include "../../linux/hardware.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
+
 using namespace std;
 
 
-void onion_network_node_main(const string& iface, const vector<ip4_addr>& path) {
+void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) {
     onion_network_client proxy(path, get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
 
-    char dev[6] = "virt0";
-    linux_virtual_iface virt_iface(&proxy, dev);
+    string new_iface = "virt0";
+    linux_virtual_iface virt_iface(&proxy, new_iface);
 
-    cout << "virtual interface \"" << dev << "\" is open. send your ip traffic through it" << endl << endl;
+    std::cout << "the new virtual interface \"" << new_iface << "\" is open. send your ip traffic through it, and receive ip traffic back"
+         << endl << endl;
 
-    while (true) {
+//    while (true) {
+//
+//    }
 
+    auto raw_if = new interface_gateway(iface);
+
+    // dns queries
+    {
+        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), convert_to_ip4_addr("10.100.102.18"),
+                              raw_if); // creating a raw interface_gateway as a network_layer_gateway, because the interface allows just sending the raw ip traffic
+
+        // communicate
+        vector<string> names = {
+                "wiki.osdev.org",
+                "www.wix.com",
+                "docs.google.com",
+                "www.scs.stanford.edu",
+                "yahoo.com",
+                "google.com",
+                "youtube.com",
+                "tradingview.com",
+                "walla.co.il",
+                "nasa.com",
+                "medium.com",
+                "www.scs.stanford.edu",
+                "docs.google.com",
+                "slides.google.com",
+                "sheets.google.com",
+                "podcasts.google.com",
+                "gmail.google.com",
+                "account.google.com",
+        };
+        for (string &str: names) {
+            dns_client.query(DNS_TYPE_A, str);
+            std::cout << endl;
+        }
     }
 
-//     regular dns communication
+
+    // pinging
     {
-        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), convert_to_ip4_addr("10.100.102.18"), new interface_gateway("virt0"));
+        ping_util pinger(get_ip_addr_of_iface(iface), raw_if);
 
         // communicate
         vector<string> hosts = {
-            "wiki.osdev.org",
-            "www.wix.com",
-            "docs.google.com",
-            "www.scs.stanford.edu",
-            "yahoo.com",
-            "google.com",
-           "youtube.com",
-            "tradingview.com",
-            "walla.co.il",
-            "nasa.com",
-            "medium.com",
-            "www.scs.stanford.edu",
-            "docs.google.com",
-            "slides.google.com",
-            "sheets.google.com",
-            "podcasts.google.com",
-            "gmail.google.com",
-            "account.google.com",
+                "8.8.8.8",
+                "142.251.142.206",
+                "34.149.87.45",
+                "13.226.2.85",
+                "13.226.2.79",
+                "172.217.22.14",
+                "185.53.177.52",
+                "162.159.153.4",
+                "142.251.142.206",
+                "162.159.152.4",
+                "171.66.3.9",
+                "172.217.22.46",
+                "142.251.142.206"
         };
-        for (string &str: hosts) {
-            dns_client.query(DNS_TYPE_A, str);
-            cout << endl;
-        }
 
+        std::cout << "starting to ping" << endl;
+        pinger.count.set_next_choice(5);
+        pinger.delay_interval.set_next_choice(10ms);
+        for (string &str: hosts) {
+            pinger.dest_ip.set_next_choice(convert_to_ip4_addr(str));
+            pinger.ping_node();
+            std::cout << endl;
+        }
     }
+
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     namespace po = boost::program_options;
 
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help", "print tool use description")
-            ("interface,i", po::value<string>(), "linux interface to use")
+            ("interface,i", po::value<string>(), "linux interface to use to connect to the first node in the path")
             ("path,p", po::value<vector<string>>()->multitoken(),
              "the path along the onion network to use");
 
@@ -74,24 +112,24 @@ int main(int argc, char** argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string iface = vm["interface"].as<string>();
 
     if (!vm.count("path")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     vector<string> path = vm["path"].as<vector<string>>();
 
     vector<ip4_addr> ip_path;
-    for (string& node : path) ip_path.push_back(convert_to_ip4_addr(node));
+    for (string &node: path) ip_path.push_back(convert_to_ip4_addr(node));
 
     onion_network_node_main(iface, ip_path);
 

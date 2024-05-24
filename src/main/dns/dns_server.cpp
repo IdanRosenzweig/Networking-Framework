@@ -1,5 +1,5 @@
 #include "../../temp_utils/dns_server_client/dns_server.h"
-#include "../../temp_utils/dns_server_client/database/database_loader.h"
+#include "../../temp_utils/dns_server_client/database_loader.h"
 #include "../../linux/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 
@@ -33,18 +33,18 @@ int main(int argc, char** argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string iface = vm["interface"].as<string>();
 
     if (!vm.count("db")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string db_path = vm["db"].as<string>();

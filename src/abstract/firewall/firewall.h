@@ -14,6 +14,10 @@ public:
         base->add_listener(this);
     }
 
+    ~firewall() {
+        base->remove_listener(this);
+    }
+
     std::vector<basic_firewall_filter<send_msg<>>*> outgoing_filters; // filters to apply on outgoing packets
     std::vector<basic_firewall_filter<received_msg>*> incoming_filters; // filters to apply to incoming packets
 

@@ -13,8 +13,10 @@
 
 #include "tcp_session.h"
 
+using tcp_session_type = session_t<tcp_session_conn, tcp_session_data>;
+
 //class tcp_protocol : public receive_multiplexer<std::unique_ptr<tcp_session>> {
-class tcp_protocol : public session_generator<tcp_session> {
+class tcp_protocol : public session_generator<tcp_session_type> {
 
     int sd;
     std::thread worker;
@@ -29,7 +31,7 @@ public:
     next_choice<int> next_dest_port;
     next_choice<int> next_source_port;
 
-    session_t<tcp_session> start_session();
+    tcp_session_type start_session();
 
 };
 

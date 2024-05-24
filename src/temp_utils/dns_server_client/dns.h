@@ -11,7 +11,7 @@ using namespace std;
 
 
 // encode name such as nasa.com to 4nasa3com
-ustring encode_dns_name(unsigned char *name);
+ustring encode_dns_name(const uint8_t *name);
 
 // decode the name in place
 void decode_dns_name(ustring &name);
@@ -28,6 +28,11 @@ enum dns_record_type {
     DNS_TYPE_SOA = 6,
     DNS_TYPE_PTR = 12, // ipv4 to domain name
     DNS_TYPE_MX = 15 // domain name to ipv4 of mail aggregator
+};
+
+// classes of dns records
+enum dns_record_class {
+    DNS_CLASS_IN = 1
 };
 
 dns_record_type str_to_record_type(const string& str);
@@ -110,6 +115,8 @@ struct soa_rdata_t {
     uint32_t expire_limit;
     uint32_t max_ttl;
 };
+
+rdata_t convert_to_rdata(soa_rdata_t *source);
 
 int extract_from_network_order(soa_rdata_t *dest, uint8_t *curr_ptr, uint8_t *packet_buff);
 

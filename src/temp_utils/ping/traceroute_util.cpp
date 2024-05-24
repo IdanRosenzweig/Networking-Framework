@@ -20,10 +20,14 @@ traceroute_util::traceroute_util(ip4_addr src_ip, gateway* gw) : network_layer_g
     icmp_client.default_handler = this;
 }
 
+traceroute_util::~traceroute_util() {
+    network_layer_gw->remove_listener(&ip_client);
+}
+
 void traceroute_util::trace_to_destination() {
     ip_client.next_dest_addr.set_next_choice(dest_ip.get_next_choice());
 
-    char *data = "echo packet";
+    const char *data = "echo packet";
     int data_sz = strlen(data);
 
     icmp_client.next_type.set_next_choice(ICMP_ECHO);
@@ -31,7 +35,7 @@ void traceroute_util::trace_to_destination() {
     icmp_header::content::echo_content content{0x1234, 0};
     icmp_client.next_content.set_next_choice(*(uint32_t *) &content);
 
-    cout << "trace: " << endl;
+    std::cout << "trace: " << endl;
 
     int curr_ttl = 1;
     while (true) {
@@ -46,7 +50,7 @@ void traceroute_util::trace_to_destination() {
         }
 
 
-//        cout << "waiting for icmp reply" << endl;
+//        std::cout << "waiting for icmp reply" << endl;
         received_msg msg = raw_icmp.front();
         raw_icmp.pop_front();
         uint8_t *buf = msg.data.data() + msg.protocol_offsets.back().first;
@@ -80,12 +84,12 @@ void traceroute_util::trace_to_destination() {
                                                                                    2]).first);
             ip4_addr ip;
             extract_from_network_order(&ip, reinterpret_cast<uint8_t *>(&ip_hdr->saddr));
-            cout << convert_to_str(ip) << " -> " << endl;
+            std::cout << convert_to_str(ip) << " -> " << endl;
 
             curr_ttl++;
 
         } else if (completed) {
-            cout << convert_to_str(dest_ip.get_next_choice()) << endl;
+            std::cout << convert_to_str(dest_ip.get_next_choice()) << endl;
             std::cout << "trace completed" << std::endl;
             break;
         }

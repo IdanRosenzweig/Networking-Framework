@@ -5,14 +5,14 @@
 #include "../../abstract/session/session_generator.h"
 
 // (no real difference between tcp_protocol and tcp_server, because i didn't implement
-// the tcp_client_server protocol but rather used the linux api for this, so there is no need for creating
+// the tcp protocol but rather used the linux api for this, so there is no need for creating
 // the protocol stack here, just use tcp_protocol directly)
-class tcp_server : public session_generator<tcp_session> {
+class tcp_server : public session_generator<tcp_session_type> {
     tcp_protocol tcp_prot;
 
     int server_port;
 
-    class sessions_handler : public basic_receiver<session_t<tcp_session>> {
+    class sessions_handler : public basic_receiver<tcp_session_type> {
         tcp_server *master;
 
     public:
@@ -20,8 +20,8 @@ class tcp_server : public session_generator<tcp_session> {
             master->tcp_prot.set_generator_listener(this);
         }
 
-        void handle_received_event(session_t<tcp_session> &&event) override {
-            if (event.session->sessionData.dest_port == master->server_port)
+        void handle_received_event(tcp_session_type &&event) override {
+            if (event.sess_data.dest_port == master->server_port)
                 master->generate_event(std::move(event));
         }
     };
@@ -32,7 +32,7 @@ public:
 
     }
 
-    session_t<tcp_session> start_session(const string& ip, int port);
+    tcp_session_type start_session(const string& ip, int port);
 
 };
 

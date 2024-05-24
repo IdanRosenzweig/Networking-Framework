@@ -18,6 +18,10 @@ public:
         base_conn->add_listener(this);
     }
 
+    ~msg_boundary_seperator() {
+        base_conn->remove_listener(this);
+    }
+
     int send_data(send_msg<>&& val) override {
         MSG_SZ_FIELD sz = val.get_count();
 

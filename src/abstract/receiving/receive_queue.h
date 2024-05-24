@@ -12,7 +12,7 @@ public:
     circular_buffer<T> event_queue;
 
     void handle_received_event(T&& event) override {
-        event_queue.push_back(std::move(event));
+        event_queue.push_back(event);
     }
 
     T front_data() {

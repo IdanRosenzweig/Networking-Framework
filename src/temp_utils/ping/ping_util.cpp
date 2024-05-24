@@ -17,14 +17,22 @@ ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
     ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
 
     icmp_client.default_handler = this;
+
+
+    // default values
+    count.set_next_choice(10);
+    delay_interval.set_next_choice(10ms);
 }
 
+ping_util::~ping_util() {
+    network_layer_gw->remove_listener(&ip_client);
+}
 
 void ping_util::ping_node() {
     ip_client.next_dest_addr.set_next_choice(dest_ip.get_next_choice());
     ip_client.next_ttl.set_next_choice(255);
 
-    char *data = "echo packet";
+    const char *data = "echo packet";
     int data_sz = strlen(data);
 
     icmp_client.next_type.set_next_choice(ICMP_ECHO);
@@ -48,7 +56,7 @@ void ping_util::ping_node() {
             continue;
         }
 
-        cout << "waiting for icmp reply" << endl;
+        std::cout << "waiting for icmp reply" << endl;
         while (true) {
             received_msg msg = raw_icmp.front();
             raw_icmp.pop_front();

@@ -13,7 +13,7 @@ void bandwidth_main(const string& iface) {
     while (true) {
         sleep(1);
 
-        cout << "in: " << indicator.bytes_in_cnt << " B\t" << "out: " << indicator.bytes_out_cnt << " B" << endl;
+        std::cout << "in: " << indicator.bytes_in_cnt << " B\t" << "out: " << indicator.bytes_out_cnt << " B" << endl;
         indicator.bytes_in_cnt = 0;
         indicator.bytes_out_cnt = 0;
     }
@@ -33,12 +33,12 @@ int main(int argc, char** argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string iface = vm["interface"].as<string>();

@@ -2,59 +2,43 @@
 #define SERVERCLIENT_TCP_BOUNDARY_PRESERVING_SERVER_H
 
 #include "tcp_server.h"
-#include "../../protocols/msg_boundary/msg_boundary_seperator.h"
+#include "../../protocols/tcp/tcp_boundary_preserving_session.h"
 #include "../../abstract/session/session_generator.h"
 
-class tcp_boundary_preserving_session : public session_conn {
-    std::unique_ptr<tcp_session> raw_session;
-    msg_boundary_seperator<> client;
 
-public:
-    tcp_boundary_preserving_session(std::unique_ptr<tcp_session> &&session) : raw_session(std::move(session)),
-                                                                              client(raw_session.get()) {
-        client.add_listener(this);
-    }
-
-    int send_data(send_msg<> &&val) override {
-        return client.send_data(std::move(val));
-    }
-
-    const tcp_session_data &get_tcp_session_data() {
-        return raw_session->sessionData;
-    }
-
-};
-
-class tcp_boundary_preserving_server : public session_generator<tcp_boundary_preserving_session> {
+class tcp_boundary_preserving_server : public session_generator<tcp_boundary_preserving_session_type> {
     tcp_server raw_tcp_server;
 
-    class sessions_handler : public basic_receiver<session_t<tcp_session>> {
+    class sessions_handler : public basic_receiver<tcp_session_type> {
         tcp_boundary_preserving_server *master;
-
     public:
         explicit sessions_handler(tcp_boundary_preserving_server *master) : master(master) {
             master->raw_tcp_server.set_generator_listener(this);
         }
 
-        void handle_received_event(session_t<tcp_session> &&event) override {
-            std::unique_ptr<tcp_boundary_preserving_session> wrapper = std::make_unique<tcp_boundary_preserving_session>(
-                    std::move(event.session));
-            master->generate_event(session_t<tcp_boundary_preserving_session>(event.id, std::move(wrapper)));
+        void handle_received_event(tcp_session_type &&event) override {
+            master->generate_event(
+                    tcp_boundary_preserving_session_type(event.id,
+                                                         event.sess_data,
+                                                         std::make_unique<tcp_boundary_preserving_session_conn>(
+                                                                 std::move(event.sess_conn))
+                    )
+            );
         }
-    };
-
-    sessions_handler sessionsHandler;
+    } sessionsHandler;
 
 public:
     tcp_boundary_preserving_server(int port) : raw_tcp_server(port), sessionsHandler(this) {
 
     }
 
-    session_t<tcp_boundary_preserving_session> start_session(const string &ip, int port) {
-        session_t<tcp_session> raw_sess = raw_tcp_server.start_session(ip, port);
-        return {raw_sess.id,
-                std::make_unique<tcp_boundary_preserving_session>(std::move(raw_sess.session))
-        };
+    tcp_boundary_preserving_session_type start_session(const string &ip, int port) {
+        tcp_session_type raw_sess = raw_tcp_server.start_session(ip, port);
+        return tcp_boundary_preserving_session_type(raw_sess.id,
+                                                    raw_sess.sess_data,
+                                                    std::make_unique<tcp_boundary_preserving_session_conn>(
+                                                            std::move(raw_sess.sess_conn))
+        );
     }
 
 };

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(data) {
+tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
     alive = true;
 
     worker = std::thread([&]() -> void {
@@ -21,15 +21,15 @@ tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(
             int data_sz = recv(this->sd, buff, BUFF_SZ, 0);
             if (data_sz == -1) {
                 alive = false;
-//                cerr << "tcp_client_server seseion couldn't read" << endl;
+//                std::cerr << "tcp_client_server seseion couldn't read" << endl;
                 break;
             } else if (data_sz == 0) {
                 alive = false;
-//                cerr << "tcp_client_server session ended" << endl;
+//                std::cerr << "tcp_client_server session ended" << endl;
                 break;
             }
 
-//            cout << "tcp_client_server session read size " << data_sz << endl;
+//            std::cout << "tcp_client_server session read size " << data_sz << endl;
 
             received_msg msg;
             msg.data = udata_t(data_sz, 0x00);
@@ -47,13 +47,13 @@ tcp_session::tcp_session(int _sd, tcp_session_data data) : sd(_sd), sessionData(
     });
 }
 
-tcp_session::~tcp_session() {
-//    cout << "tcp_session deconsturcotor" << endl;
+tcp_session_conn::~tcp_session_conn() {
+//    std::cout << "tcp_session deconsturcotor" << endl;
     if (worker.joinable()) worker.detach();
     close(sd);
 }
 
-int tcp_session::send_data(send_msg<>&& msg) {
+int tcp_session_conn::send_data(send_msg<>&& msg) {
     if (!alive) return -1;
 
     int error = 0;
@@ -76,7 +76,7 @@ int tcp_session::send_data(send_msg<>&& msg) {
     return send(sd, msg.get_active_buff(), msg.get_count(), 0);
 }
 
-void tcp_session::handle_received_event(received_msg &&event) {
+void tcp_session_conn::handle_received_event(received_msg &&event) {
     receive_multiplexer::handle_received_event(std::move(event));
 }
 

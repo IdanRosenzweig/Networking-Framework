@@ -28,6 +28,8 @@ public:
 
     emp_server(const udata_t& endpoint, ip4_addr src_ip, gateway* gw);
 
+    ~emp_server();
+
     int send_data_to_client(ip4_addr client_addr, const udata_t& dest_endpoint, send_msg<> msg);
 
 };

@@ -21,6 +21,10 @@ udp_server::udp_server(int serverPort, ip4_addr src_ip, gateway* gw) : server_po
     _udp_server.port_handlers.assign_to_key(server_port, (basic_receiver<received_msg> *) this);
 }
 
+udp_server::~udp_server() {
+    network_layer_gw->remove_listener(&ip_server);
+}
+
 void udp_server::handle_received_event(received_msg &&event) {
     udp_packet_stack pack_stack;
     pack_stack.msg = std::move(event);

@@ -11,4 +11,10 @@ struct socket_msg { // represents msg to endpoint
     received_msg msg;
 };
 
+struct logical_internet_socket {
+    ip4_addr source_addr;
+    int source_port;
+    int dest_port;
+};
+
 #endif //SERVERCLIENT_SOCKET_MSG_H

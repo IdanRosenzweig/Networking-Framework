@@ -8,25 +8,25 @@
 
 using namespace std;
 
-class app_handler : public session_handler<tcp_boundary_preserving_session>, public msg_receiver {
+class app_handler : public session_handler<tcp_boundary_preserving_session_type>, public msg_receiver {
 public:
     void on_session_start() override { // when session starts, just add this class to its listeners. this calls just receives the messages and echos them
-        session.session->add_listener(this);
+        session.sess_conn->add_listener(this);
     }
 
-    explicit app_handler(session_t<tcp_boundary_preserving_session> &session) : session_handler(session) {}
+    explicit app_handler(tcp_boundary_preserving_session_type &session) : session_handler(session) {}
 
 private:
     void handle_received_event(received_msg &&event) override {
-        cout << event.data.data() + event.curr_offset << endl;
+        std::cout << event.data.data() + event.curr_offset << endl;
 //        session->send_data({event.data_t.get() + event.curr_offset, event.data.size() - event.curr_offset});
     }
 };
 
-class sess_manager : public session_manager<tcp_boundary_preserving_session, app_handler> {
+class sess_manager : public session_manager<tcp_boundary_preserving_session_type, app_handler> {
 public:
-    explicit sess_manager(session_generator<tcp_boundary_preserving_session> *sessionsGenerator)
-            : session_manager<tcp_boundary_preserving_session, app_handler>(
+    explicit sess_manager(session_generator<tcp_boundary_preserving_session_type> *sessionsGenerator)
+            : session_manager<tcp_boundary_preserving_session_type, app_handler>(
             sessionsGenerator) {}
 };
 
@@ -43,9 +43,9 @@ void netcat_server_main(const string& iface, int port) {
             send_msg send;
             memcpy(send.get_active_buff(), str.c_str(), str.size());
             send.set_count(str.size());
-            int res = session.session.session->send_data(std::move(send));
+            int res = session.session.sess_conn->send_data(std::move(send));
             if (res == -1 || res == 0) {
-                cerr << "can't send to connection, closing" << endl;
+                std::cerr << "can't send to connection, closing" << endl;
                 break;
             }
         }
@@ -57,7 +57,7 @@ void netcat_server_main(const string& iface, int port) {
 class client_app : public msg_receiver {
 public:
     void handle_received_event(received_msg &&event) override {
-        cout << event.data.data() + event.curr_offset << endl;
+        std::cout << event.data.data() + event.curr_offset << endl;
     }
 };
 
@@ -76,7 +76,7 @@ void netcat_client_main(const string& iface, ip4_addr dest_ip, int port) {
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
         if (res == -1 || res == 0) {
-            cerr << "can't send to connection, closing" << endl;
+            std::cerr << "can't send to connection, closing" << endl;
             break;
         }
     }
@@ -102,12 +102,12 @@ int main(int argc, char **argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string iface = vm["interface"].as<string>();
@@ -116,13 +116,13 @@ int main(int argc, char **argv) {
     if (vm.count("server")) server = true;
     else if (vm.count("client")) server = false;
     else {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (server) {
         if (!vm.count("port")) {
-            cout << opts << endl;
+            std::cout << opts << endl;
             return 1;
         }
         int port = vm["port"].as<int>();
@@ -131,13 +131,13 @@ int main(int argc, char **argv) {
 
     } else {
         if (!vm.count("port")) {
-            cout << opts << endl;
+            std::cout << opts << endl;
             return 1;
         }
         int port = vm["port"].as<int>();
 
         if (!vm.count("dest")) {
-            cout << opts << endl;
+            std::cout << opts << endl;
             return 1;
         }
         string dest = vm["dest"].as<string>();

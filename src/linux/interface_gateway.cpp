@@ -23,7 +23,7 @@ interface_gateway::interface_gateway(const string &interface)
             htons(ETH_P_ALL)
     );
     if (fd == -1) {
-        cerr << "data_link_layer_fd err" << endl;
+        std::cerr << "data_link_layer_fd err" << endl;
         printf("errno: %d\n", errno);
         throw;
     }

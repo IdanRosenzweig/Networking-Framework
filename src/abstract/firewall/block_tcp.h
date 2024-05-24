@@ -26,9 +26,9 @@ public:
         void handle_received_event(received_msg &&event) override {
             struct tcphdr *tcp_hdr = reinterpret_cast<tcphdr *>(event.data.data() + event.curr_offset);
             int dest_port = ntohs(tcp_hdr->dest);
-//            cout << "tcp examiner got " << dest_port << endl;
+//            std::cout << "tcp examiner got " << dest_port << endl;
             if (dest_port == master->blocked_port) {
-//                cout << "blocking" << endl;
+//                std::cout << "blocking" << endl;
                 master->blocked_flag = true;
             }
         }
@@ -48,7 +48,7 @@ public:
 
         if (blocked_flag) {
             blocked_flag = false;
-//            cout << "policy set blocked" << endl;
+//            std::cout << "policy set blocked" << endl;
             return BLOCK;
         }
         else return ALLOW;

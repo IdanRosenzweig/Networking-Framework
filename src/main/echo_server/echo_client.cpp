@@ -12,7 +12,7 @@ using namespace std;
 class client_app_tcp : public msg_receiver {
 public:
     void handle_received_event(received_msg &&event) override {
-        cout << "server: " << event.data.data() + event.curr_offset << endl;
+        std::cout << "server: " << event.data.data() + event.curr_offset << endl;
     }
 };
 
@@ -30,7 +30,7 @@ void tcp_main() {
 
     sleep(1);
     {
-        char* msg = "hello";
+        const char* msg = "hello";
         int len = strlen(msg);
         memcpy(buff, msg, len);
 
@@ -42,7 +42,7 @@ void tcp_main() {
 
 //    sleep(1);
     {
-        char* msg = "this is second";
+        const char* msg = "this is second";
         int len = strlen(msg);
         memcpy(buff, msg, len);
 
@@ -54,7 +54,7 @@ void tcp_main() {
 
 //    sleep(1);
     {
-        char* msg = "third";
+        const char* msg = "third";
         int len = strlen(msg);
         memcpy(buff, msg, len);
 
@@ -66,7 +66,7 @@ void tcp_main() {
 
 //    sleep(1);
     {
-        char* msg = "fourth";
+        const char* msg = "fourth";
         int len = strlen(msg);
         memcpy(buff, msg, len);
 
@@ -78,7 +78,7 @@ void tcp_main() {
 
 //    sleep(1);
     {
-        char* msg = "fifth";
+        const char* msg = "fifth";
         int len = strlen(msg);
         memcpy(buff, msg, len);
 

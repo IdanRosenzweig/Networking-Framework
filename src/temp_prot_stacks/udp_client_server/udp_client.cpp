@@ -1,5 +1,4 @@
 #include "udp_client.h"
-#include "../../linux/hardware.h"
 
 udp_client::udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr src_ip, gateway *gw) : network_layer_gw(gw) {
     // setup send flow
@@ -19,6 +18,10 @@ udp_client::udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr sr
     ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_client);
 
     _udp_client.port_handlers.assign_to_key(my_port, this);
+}
+
+udp_client::~udp_client() {
+    network_layer_gw->remove_listener(&ip_client);
 }
 
 int udp_client::send_data(send_msg<> &&msg) {

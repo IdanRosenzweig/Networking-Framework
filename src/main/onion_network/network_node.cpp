@@ -29,12 +29,12 @@ int main(int argc, char** argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("net-layer-iface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string net_layer_iface = vm["net-layer-iface"].as<string>();

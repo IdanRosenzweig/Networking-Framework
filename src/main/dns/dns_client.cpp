@@ -34,12 +34,12 @@ int main(int argc, char **argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string iface = vm["interface"].as<string>();
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     }
 
     if (!vm.count("key")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string key = vm["key"].as<string>();

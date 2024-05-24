@@ -16,17 +16,17 @@ tcp_protocol::tcp_protocol(bool server) {
                 IPPROTO_TCP // TCP
         );
         if (sd == -1) {
-            cerr << "can't open socket" << endl;
+            std::cerr << "can't open socket" << endl;
             return;
         }
 
         int enabled = 1;
         if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == -1) {
-            cerr << "can't setsockopt reuseaddr" << endl;
+            std::cerr << "can't setsockopt reuseaddr" << endl;
             return;
         }
         if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == -1) {
-            cerr << "can't setsockopt tcp_nodelay" << endl;
+            std::cerr << "can't setsockopt tcp_nodelay" << endl;
             return;
         }
 
@@ -42,13 +42,13 @@ tcp_protocol::tcp_protocol(bool server) {
                 (struct sockaddr *) &addr,
                 sizeof(addr)
         ) == -1) {
-            cerr << "bind err" << endl;
+            std::cerr << "bind err" << endl;
             return;
         }
 
         // listening on the socket
         if (listen(sd, 1) == -1) {
-            cerr << "listen err" << endl;
+            std::cerr << "listen err" << endl;
             return;
         }
 
@@ -59,38 +59,40 @@ tcp_protocol::tcp_protocol(bool server) {
                 socklen_t len = sizeof(client_addr);
 
                 // accepting a new session
-                cout << "waiting for a tcp session..." << endl;
+                std::cout << "waiting for a tcp session..." << endl;
                 client_sd = accept(
                         sd,
                         (struct sockaddr *) &client_addr,
                         &len
                 );
                 if (client_sd == -1) {
-                    cout << "can't accept the session" << endl;
+                    std::cout << "can't accept the session" << endl;
                     continue;
                 }
-                cout << "a new tcp session accepted..." << endl;
+                std::cout << "a new tcp session accepted..." << endl;
 
                 ip4_addr addr;
                 extract_from_network_order(&addr, (uint8_t *) &client_addr.sin_addr.s_addr);
 
-                auto ptr = std::make_unique<tcp_session>(client_sd,
-                                                         tcp_session_data{addr, ntohs(client_addr.sin_port), 5678});
-                this->session_generator::generate_event(session_t<tcp_session>(1, std::move(ptr)));
-
+                this->session_generator::generate_event(tcp_session_type(1,
+                                                                         tcp_session_data{addr,
+                                                                                          ntohs(client_addr.sin_port),
+                                                                                          5678},
+                                                                         std::make_unique<tcp_session_conn>(client_sd))
+                );
             }
         });
     }
 }
 
 tcp_protocol::~tcp_protocol() {
-//    cout << "tcp_protocol deconstruct" << endl;
+//    std::cout << "tcp_protocol deconstruct" << endl;
     if (worker.joinable())
         worker.detach();
     close(sd);
 }
 
-session_t<tcp_session> tcp_protocol::start_session() {
+tcp_session_type tcp_protocol::start_session() {
     int session_sd = socket(AF_INET,
                             SOCK_STREAM,
                             IPPROTO_TCP);
@@ -134,12 +136,12 @@ session_t<tcp_session> tcp_protocol::start_session() {
 
     std::cout << "connected to the tcp server" << std::endl;
 
-    return session_t<tcp_session>(1,
-                                  std::make_unique<tcp_session>(session_sd,
-                                                                tcp_session_data{
-                                                                        ip4_addr{next_addr.get_next_choice()},
-                                                                        next_source_port.get_next_choice(),
-                                                                        next_dest_port.get_next_choice()})
+    return tcp_session_type(1,
+                            tcp_session_data{
+                                    ip4_addr{next_addr.get_next_choice()},
+                                    next_source_port.get_next_choice(),
+                                    next_dest_port.get_next_choice()},
+                            std::make_unique<tcp_session_conn>(session_sd)
     );
 
 }

@@ -7,14 +7,14 @@
 // the reference to the session will be given by the instantiator of the object.
 // just implement the class
 
-template<typename SESSION_CONN>
+template<typename SESSION_TYPE>
 class session_handler {
 protected:
-    session_t<SESSION_CONN>& session; // reference to the session itself. this would be provided by the session manager upon creating a app_handler
+    SESSION_TYPE& session; // reference to the session itself. this would be provided by the session manager upon creating a app_handler
 
 public:
 
-    explicit session_handler(session_t<SESSION_CONN> &sess) : session(sess) {
+    explicit session_handler(SESSION_TYPE &sess) : session(sess) {
     }
 
     virtual ~session_handler() {}

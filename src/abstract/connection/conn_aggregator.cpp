@@ -8,9 +8,12 @@ void conn_aggregator::add_connection(connection *conn) {
     conns.push_back(std::make_unique<conn_handler>(this, conn));
 }
 
-
 conn_handler::conn_handler(conn_aggregator *master, connection *conn) : master(master), my_conn(conn) {
     my_conn->add_listener(this);
+}
+
+conn_handler::~conn_handler() {
+    my_conn->remove_listener(this);
 }
 
 int conn_handler::send_data(send_msg<> &&val) {
@@ -36,15 +39,15 @@ void conn_handler::handle_received_event(received_msg &&event) {
 
         int res = master->conns[i]->send_data(std::move(send));
         if (res == -1) {
-            cerr << "couldn't send to aggregator my_conn" << endl;
+            std::cerr << "couldn't send to aggregator my_conn" << endl;
             master->conns.erase(master->conns.begin() + i);
             i++;
             continue;
         }
 
-        if (i == 0) cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
+        if (i == 0) std::cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
         else if (i == 1)
-            cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
+            std::cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
         i++;
     }
 

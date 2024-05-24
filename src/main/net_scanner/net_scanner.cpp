@@ -11,7 +11,7 @@ using namespace std;
 void arp_scan_single_main(const string& iface, ip4_addr ip_addr) {
     net_arp scanner(new data_link_layer_gateway(iface));
 
-    cout << "mac address associated with ip: " << convert_to_str(ip_addr) << endl;
+    std::cout << "mac address associated with ip: " << convert_to_str(ip_addr) << endl;
     print_mac(scanner.search_for_mac_addr(ip_addr, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface)));
 }
 
@@ -20,11 +20,11 @@ void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask) {
 
     auto results = scanner.scan_entire_subnet(mask, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface));
 
-    cout << endl << "search result for subnet: " << convert_to_str(mask) << endl;
+    std::cout << endl << "search result for subnet: " << convert_to_str(mask) << endl;
     for (auto& pair : results) {
-        cout << convert_to_str(pair.first) << " is ";
+        std::cout << convert_to_str(pair.first) << " is ";
         print_mac(pair.second);
-        cout << endl;
+        std::cout << endl;
     }
 
 }
@@ -45,12 +45,12 @@ int main(int argc, char **argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string iface = vm["interface"].as<string>();

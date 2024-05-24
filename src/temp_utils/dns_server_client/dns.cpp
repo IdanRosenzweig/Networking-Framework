@@ -2,7 +2,7 @@
 #include "dns.h"
 #include <iostream>
 
-ustring encode_dns_name(uint8_t *name) {
+ustring encode_dns_name(const uint8_t *name) {
     ustring encoded;
 
     int name_len = strlen((char *) name);
@@ -286,6 +286,27 @@ int extract_from_network_order(mx_rdata_t *dest, uint8_t *curr_ptr, uint8_t *pac
     return cnt;
 }
 
+
+rdata_t convert_to_rdata(soa_rdata_t *source) {
+    rdata_t res;
+
+    res.append(encode_dns_name(source->primary_server.c_str()));
+    res.append(encode_dns_name(source->admin_mail_server.c_str()));
+
+    uint32_t serial_num = htonl(source->serial_num);
+    uint32_t refresh_interval = htonl(source->refresh_interval);
+    uint32_t retry_interval = htonl(source->retry_interval);
+    uint32_t expire_limit = htonl(source->expire_limit);
+    uint32_t max_ttl = htonl(source->max_ttl);
+
+    res.append(ustring((uint8_t*) &serial_num, sizeof(serial_num)));
+    res.append(ustring((uint8_t*) &refresh_interval, sizeof(refresh_interval)));
+    res.append(ustring((uint8_t*) &retry_interval, sizeof(retry_interval)));
+    res.append(ustring((uint8_t*) &expire_limit, sizeof(expire_limit)));
+    res.append(ustring((uint8_t*) &max_ttl, sizeof(max_ttl)));
+
+    return res;
+}
 
 int extract_from_network_order(soa_rdata_t *dest, uint8_t *curr_ptr, uint8_t *packet_buff) {
     int cnt = 0;

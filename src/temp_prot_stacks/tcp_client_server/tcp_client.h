@@ -9,7 +9,7 @@ class tcp_client : public connection {
 public:
     tcp_protocol tcp_prot;
 
-    session_t<tcp_session> session;
+    tcp_session_type session;
 
     tcp_client(ip4_addr ip, int port, int my_port);
 

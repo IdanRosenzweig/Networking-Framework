@@ -38,6 +38,9 @@ public:
         ether_client.protocol_handlers.assign_to_key(htons(ETH_P_ARP), this);
     }
 
+    ~net_arp() {
+        data_link_layer_gateway->remove_listener(&ether_client);
+    }
 
     // find mac address associated with searched_ip
     mac_addr search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip4_addr src_ip);

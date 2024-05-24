@@ -36,6 +36,9 @@ set(PROTOCOLS_SRC
         src/protocols/msg_boundary/msg_boundary_protocol.cpp
 
         src/protocols/emp/emp.cpp
+        src/protocols/scp/scp_session.cpp
+        src/protocols/tcp/tcp_boundary_preserving_session.cpp
+        src/protocols/tcp/tcp_boundary_preserving_session.h
 )
 
 set(ABSTRACT_SRC
@@ -126,6 +129,7 @@ add_executable(onion_network_client
         src/temp_utils/dns_server_client/dns_client.cpp
         src/temp_utils/dns_server_client/dns.cpp
         src/temp_prot_stacks/udp_client_server/udp_client.cpp
+        src/temp_utils/ping/ping_util.cpp
 )
 #target_link_libraries(onion_network_client ${PCAP_LIBRARY})
 #target_link_libraries(onion_network_client ${LIBSSH_LIBRARIES})
@@ -190,7 +194,7 @@ add_executable(dns_server
 
         src/main/dns/dns_server.cpp
         src/temp_utils/dns_server_client/dns_server.cpp
-        src/temp_utils/dns_server_client/database/database_loader.cpp
+        src/temp_utils/dns_server_client/database_loader.cpp
         src/temp_utils/dns_server_client/dns.cpp
         src/temp_prot_stacks/udp_client_server/udp_server.cpp
         src/temp_prot_stacks/emp/emp_server.cpp
@@ -250,3 +254,16 @@ add_executable(net_analyzer
 #target_link_libraries(net_analyzer ${PCAP_LIBRARY})
 #target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
 #target_link_libraries(net_analyzer ${Boost_LIBRARIES})
+
+
+
+add_executable(scp
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/protocols/scp/scp_session.cpp
+        src/temp_prot_stacks/scp/scp_client.cpp
+        src/temp_prot_stacks/scp/scp_server.cpp
+        src/temp_prot_stacks/scp/scp_server.h
+)

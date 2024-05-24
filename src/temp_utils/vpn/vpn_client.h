@@ -19,7 +19,7 @@ public:
     }
 
     int send_data(send_msg<>&& val) override {
-        return client.send_data(val);
+        return client.send_data(std::move(val));
 //        return tcp_client_server.send_data(val);
     }
 };

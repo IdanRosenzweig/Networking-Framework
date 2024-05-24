@@ -14,7 +14,7 @@ ip4_protocol::ip4_protocol() {
 
 int ip4_protocol::send_data(send_msg<>&& msg) {
     if (next_dest_addr.get_next_choice() == empty_ip4_addr) {
-        cout << "ip dest is null" << endl;
+        std::cout << "ip dest is null" << endl;
         return 0;
     }
 
@@ -27,7 +27,7 @@ int ip4_protocol::send_data(send_msg<>&& msg) {
     iph->tos = 0;
     int ip_packet_len = sizeof(struct iphdr) + msg.get_count();
     iph->tot_len = htons(ip_packet_len);
-    iph->id = htonl(4444);
+    iph->id = htons(0x1234);
     iph->frag_off = 0;
     iph->ttl = next_ttl.get_next_choice();
     iph->protocol = next_protocol.get_next_choice();

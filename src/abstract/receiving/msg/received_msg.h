@@ -7,6 +7,9 @@
 #include <memory>
 #include <cstring>
 
+#include <iostream>
+using namespace std;
+
 struct received_msg {
     udata_t data;
 
@@ -16,21 +19,48 @@ struct received_msg {
     received_msg() : data(), protocol_offsets(), curr_offset(0) {}
 
     received_msg(const received_msg& other) {
-        operator=(other);
+        int cnt = other.data.size();
+        data = udata_t(cnt, 0);
+        memcpy(data.data(), other.data.c_str(), cnt);
+
+        protocol_offsets = other.protocol_offsets;
+        curr_offset = other.curr_offset;
     }
 
-    received_msg& operator=(const received_msg& other) {
-        int sz = other.data.size();
-        data = udata_t(sz, 0x00);
-        memcpy(data.data(), other.data.data(), sz);
+//    received_msg(received_msg&& other) {
+//        std::cerr << "recieved_msg&& called" << endl;
+//        data = other.data;
+//        other.data.clear();
+//
+//        protocol_offsets = other.protocol_offsets;
+//        other.protocol_offsets.clear();
+//        curr_offset = other.curr_offset;
+//        other.curr_offset = 0;
+//    }
 
-        curr_offset = 0;
+    received_msg& operator=(const received_msg& other) {
+        int cnt = other.data.size();
+        data = udata_t(cnt, 0);
+        memcpy(data.data(), other.data.c_str(), cnt);
 
         protocol_offsets = other.protocol_offsets;
         curr_offset = other.curr_offset;
 
         return *this;
     }
+
+//    received_msg& operator=(received_msg&& other) {
+//        std::cerr << " = recieved_msg&& called" << endl;
+//        data = other.data;
+//        other.data.clear();
+//
+//        protocol_offsets = other.protocol_offsets;
+//        other.protocol_offsets.clear();
+//        curr_offset = other.curr_offset;
+//        other.curr_offset = 0;
+//
+//        return *this;
+//    }
 
 };
 

@@ -21,6 +21,10 @@ emp_server::emp_server(const udata_t& endpoint, ip4_addr src_ip, gateway* gw) : 
     emp_prot.endpoints_handlers.add_word(endpoint)->key = this;
 }
 
+emp_server::~emp_server() {
+    network_layer_gw->remove_listener(&ip_prot);
+}
+
 void emp_server::handle_received_event(received_msg &&event) {
     emp_packet_stack pack_stack;
     pack_stack.msg = event;

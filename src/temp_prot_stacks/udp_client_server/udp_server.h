@@ -26,6 +26,7 @@ struct udp_packet_stack {
         source_addr = other.source_addr;
         source_port = other.source_port;
         dest_port = other.dest_port;
+        return *this;
     }
 };
 
@@ -39,6 +40,8 @@ public:
     int server_port;
 
     udp_server(int serverPort, ip4_addr src_ip, gateway* gw);
+
+    ~udp_server();
 
     int send_data_to_client(ip4_addr dest_addr, int dest_port, send_msg<> msg);
 

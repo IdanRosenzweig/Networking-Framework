@@ -30,12 +30,12 @@ int main(int argc, char **argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("local-iface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string local_iface = vm["local-iface"].as<string>();

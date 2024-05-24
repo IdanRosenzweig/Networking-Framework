@@ -57,7 +57,7 @@ ip4_addr generate_next_ip(ip4_addr addr) {
 }
 
 ip4_addr convert_to_ip4_addr(const string &str) {
-    int a, b, c, d;
+    unsigned int a, b, c, d;
     if (sscanf(str.c_str(), "%d.%d.%d.%d", &a, &b, &c, &d) != 4) {
         throw "can't convert ip4 address";
     }

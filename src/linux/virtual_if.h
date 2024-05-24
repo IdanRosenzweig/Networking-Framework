@@ -14,7 +14,7 @@ class linux_virtual_iface : public msg_receiver {
     void handle_received_event(received_msg &&event) override;
 
 public:
-    explicit linux_virtual_iface(gateway *gw, char dev[6]);
+    explicit linux_virtual_iface(gateway *gw, string& iface_name);
 
     ~linux_virtual_iface();
 

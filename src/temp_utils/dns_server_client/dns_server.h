@@ -38,13 +38,40 @@ public:
 
     trie_node<char, 256, assign, string> mappings_type_mx;
 
+    dns_answer my_start_of_authority;
+
     dns_server(ip4_addr src_ip, gateway* network_layer_gw) : udpServer(DNS_SERVER_PORT, src_ip, network_layer_gw) {
         udpServer.add_listener(this);
+
+        // default start of authority
+        my_start_of_authority.name = (uint8_t*) "some local dns server";
+        my_start_of_authority.type = DNS_TYPE_SOA;
+        my_start_of_authority._class = DNS_CLASS_IN;
+        my_start_of_authority.ttl = 60 * 15;
+
+        soa_rdata_t rdata;
+        rdata.primary_server = (uint8_t*) "none";
+        rdata.admin_mail_server = (uint8_t*) "none";
+        rdata.serial_num = 69;
+        rdata.refresh_interval = 60 * 30;
+        rdata.retry_interval = 60 * 15;
+        rdata.expire_limit = 7 * 24 * 60 * 60;
+        rdata.max_ttl = 1 * 24 * 60 * 60;
+
+        my_start_of_authority.rdata = convert_to_rdata(&rdata);
+        my_start_of_authority.data_len = my_start_of_authority.rdata.size();
     }
 //    dns_server() : empServer({0x53}) {
 //        empServer.add_listener(this);
 //    }
 };
 
+// add records to server
+void add_a_record(dns_server *server, std::ifstream &input);
+
+void add_mx_record(dns_server *server, std::ifstream &input);
+
+// load entire record database to server
+void load_database(dns_server* server, const string& db_path);
 
 #endif //SERVERCLIENT_DNS_SERVER_H

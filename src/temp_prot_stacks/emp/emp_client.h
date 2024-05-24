@@ -14,6 +14,8 @@ public:
 
     emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, const udata_t& src_endpoint, ip4_addr src_ip, gateway * gw);
 
+    ~emp_client();
+
     int send_data(send_msg<>&& msg) override;
 
 };

@@ -26,12 +26,12 @@ public:
     explicit client_session(ssh_session session) : session(session) {
         raw_channel = ssh_channel_new(session);
         if (raw_channel == nullptr) {
-            cerr << "err creating raw_channel" << endl;
+            std::cerr << "err creating raw_channel" << endl;
             return;
         }
 
         if (ssh_channel_open_session(raw_channel) != SSH_OK) {
-            cerr << "err opening session raw_channel" << endl;
+            std::cerr << "err opening session raw_channel" << endl;
             ssh_channel_free(raw_channel);
             return;
         }
@@ -82,30 +82,30 @@ public:
     ssh_server(int port) {
         sshbind = ssh_bind_new();
         if (sshbind == nullptr) {
-            cerr << "err creating SSH bind" << endl;
+            std::cerr << "err creating SSH bind" << endl;
             throw 1;
         }
 
         if (ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0") < 0) {
-            cerr << "err setting bind address" << endl;
+            std::cerr << "err setting bind address" << endl;
             ssh_bind_free(sshbind);
             throw 1;
         }
 
         if (ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &port) < 0) {
-            cerr << "err setting bind port" << endl;
+            std::cerr << "err setting bind port" << endl;
             ssh_bind_free(sshbind);
             throw 1;
         }
 
         if (ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_RSAKEY, "/etc/ssh/ssh_host_rsa_key") < 0) {
-            cerr << "err setting rsakey" << endl;
+            std::cerr << "err setting rsakey" << endl;
             ssh_bind_free(sshbind);
             throw 1;
         }
 
         if (ssh_bind_listen(sshbind) < 0) {
-            cerr << "err listening to socket: " << ssh_get_error(sshbind) << endl;
+            std::cerr << "err listening to socket: " << ssh_get_error(sshbind) << endl;
             ssh_bind_free(sshbind);
             throw 1;
         }
@@ -113,22 +113,22 @@ public:
 
         ssh_session session = ssh_new();
         if (session == nullptr) {
-            cerr << "err creating session" << endl;
+            std::cerr << "err creating session" << endl;
             return;
         }
 
-        cout << "waiting for accept" << endl;
+        std::cout << "waiting for accept" << endl;
         if (ssh_bind_accept(sshbind, session) != SSH_OK) {
-            cerr << "err accepting incoming connection" << endl;
+            std::cerr << "err accepting incoming connection" << endl;
             ssh_free(session);
             return;
         }
 
         if (ssh_handle_key_exchange(session) != SSH_OK) {
-            cerr << "err ssh_handle_key_exchange: " << ssh_get_error(session) << endl;
+            std::cerr << "err ssh_handle_key_exchange: " << ssh_get_error(session) << endl;
             return;
         }
-        cout << "accpeted" << endl;
+        std::cout << "accpeted" << endl;
 
 
 
@@ -141,14 +141,14 @@ public:
             throw 1;
         }
 
-        cout << "waiting for auth" << endl;
+        std::cout << "waiting for auth" << endl;
         std::string password = "123"; // Replace with actual password logic
         if (ssh_userauth_password(session, nullptr, password.c_str()) != SSH_AUTH_SUCCESS) {
             fprintf(stderr, "Authentication failed\n");
             throw 1;
         }
 
-        cout << "creating new session" << endl;
+        std::cout << "creating new session" << endl;
         as_server_sessions.push_back(std::make_unique<client_session>(session));
 
     }

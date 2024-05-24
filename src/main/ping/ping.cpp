@@ -33,18 +33,18 @@ int main(int argc, char** argv) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string interface = vm["interface"].as<string>();
 
     if (!vm.count("ip")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string dest = vm["ip"].as<string>();

@@ -19,6 +19,10 @@ icmp_connection_client::icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip
     icmp_client.type_handlers.assign_to_key(ICMP_CONN_SERVER_TYPE, this);
 }
 
+icmp_connection_client::~icmp_connection_client() {
+    network_layer_gw->remove_listener(&ip_client);
+}
+
 int icmp_connection_client::send_data(send_msg<> &&msg) {
     return icmp_client.send_data(std::move(msg));
 }

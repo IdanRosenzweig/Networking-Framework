@@ -37,18 +37,18 @@ int main(int argc, char **argv) {
 
 
     if (vm.count("help")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
 
     if (!vm.count("interface")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string interface = vm["interface"].as<string>();
 
     if (!vm.count("dest")) {
-        cout << opts << endl;
+        std::cout << opts << endl;
         return 1;
     }
     string dest = vm["dest"].as<string>();
@@ -68,15 +68,15 @@ int main(int argc, char **argv) {
     }
 
 
-    cout << "victims: ";
+    std::cout << "victims: ";
     vector<ip4_addr> victims_ip;
-    if (victims.empty()) cout << "all broadcast";
+    if (victims.empty()) std::cout << "all broadcast";
     else
         for (string &victim: victims) {
-            cout << victim << ", ";
+            std::cout << victim << ", ";
             victims_ip.push_back(convert_to_ip4_addr(victim));
         }
-    cout << endl;
+    std::cout << endl;
 
     net_intercept_main(interface, victims_ip, convert_to_ip4_addr(dest), block);
 

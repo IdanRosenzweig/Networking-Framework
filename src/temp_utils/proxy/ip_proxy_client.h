@@ -16,6 +16,10 @@ public:
         conn_to_proxy_server->add_listener(this);
     }
 
+    ~ip_proxy_client() {
+        conn_to_proxy_server->remove_listener(this);
+    }
+
     int send_data(send_msg<>&& msg) override {
         return conn_to_proxy_server->send_data(std::move(msg));
     }
