@@ -1,26 +1,25 @@
-#ifndef SERVERCLIENT_BLOCK_TCP_H
-#define SERVERCLIENT_BLOCK_TCP_H
+#ifndef SERVERCLIENT_BLOCK_INCOMING_TCP_H
+#define SERVERCLIENT_BLOCK_INCOMING_TCP_H
 
 #include <netinet/in.h>
 #include <linux/if_ether.h>
 #include <linux/tcp.h>
 
-#include "basic_firewall_filter.h"
-#include "../utils/data_counter.h"
+#include "../../abstract/firewall/basic_firewall_filter.h"
+#include "../../abstract/utils/data_counter.h"
 
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/ether/ethernet_protocol.h"
 
-class block_tcp_filter : public basic_firewall_filter<received_msg> {
-public:
+class block_incoming_tcp : public basic_firewall_filter<received_msg> {
     ethernet_protocol ether_prot;
     ip4_protocol ip_prot;
 
     class examiner : public msg_receiver {
-        block_tcp_filter *master;
+        block_incoming_tcp *master;
     public:
-        explicit examiner(block_tcp_filter *master) : master(master) {}
+        explicit examiner(block_incoming_tcp *master) : master(master) {}
 
     public:
         void handle_received_event(received_msg &&event) override {
@@ -38,12 +37,13 @@ public:
     int blocked_port;
     bool blocked_flag = false;
 
-    block_tcp_filter(int port) : blocked_port(port), tcp_examine(this) {
+public:
+    block_incoming_tcp(int port) : blocked_port(port), tcp_examine(this) {
         ether_prot.protocol_handlers.assign_to_key(htons(ETH_P_IP), &ip_prot);
         ip_prot.protocol_handlers.assign_to_key(IPPROTO_TCP, &tcp_examine);
     }
 
-    firewall_policy calc_policy(received_msg &msg) override {
+    firewall_policy calc_policy(const received_msg &msg) override {
         received_msg copy = msg;
         ether_prot.handle_received_event(std::move(copy));
 
@@ -56,4 +56,4 @@ public:
     }
 };
 
-#endif //SERVERCLIENT_BLOCK_TCP_H
+#endif //SERVERCLIENT_BLOCK_INCOMING_TCP_H

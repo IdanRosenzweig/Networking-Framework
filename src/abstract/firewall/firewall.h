@@ -7,6 +7,8 @@
 #include "basic_firewall_filter.h"
 #include "../connection/connection.h"
 
+// takes a base connection and applies various filters on incoming and outgoing packets.
+// provides a connection api itself.
 class firewall : public connection {
     connection * base;
 public:
@@ -23,9 +25,7 @@ public:
 
     int send_data(send_msg<> &&val) override { // todo fix the override of send_multiplexer
         for (const auto& filter : outgoing_filters) {
-            // create a copy of the message and pass it to the filter
-            send_msg<> msg_copy = val;
-            switch (filter->calc_policy(msg_copy)) {
+            switch (filter->calc_policy(val)) {
                 case ALLOW: break; // continue to next filter
                 case BLOCK: {
 //                    std::cout << "firewall blocked outgoing packet" << std::endl;
@@ -45,9 +45,7 @@ public:
 
     void handle_received_event(received_msg &&event) override {
         for (const auto& filter : incoming_filters) {
-            // create a copy of the message and pass it to the filter
-            received_msg msg_copy = event;
-            switch (filter->calc_policy(msg_copy)) {
+            switch (filter->calc_policy(event)) {
                 case ALLOW: break; // continue to next filter
                 case BLOCK: {
 //                    std::cout << "firewall blocked incoming packet" << std::endl;

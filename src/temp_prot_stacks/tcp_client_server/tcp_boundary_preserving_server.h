@@ -18,11 +18,10 @@ class tcp_boundary_preserving_server : public session_generator<tcp_boundary_pre
 
         void handle_received_event(tcp_session_type &&event) override {
             master->generate_event(
-                    tcp_boundary_preserving_session_type(event.id,
-                                                         event.sess_data,
+                    std::move(tcp_boundary_preserving_session_type(event.sess_data,
                                                          std::make_unique<tcp_boundary_preserving_session_conn>(
                                                                  std::move(event.sess_conn))
-                    )
+                    ))
             );
         }
     } sessionsHandler;
@@ -34,8 +33,7 @@ public:
 
     tcp_boundary_preserving_session_type start_session(const string &ip, int port) {
         tcp_session_type raw_sess = raw_tcp_server.start_session(ip, port);
-        return tcp_boundary_preserving_session_type(raw_sess.id,
-                                                    raw_sess.sess_data,
+        return tcp_boundary_preserving_session_type(raw_sess.sess_data,
                                                     std::make_unique<tcp_boundary_preserving_session_conn>(
                                                             std::move(raw_sess.sess_conn))
         );

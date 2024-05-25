@@ -15,7 +15,7 @@
 
 // ##### THE INITIAL STATE OF SEND_MSG WILL PROBABLY NOT BE PRESERVED AFTER DOING THIS PROCEDURE MULTIPLE TIMES #####
 
-template<int MTU = 1024>
+template<int MTU = 4096>
 class send_msg {
     uint8_t buff1[MTU] = {0};
     uint8_t buff2[MTU] = {0};

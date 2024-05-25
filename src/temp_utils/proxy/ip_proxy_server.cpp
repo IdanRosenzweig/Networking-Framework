@@ -78,11 +78,11 @@ void network_side_handler::handle_received_event(received_msg&& msg) {
     ip4_addr dest_addr;
     extract_from_network_order(&dest_addr, (uint8_t*) &((struct iphdr *) buff)->daddr);
 
-//    for (conn_side_handler* app_handler : raw_tcp_server->mappings[source]) {
+//    for (conn_side_handler* server_app : raw_tcp_server->mappings[source]) {
 //        struct iphdr* ip_hdr = reinterpret_cast<iphdr *>(buff);
 //
 //        // change the dest address
-//        ip4_addr new_dest = app_handler->my_source;
+//        ip4_addr new_dest = server_app->my_source;
 //        write_in_network_order((uint8_t*) &ip_hdr->saddr, &new_dest);
 //
 //        // update checksum
@@ -90,7 +90,7 @@ void network_side_handler::handle_received_event(received_msg&& msg) {
 //        ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 //
 //        std::cout << "sending reply back to connection" << endl;
-//        app_handler->send_data({buff, cnt});
+//        server_app->send_data({buff, cnt});
 //    }
     struct iphdr* ip_hdr = reinterpret_cast<iphdr *>(buff);
 

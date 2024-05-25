@@ -74,9 +74,9 @@ public:
     void set_proxied_connection(connection* conn) {
         conn_handler = std::make_unique<conn_side_handler>(conn);
         conn_handler->server = this;
-//        conn_side_handler app_handler(conn);
-//        app_handler.raw_tcp_server = this;
-//        client_handlers.push_back(std::move(app_handler));
+//        conn_side_handler server_app(conn);
+//        server_app.raw_tcp_server = this;
+//        client_handlers.push_back(std::move(server_app));
     }
 
 };

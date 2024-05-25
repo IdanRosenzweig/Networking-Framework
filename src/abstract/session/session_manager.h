@@ -16,13 +16,39 @@ class session_manager {
                   "type of SESSION_HANDLER must be derived type of session_handler<SESSION_TYPE>");
 
     struct internal_session_handler {
-        SESSION_TYPE session;
         SESSION_HANDLER handler;
+        int internal_id;
 
     public:
-        explicit internal_session_handler(SESSION_TYPE &&sess)
-                : session(std::move(sess)), handler(session) {
+        explicit internal_session_handler(SESSION_TYPE &&sess, int id)
+                : handler(std::move(sess)), internal_id(id) {
             handler.on_session_start();
+        }
+
+        internal_session_handler(internal_session_handler &&other) : handler(std::move(other.handler.session)),
+                                                                     internal_id(other.internal_id) {
+
+        }
+
+        internal_session_handler &operator=(internal_session_handler &&other) {
+            handler = std::move(other.handler.session);
+            internal_id = other.internal_id;
+        }
+
+        bool operator<(const internal_session_handler &rhs) const {
+            return internal_id < rhs.internal_id;
+        }
+
+        bool operator>(const internal_session_handler &rhs) const {
+            return rhs < *this;
+        }
+
+        bool operator<=(const internal_session_handler &rhs) const {
+            return !(rhs < *this);
+        }
+
+        bool operator>=(const internal_session_handler &rhs) const {
+            return !(*this < rhs);
         }
     };
 
@@ -30,7 +56,7 @@ class session_manager {
         session_manager *master;
 
         void handle_received_event(SESSION_TYPE &&event) override {
-            master->sessions.emplace_back(std::move(event));
+            master->sessions.insert(std::make_unique<internal_session_handler>(std::move(event), master->next_id++));
         }
 
         explicit sessions_recv(session_manager *master) : master(master) {}
@@ -38,8 +64,9 @@ class session_manager {
 
     sessions_recv receiver;
 
+    int next_id = 0;
 public:
-    std::vector<internal_session_handler> sessions;
+    std::set<std::unique_ptr<internal_session_handler>> sessions;
 
     session_manager() = delete;
 

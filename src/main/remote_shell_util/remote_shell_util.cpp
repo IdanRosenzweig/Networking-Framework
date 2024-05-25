@@ -2,10 +2,9 @@
 #include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_server.h"
 #include "../../abstract/session/session_manager.h"
 
-#include <boost/program_options.hpp>
-#include <unistd.h>
+#include <string>
 #include <iostream>
-
+#include <boost/program_options.hpp>
 using namespace std;
 
 class server_app : public session_handler<tcp_boundary_preserving_session_type>, public msg_receiver {
@@ -14,41 +13,46 @@ public:
         session.sess_conn->add_listener(this);
     }
 
-    explicit server_app(tcp_boundary_preserving_session_type &&session) : session_handler(std::move(session)) {}
+    explicit server_app(tcp_boundary_preserving_session_type &&sess) : session_handler(std::move(sess)) {}
 
 private:
     void handle_received_event(received_msg &&event) override {
         uint8_t * msg = event.data.data() + event.curr_offset;
-        std::cout << msg << endl;
+        std::cout << "client's command: " << msg << endl;
+
+        FILE* proc_ptr = popen((const char*) msg, "r");
+        if (proc_ptr == nullptr) { // send some error message
+            send_msg<> send;
+#define ERR_OUTPUT "err"
+            int err_len = strlen(ERR_OUTPUT);
+            memcpy(send.get_active_buff(), ERR_OUTPUT, err_len);
+            send.set_count(err_len);
+
+            session.sess_conn->send_data(std::move(send));
+            return;
+        }
+
+        send_msg<> send;
+        int total_cnt = 0;
+        while (true) {
+            uint8_t byte;
+            if (fread(&byte, 1, 1, proc_ptr) != 1) break;
+
+            send.get_active_buff()[total_cnt++] = byte;
+        }
+        send.set_count(total_cnt);
+        this->session.sess_conn->send_data(std::move(send));
     }
 };
 
 using server_sess_manager = session_manager<tcp_boundary_preserving_session_type, server_app>;
 
-void netcat_server_main(const string& iface, int port) {
-    // listening and generating the session
+void shell_server_main(const string& iface, int port) {
     tcp_boundary_preserving_server server(port);
 
-    // handling and storing the sessions
     server_sess_manager app(&server);
 
-    while (true) {
-        string str;
-        getline(cin, str);
-
-        auto it = app.sessions.begin();
-        while (it != app.sessions.end()) {
-            send_msg send;
-            memcpy(send.get_active_buff(), str.c_str(), str.size());
-            send.set_count(str.size());
-
-            int res = (*it)->handler.session.sess_conn->send_data(std::move(send));
-            if (res == -1 || res == 0) { // can't send to session, remove it
-                it = app.sessions.erase(it);
-            } else it++; // can send, just advance the iterator
-        }
-
-    }
+    while (true) {}
 
 }
 
@@ -60,8 +64,9 @@ public:
     }
 };
 
-void netcat_client_main(const string& iface, ip4_addr dest_ip, int port) {
-    tcp_boundary_preserving_client client(dest_ip, port, 1212);
+void shell_client_main(const string& iface, ip4_addr server_ip, int dest_port) {
+
+    tcp_boundary_preserving_client client(server_ip, dest_port, 6799);
 
     client_app app;
     client.add_listener(&app);
@@ -81,10 +86,10 @@ void netcat_client_main(const string& iface, ip4_addr dest_ip, int port) {
 }
 
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("send and receive raw text");
+    po::options_description opts("execute shell commands remotely");
     opts.add_options()
             ("help", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
@@ -126,7 +131,7 @@ int main(int argc, char **argv) {
         }
         int port = vm["port"].as<int>();
 
-        netcat_server_main(iface, port);
+        shell_server_main(iface, port);
 
     } else {
         if (!vm.count("port")) {
@@ -141,7 +146,7 @@ int main(int argc, char **argv) {
         }
         string dest = vm["dest"].as<string>();
 
-        netcat_client_main(iface, convert_to_ip4_addr(dest), port);
+        shell_client_main(iface, convert_to_ip4_addr(dest), port);
     }
 
 }

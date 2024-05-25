@@ -84,27 +84,17 @@ add_executable(vpn_client
 #target_link_libraries(vpn_client ${LIBSSH_LIBRARIES})
 
 
-add_executable(echo_server
+add_executable(remote_shell_util
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
         ${LINUX_SRC}
 
+        src/main/remote_shell_util/remote_shell_util.cpp
         src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
-        src/main/echo_server/echo_server.cpp
-)
-#target_link_libraries(echo_server ${PCAP_LIBRARY})
-#target_link_libraries(echo_server ${LIBSSH_LIBRARIES})
-
-add_executable(echo_client
-        ${ABSTRACT_SRC}
-        ${PROTOCOLS_SRC}
-        ${LINUX_SRC}
-
         src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
-        src/main/echo_server/echo_client.cpp
 )
-#target_link_libraries(echo_client ${PCAP_LIBRARY})
-#target_link_libraries(echo_client ${LIBSSH_LIBRARIES})
+#target_link_libraries(remote_shell_util ${PCAP_LIBRARY})
+#target_link_libraries(remote_shell_util ${LIBSSH_LIBRARIES})
 
 
 add_executable(onion_network_node

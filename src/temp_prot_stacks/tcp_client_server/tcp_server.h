@@ -21,8 +21,9 @@ class tcp_server : public session_generator<tcp_session_type> {
         }
 
         void handle_received_event(tcp_session_type &&event) override {
-            if (event.sess_data.dest_port == master->server_port)
+            if (event.sess_data.dest_port == master->server_port) {
                 master->generate_event(std::move(event));
+            }
         }
     };
     sessions_handler sessionsHandler;

@@ -8,7 +8,7 @@ template <typename TYPE>
 class basic_firewall_filter {
 public:
     // produce policy decision about the value
-    virtual firewall_policy calc_policy(TYPE& val) = 0;
+    virtual firewall_policy calc_policy(const TYPE& val) = 0;
 
 };
 #endif //SERVERCLIENT_BASIC_FIREWALL_FILTER_H

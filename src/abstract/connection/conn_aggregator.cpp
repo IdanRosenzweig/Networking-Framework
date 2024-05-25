@@ -45,9 +45,8 @@ void conn_handler::handle_received_event(received_msg &&event) {
             continue;
         }
 
-        if (i == 0) std::cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
-        else if (i == 1)
-            std::cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
+        if (i == 0) std::cout << "aggregator sending to index 0: " << cnt << ", was at offset " << event.curr_offset << endl;
+        else if (i == 1) std::cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
         i++;
     }
 
