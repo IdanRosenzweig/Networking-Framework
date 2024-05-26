@@ -1,5 +1,7 @@
 #include "hardware.h"
 #include <linux/if.h>
+#include <linux/if_ether.h>
+#include <linux/if_arp.h>
 #include <cstring>
 #include <cstdio>
 #include <linux/if_ether.h>
@@ -24,6 +26,21 @@ mac_addr get_mac_addr_of_iface(const string &iface) {
     memcpy(&addr, ifr.ifr_hwaddr.sa_data, sizeof(addr));
 
     return addr;
+}
+
+void set_mac_addr_for_iface(const string &iface, mac_addr new_addr) {
+    struct ifreq ifr;
+    memset(&ifr, 0, sizeof ifr);
+    snprintf(ifr.ifr_name, IFNAMSIZ, "%s", iface.c_str());
+    ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+    memcpy(ifr.ifr_hwaddr.sa_data, &new_addr, sizeof(new_addr));
+
+    int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if (ioctl(temp_fd, SIOCSIFHWADDR, &ifr) < 0) {
+        cerr << "couldn't change the mac address inside the kernel using ioctl" << endl;
+    }
+    close(temp_fd);
+
 }
 
 ip4_addr get_ip_addr_of_iface(const string &iface) {

@@ -245,6 +245,17 @@ add_executable(net_analyzer
 #target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
 #target_link_libraries(net_analyzer ${Boost_LIBRARIES})
 
+add_executable(mac_changer
+        ${ABSTRACT_SRC}
+        ${PROTOCOLS_SRC}
+        ${LINUX_SRC}
+
+        src/main/net_intercept/mac_changer.cpp
+        src/temp_utils/net_arp/net_arp.cpp
+)
+#target_link_libraries(net_analyzer ${PCAP_LIBRARY})
+#target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
+#target_link_libraries(net_analyzer ${Boost_LIBRARIES})
 
 
 add_executable(scp

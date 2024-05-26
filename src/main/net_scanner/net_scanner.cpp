@@ -12,7 +12,7 @@ void arp_scan_single_main(const string& iface, ip4_addr ip_addr) {
     net_arp scanner(new data_link_layer_gateway(iface));
 
     std::cout << "mac address associated with ip: " << convert_to_str(ip_addr) << endl;
-    print_mac(scanner.search_for_mac_addr(ip_addr, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface)));
+    cout << convert_to_str(scanner.search_for_mac_addr(ip_addr, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface))) << endl;
 }
 
 void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask) {
@@ -22,9 +22,7 @@ void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask) {
 
     std::cout << endl << "search result for subnet: " << convert_to_str(mask) << endl;
     for (auto& pair : results) {
-        std::cout << convert_to_str(pair.first) << " is ";
-        print_mac(pair.second);
-        std::cout << endl;
+        std::cout << convert_to_str(pair.first) << " is " << convert_to_str(pair.second) << endl;
     }
 
 }

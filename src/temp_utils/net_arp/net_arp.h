@@ -60,6 +60,9 @@ public:
                                   ip4_addr src_ip);
 
 
+    // announce a new mac address associated with the src ip
+    void announce_new_mac(ip4_addr src_ip, mac_addr new_mac);
+
 };
 
 #endif //SERVERCLIENT_NET_ARP_H

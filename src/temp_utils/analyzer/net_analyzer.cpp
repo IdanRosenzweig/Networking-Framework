@@ -15,8 +15,8 @@ void net_analyzer::ether_handler::handle_received_event(received_msg &&event) {
     mac_addr dest;
     memcpy(&src, ether->ether_shost, ETH_ALEN);
     memcpy(&dest, ether->ether_dhost, ETH_ALEN);
-    std::cout << "src "; print_mac(src); std::cout << "\t";
-    std::cout << "dest "; print_mac(dest); std::cout << "\t";
+    std::cout << "src " << convert_to_str(src) << "\t";
+    std::cout << "dest " << convert_to_str(dest) << "\t";
 
     std::cout << endl;
 }

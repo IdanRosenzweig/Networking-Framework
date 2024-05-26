@@ -2,6 +2,7 @@
 #define SERVERCLIENT_MAC_ADDR_H
 
 #include <stdint.h>
+#include <string>
 
 struct mac_addr {
     uint8_t octets[6];
@@ -22,6 +23,8 @@ struct mac_addr {
 
 #define BROADCAST_MAC (mac_addr{0xff,0xff,0xff,0xff,0xff,0xff})
 
-void print_mac(mac_addr addr);
+mac_addr convert_to_mac_addr(const std::string& str);
+
+std::string convert_to_str(mac_addr addr);
 
 #endif //SERVERCLIENT_MAC_ADDR_H
