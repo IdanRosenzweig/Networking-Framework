@@ -8,6 +8,8 @@
 
 // it also deletes all subprotocols that are stored in the messages coming from the connection (in msg.protocol_offsets)
 
+// THIS CLASS ASSUMES EACH PACKET WOULD CONTAIN AT LEAST SIZEOF(MSG_SZ_FIELD) BYTES
+
 template <typename MSG_SZ_FIELD = uint16_t>
 class msg_boundary_seperator : public connection {
     connection* base_conn;
@@ -46,11 +48,11 @@ public:
 
         while (cnt > 0) {
             if (!mid_packet) {
-                MSG_SZ_FIELD curr_sz = *(MSG_SZ_FIELD*)buff; // todo fix assuming each send would contain at least sizeof(uint16_t) bytes
+                MSG_SZ_FIELD curr_sz = *(MSG_SZ_FIELD*)buff;
                 buff += sizeof(MSG_SZ_FIELD);
                 cnt -= sizeof(MSG_SZ_FIELD);
 
-                curr_msg = received_msg(); // todo fix?
+                curr_msg = received_msg();
                 curr_msg.data = udata_t(curr_sz, 0x00);
                 curr_msg.curr_offset = 0;
                 curr_msg.protocol_offsets.clear();

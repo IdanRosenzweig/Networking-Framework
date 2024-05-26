@@ -21,10 +21,6 @@ int conn_handler::send_data(send_msg<> &&val) {
 }
 
 void conn_handler::handle_received_event(received_msg &&event) {
-//    using namespace std::chrono_literals;
-//    std::this_thread::sleep_for(10ms); // todo why sleep here?
-
-
     int i = 0;
     while (i < master->conns.size()) {
         if (master->conns[i].get() == this) {
