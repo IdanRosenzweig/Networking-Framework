@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_BASIC_RECV_LISTENER_H
-#define SERVERCLIENT_BASIC_RECV_LISTENER_H
+#ifndef NETWORKING_BASIC_RECV_LISTENER_H
+#define NETWORKING_BASIC_RECV_LISTENER_H
 
 // receiving data is different from sending data in the sense that
 // you can control when to send msg, but receiving msg is rather interrupted.
@@ -15,4 +15,4 @@ public:
     virtual void handle_received_event(T&& event) = 0;
 };
 
-#endif //SERVERCLIENT_BASIC_RECV_LISTENER_H
+#endif //NETWORKING_BASIC_RECV_LISTENER_H

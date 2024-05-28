@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_IP_PROXY_SERVER_H
-#define SERVERCLIENT_IP_PROXY_SERVER_H
+#ifndef NETWORKING_IP_PROXY_SERVER_H
+#define NETWORKING_IP_PROXY_SERVER_H
 
 #include "../../abstract/connection/connection.h"
 #include "../../abstract/receiving/msg/received_msg.h"
@@ -85,4 +85,4 @@ public:
 
 
 
-#endif //SERVERCLIENT_IP_PROXY_SERVER_H
+#endif //NETWORKING_IP_PROXY_SERVER_H

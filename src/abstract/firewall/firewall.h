@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_FIREWALL_H
-#define SERVERCLIENT_FIREWALL_H
+#ifndef NETWORKING_FIREWALL_H
+#define NETWORKING_FIREWALL_H
 
 #include <vector>
 #include <thread>
@@ -67,4 +67,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_FIREWALL_H
+#endif //NETWORKING_FIREWALL_H

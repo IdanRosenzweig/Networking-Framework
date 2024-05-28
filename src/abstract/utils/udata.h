@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_UDATA_H
-#define SERVERCLIENT_UDATA_H
+#ifndef NETWORKING_UDATA_H
+#define NETWORKING_UDATA_H
 
 #include <stdint.h>
 #include <string>
@@ -121,4 +121,4 @@ int decode_number(NUM_TYPE* dest_num, void* buff) {
     return res_cnt;
 }
 
-#endif //SERVERCLIENT_UDATA_H
+#endif //NETWORKING_UDATA_H

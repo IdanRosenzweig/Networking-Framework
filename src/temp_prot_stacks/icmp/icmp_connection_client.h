@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_ICMP_CONNECTION_CLIENT_H
-#define SERVERCLIENT_ICMP_CONNECTION_CLIENT_H
+#ifndef NETWORKING_ICMP_CONNECTION_CLIENT_H
+#define NETWORKING_ICMP_CONNECTION_CLIENT_H
 
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
@@ -23,4 +23,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_ICMP_CONNECTION_CLIENT_H
+#endif //NETWORKING_ICMP_CONNECTION_CLIENT_H

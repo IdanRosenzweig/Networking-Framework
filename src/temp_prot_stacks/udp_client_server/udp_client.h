@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_UDP_CLIENT_H
-#define SERVERCLIENT_UDP_CLIENT_H
+#ifndef NETWORKING_UDP_CLIENT_H
+#define NETWORKING_UDP_CLIENT_H
 
 #include "../../abstract/connection/connection.h"
 #include "../../abstract/gateway/gateway.h"
@@ -22,4 +22,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_UDP_CLIENT_H
+#endif //NETWORKING_UDP_CLIENT_H

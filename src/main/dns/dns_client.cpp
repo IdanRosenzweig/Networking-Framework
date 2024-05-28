@@ -1,4 +1,4 @@
-#include "../../temp_utils/dns_server_client/dns_client.h"
+#include "../../temp_utils/dns/dns_client.h"
 #include "../../linux/if/hardware.h"
 
 #include <boost/program_options.hpp>

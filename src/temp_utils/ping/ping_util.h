@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_PING_UTIL_H
-#define SERVERCLIENT_PING_UTIL_H
+#ifndef NETWORKING_PING_UTIL_H
+#define NETWORKING_PING_UTIL_H
 
 #include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
@@ -26,4 +26,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_PING_UTIL_H
+#endif //NETWORKING_PING_UTIL_H

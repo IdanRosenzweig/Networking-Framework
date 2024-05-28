@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_RECEIVED_MSG_H
-#define SERVERCLIENT_RECEIVED_MSG_H
+#ifndef NETWORKING_RECEIVED_MSG_H
+#define NETWORKING_RECEIVED_MSG_H
 
 #include "../../utils/udata.h"
 #include "../../protocol_t.h"
@@ -63,4 +63,4 @@ struct received_msg {
 
 using msg_recv_listener = basic_recv_listener<received_msg>;
 
-#endif //SERVERCLIENT_RECEIVED_MSG_H
+#endif //NETWORKING_RECEIVED_MSG_H

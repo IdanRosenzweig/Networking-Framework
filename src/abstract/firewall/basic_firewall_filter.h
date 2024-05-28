@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_BASIC_FIREWALL_FILTER_H
-#define SERVERCLIENT_BASIC_FIREWALL_FILTER_H
+#ifndef NETWORKING_BASIC_FIREWALL_FILTER_H
+#define NETWORKING_BASIC_FIREWALL_FILTER_H
 
 #include "firewall_policy.h"
 #include "../receiving/msg/received_msg.h"
@@ -11,4 +11,4 @@ public:
     virtual firewall_policy calc_policy(const TYPE& val) = 0;
 
 };
-#endif //SERVERCLIENT_BASIC_FIREWALL_FILTER_H
+#endif //NETWORKING_BASIC_FIREWALL_FILTER_H

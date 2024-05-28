@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_SESSION_MANAGER_H
-#define SERVERCLIENT_SESSION_MANAGER_H
+#ifndef NETWORKING_SESSION_MANAGER_H
+#define NETWORKING_SESSION_MANAGER_H
 
 #include "session_conn.h"
 #include "session_generator.h"
@@ -76,4 +76,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_SESSION_MANAGER_H
+#endif //NETWORKING_SESSION_MANAGER_H

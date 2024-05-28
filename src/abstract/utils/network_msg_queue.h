@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_NETWORK_MSG_QUEUE_H
-#define SERVERCLIENT_NETWORK_MSG_QUEUE_H
+#ifndef NETWORKING_NETWORK_MSG_QUEUE_H
+#define NETWORKING_NETWORK_MSG_QUEUE_H
 
 #include "circular_buffer.h"
 #include "../receiving/msg/received_msg.h"
@@ -66,4 +66,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_NETWORK_MSG_QUEUE_H
+#endif //NETWORKING_NETWORK_MSG_QUEUE_H

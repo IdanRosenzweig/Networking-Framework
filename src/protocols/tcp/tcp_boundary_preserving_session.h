@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TCP_BOUNDARY_PRESERVING_SESSION_H
-#define SERVERCLIENT_TCP_BOUNDARY_PRESERVING_SESSION_H
+#ifndef NETWORKING_TCP_BOUNDARY_PRESERVING_SESSION_H
+#define NETWORKING_TCP_BOUNDARY_PRESERVING_SESSION_H
 
 #include "tcp_session.h"
 #include "../../protocols/msg_boundary/msg_boundary_seperator.h"
@@ -23,4 +23,4 @@ public:
 
 using tcp_boundary_preserving_session_type = session_t<tcp_boundary_preserving_session_conn, tcp_session_data>;
 
-#endif //SERVERCLIENT_TCP_BOUNDARY_PRESERVING_SESSION_H
+#endif //NETWORKING_TCP_BOUNDARY_PRESERVING_SESSION_H

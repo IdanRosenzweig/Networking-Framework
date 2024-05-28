@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_EMP_H
-#define SERVERCLIENT_EMP_H
+#ifndef NETWORKING_EMP_H
+#define NETWORKING_EMP_H
 
 #include "../../abstract/sending/msg/send_msg.h"
 #include "../../abstract/receiving/msg/received_msg.h"
@@ -26,4 +26,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_EMP_H
+#endif //NETWORKING_EMP_H

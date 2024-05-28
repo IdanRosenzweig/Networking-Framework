@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TCP_CLIENT_H
-#define SERVERCLIENT_TCP_CLIENT_H
+#ifndef NETWORKING_TCP_CLIENT_H
+#define NETWORKING_TCP_CLIENT_H
 
 #include "../../abstract/connection/connection.h"
 #include "../../abstract/gateway/gateway.h"
@@ -18,4 +18,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_TCP_CLIENT_H
+#endif //NETWORKING_TCP_CLIENT_H

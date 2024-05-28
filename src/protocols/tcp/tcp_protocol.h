@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TCP_PROTOCOL_H
-#define SERVERCLIENT_TCP_PROTOCOL_H
+#ifndef NETWORKING_TCP_PROTOCOL_H
+#define NETWORKING_TCP_PROTOCOL_H
 
 #include <vector>
 #include <cstring>
@@ -36,4 +36,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_TCP_PROTOCOL_H
+#endif //NETWORKING_TCP_PROTOCOL_H

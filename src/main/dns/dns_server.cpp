@@ -1,5 +1,5 @@
-#include "../../temp_utils/dns_server_client/dns_server.h"
-#include "../../temp_utils/dns_server_client/database_loader.h"
+#include "../../temp_utils/dns/dns_server.h"
+#include "../../temp_utils/dns/database_loader.h"
 #include "../../linux/if/hardware.h"
 
 #include <boost/program_options.hpp>

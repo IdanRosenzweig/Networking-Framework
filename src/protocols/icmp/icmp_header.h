@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_ICMP_HEADER_H
-#define SERVERCLIENT_ICMP_HEADER_H
+#ifndef NETWORKING_ICMP_HEADER_H
+#define NETWORKING_ICMP_HEADER_H
 
 #include <stdint.h>
 
@@ -25,4 +25,4 @@ struct icmp_header {
 };
 
 
-#endif //SERVERCLIENT_ICMP_HEADER_H
+#endif //NETWORKING_ICMP_HEADER_H

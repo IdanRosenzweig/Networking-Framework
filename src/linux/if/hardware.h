@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_HARDWARE_H
-#define SERVERCLIENT_HARDWARE_H
+#ifndef NETWORKING_HARDWARE_H
+#define NETWORKING_HARDWARE_H
 
 #include "../../protocols/ether/mac_addr.h"
 #include "../../protocols/ip4/ip4_addr.h"
@@ -12,4 +12,4 @@ ip4_addr get_ip_addr_of_iface(const string &iface);
 
 ip4_addr get_default_gateway_of_iface(const string &iface);
 
-#endif //SERVERCLIENT_HARDWARE_H
+#endif //NETWORKING_HARDWARE_H

@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_UDP_SERVER_H
-#define SERVERCLIENT_UDP_SERVER_H
+#ifndef NETWORKING_UDP_SERVER_H
+#define NETWORKING_UDP_SERVER_H
 
 #include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
@@ -49,4 +49,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_UDP_SERVER_H
+#endif //NETWORKING_UDP_SERVER_H

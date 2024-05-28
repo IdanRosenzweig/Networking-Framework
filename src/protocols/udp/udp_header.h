@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_UDP_HEADER_H
-#define SERVERCLIENT_UDP_HEADER_H
+#ifndef NETWORKING_UDP_HEADER_H
+#define NETWORKING_UDP_HEADER_H
 
 #include <stdint.h>
 
@@ -10,4 +10,4 @@ struct udp_header {
     uint16_t checksum;
 };
 
-#endif //SERVERCLIENT_UDP_HEADER_H
+#endif //NETWORKING_UDP_HEADER_H

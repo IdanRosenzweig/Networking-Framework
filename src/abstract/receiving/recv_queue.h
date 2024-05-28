@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_RECV_QUEUE_H
-#define SERVERCLIENT_RECV_QUEUE_H
+#ifndef NETWORKING_RECV_QUEUE_H
+#define NETWORKING_RECV_QUEUE_H
 
 #include "basic_recv_listener.h"
 #include "../utils/circular_buffer.h"
@@ -17,4 +17,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_RECV_QUEUE_H
+#endif //NETWORKING_RECV_QUEUE_H

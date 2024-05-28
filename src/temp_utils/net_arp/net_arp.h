@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_NET_ARP_H
-#define SERVERCLIENT_NET_ARP_H
+#ifndef NETWORKING_NET_ARP_H
+#define NETWORKING_NET_ARP_H
 
 #include <string>
 #include <vector>
@@ -65,4 +65,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_NET_ARP_H
+#endif //NETWORKING_NET_ARP_H

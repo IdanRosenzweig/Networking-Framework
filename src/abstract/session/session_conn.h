@@ -1,8 +1,8 @@
-#ifndef SERVERCLIENT_SESSION_CONN_H
-#define SERVERCLIENT_SESSION_CONN_H
+#ifndef NETWORKING_SESSION_CONN_H
+#define NETWORKING_SESSION_CONN_H
 
 #include "../connection/connection.h"
 
 using session_conn = connection;
 
-#endif //SERVERCLIENT_SESSION_CONN_H
+#endif //NETWORKING_SESSION_CONN_H

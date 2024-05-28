@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_PROTOCOL_T_H
-#define SERVERCLIENT_PROTOCOL_T_H
+#ifndef NETWORKING_PROTOCOL_T_H
+#define NETWORKING_PROTOCOL_T_H
 
 enum protocol_t {
     ETHERNET,
@@ -18,4 +18,4 @@ std::string convert_to_str(protocol_t prot);
 
 protocol_t convert_str_to_protocol_t(const std::string& prot);
 
-#endif //SERVERCLIENT_PROTOCOL_T_H
+#endif //NETWORKING_PROTOCOL_T_H

@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_CONN_AGGREGATOR_H
-#define SERVERCLIENT_CONN_AGGREGATOR_H
+#ifndef NETWORKING_CONN_AGGREGATOR_H
+#define NETWORKING_CONN_AGGREGATOR_H
 
 #include "../sending/msg/send_msg.h"
 #include "../receiving/msg/received_msg.h"
@@ -37,4 +37,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_CONN_AGGREGATOR_H
+#endif //NETWORKING_CONN_AGGREGATOR_H

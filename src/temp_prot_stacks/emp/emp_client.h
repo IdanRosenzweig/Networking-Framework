@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_EMP_CLIENT_H
-#define SERVERCLIENT_EMP_CLIENT_H
+#ifndef NETWORKING_EMP_CLIENT_H
+#define NETWORKING_EMP_CLIENT_H
 
 #include "../../abstract/connection/connection.h"
 #include "../../linux/osi/network_layer_gateway.h"
@@ -21,4 +21,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_EMP_CLIENT_H
+#endif //NETWORKING_EMP_CLIENT_H

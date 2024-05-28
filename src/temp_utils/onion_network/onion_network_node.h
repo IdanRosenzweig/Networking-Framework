@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_ONION_NETWORK_NODE_H
-#define SERVERCLIENT_ONION_NETWORK_NODE_H
+#ifndef NETWORKING_ONION_NETWORK_NODE_H
+#define NETWORKING_ONION_NETWORK_NODE_H
 
 #include "../proxy/ip_proxy_server.h"
 #include "onion_network_common.h"
@@ -43,4 +43,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_ONION_NETWORK_NODE_H
+#endif //NETWORKING_ONION_NETWORK_NODE_H

@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_VPN_DAEMON_H
-#define SERVERCLIENT_VPN_DAEMON_H
+#ifndef NETWORKING_VPN_DAEMON_H
+#define NETWORKING_VPN_DAEMON_H
 
 #include "../../abstract/connection/conn_aggregator.h"
 #include "../../abstract/firewall/firewall.h"
@@ -56,4 +56,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_VPN_DAEMON_H
+#endif //NETWORKING_VPN_DAEMON_H

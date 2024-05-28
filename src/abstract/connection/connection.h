@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_CONNECTION_H
-#define SERVERCLIENT_CONNECTION_H
+#ifndef NETWORKING_CONNECTION_H
+#define NETWORKING_CONNECTION_H
 
 #include "../sending/basic_send_medium.h"
 #include "../sending/msg/send_msg.h"
@@ -13,4 +13,4 @@ class connection : public basic_send_medium<send_msg<>>, public recv_forwarder<r
 };
 
 
-#endif //SERVERCLIENT_CONNECTION_H
+#endif //NETWORKING_CONNECTION_H

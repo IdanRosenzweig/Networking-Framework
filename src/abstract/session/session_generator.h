@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_SESSION_GENERATOR_H
-#define SERVERCLIENT_SESSION_GENERATOR_H
+#ifndef NETWORKING_SESSION_GENERATOR_H
+#define NETWORKING_SESSION_GENERATOR_H
 
 #include "../receiving/basic_recv_listener.h"
 #include "session_t.h"
@@ -21,4 +21,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_SESSION_GENERATOR_H
+#endif //NETWORKING_SESSION_GENERATOR_H

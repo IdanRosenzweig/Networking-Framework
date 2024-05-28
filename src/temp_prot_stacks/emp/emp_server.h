@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_EMP_SERVER_H
-#define SERVERCLIENT_EMP_SERVER_H
+#ifndef NETWORKING_EMP_SERVER_H
+#define NETWORKING_EMP_SERVER_H
 
 #include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/ip4_protocol.h"
@@ -34,4 +34,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_EMP_SERVER_H
+#endif //NETWORKING_EMP_SERVER_H

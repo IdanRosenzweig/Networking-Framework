@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_DNS_SERVER_H
-#define SERVERCLIENT_DNS_SERVER_H
+#ifndef NETWORKING_DNS_SERVER_H
+#define NETWORKING_DNS_SERVER_H
 
 #include <fstream>
 #include <string>
@@ -74,4 +74,4 @@ void add_mx_record(dns_server *server, std::ifstream &input);
 // load entire record database to server
 void load_database(dns_server* server, const string& db_path);
 
-#endif //SERVERCLIENT_DNS_SERVER_H
+#endif //NETWORKING_DNS_SERVER_H

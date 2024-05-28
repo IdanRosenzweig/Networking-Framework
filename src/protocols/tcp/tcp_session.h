@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TCP_SESSION_H
-#define SERVERCLIENT_TCP_SESSION_H
+#ifndef NETWORKING_TCP_SESSION_H
+#define NETWORKING_TCP_SESSION_H
 
 #include <unistd.h>
 #include <thread>
@@ -37,4 +37,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_TCP_SESSION_H
+#endif //NETWORKING_TCP_SESSION_H

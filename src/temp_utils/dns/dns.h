@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_DNS_H
-#define SERVERCLIENT_DNS_H
+#ifndef NETWORKING_DNS_H
+#define NETWORKING_DNS_H
 
 #include <string>
 #include <cstring>
@@ -120,4 +120,4 @@ rdata_t convert_to_rdata(soa_rdata_t *source);
 
 int extract_from_network_order(soa_rdata_t *dest, uint8_t *curr_ptr, uint8_t *packet_buff);
 
-#endif //SERVERCLIENT_DNS_H
+#endif //NETWORKING_DNS_H

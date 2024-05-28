@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TCP_SERVER_H
-#define SERVERCLIENT_TCP_SERVER_H
+#ifndef NETWORKING_TCP_SERVER_H
+#define NETWORKING_TCP_SERVER_H
 
 #include "../../protocols/tcp/tcp_protocol.h"
 #include "../../abstract/session/session_generator.h"
@@ -38,4 +38,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_TCP_SERVER_H
+#endif //NETWORKING_TCP_SERVER_H

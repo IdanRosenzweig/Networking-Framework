@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_ONION_NETWORK_CLIENT_H
-#define SERVERCLIENT_ONION_NETWORK_CLIENT_H
+#ifndef NETWORKING_ONION_NETWORK_CLIENT_H
+#define NETWORKING_ONION_NETWORK_CLIENT_H
 
 #include "../proxy/ip_proxy_client.h"
 #include "../../temp_prot_stacks/udp_client_server/udp_client.h"
@@ -41,4 +41,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_ONION_NETWORK_CLIENT_H
+#endif //NETWORKING_ONION_NETWORK_CLIENT_H

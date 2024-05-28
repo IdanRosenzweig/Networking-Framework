@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_DNS_CLIENT_H
-#define SERVERCLIENT_DNS_CLIENT_H
+#ifndef NETWORKING_DNS_CLIENT_H
+#define NETWORKING_DNS_CLIENT_H
 
 #include "../../abstract/receiving/recv_queue.h"
 #include "../../abstract/receiving/msg/received_msg.h"
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_DNS_CLIENT_H
+#endif //NETWORKING_DNS_CLIENT_H

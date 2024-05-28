@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_FIREWALL_POLICY_H
-#define SERVERCLIENT_FIREWALL_POLICY_H
+#ifndef NETWORKING_FIREWALL_POLICY_H
+#define NETWORKING_FIREWALL_POLICY_H
 
 enum firewall_policy {
     BLOCK, // block packet
@@ -7,4 +7,4 @@ enum firewall_policy {
     DELAY // delay packet
 };
 
-#endif //SERVERCLIENT_FIREWALL_POLICY_H
+#endif //NETWORKING_FIREWALL_POLICY_H

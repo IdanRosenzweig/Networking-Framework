@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TUN_TAP_H
-#define SERVERCLIENT_TUN_TAP_H
+#ifndef NETWORKING_TUN_TAP_H
+#define NETWORKING_TUN_TAP_H
 
 #include <string>
 
@@ -12,4 +12,4 @@ int open_raw_tap(std::string& iface_name);
 void set_up_tun_tap(const std::string& iface_name);
 void set_down_tun_tap(const std::string& iface_name);
 
-#endif //SERVERCLIENT_TUN_TAP_H
+#endif //NETWORKING_TUN_TAP_H

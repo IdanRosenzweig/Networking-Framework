@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_DATA_COUNTER_H
-#define SERVERCLIENT_DATA_COUNTER_H
+#ifndef NETWORKING_DATA_COUNTER_H
+#define NETWORKING_DATA_COUNTER_H
 
 #include "../receiving/msg/received_msg.h"
 
@@ -13,4 +13,4 @@ public:
     }
 };
 
-#endif //SERVERCLIENT_DATA_COUNTER_H
+#endif //NETWORKING_DATA_COUNTER_H

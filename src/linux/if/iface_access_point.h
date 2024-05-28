@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_IFACE_ACCESS_POINT_H
-#define SERVERCLIENT_IFACE_ACCESS_POINT_H
+#ifndef NETWORKING_IFACE_ACCESS_POINT_H
+#define NETWORKING_IFACE_ACCESS_POINT_H
 
 #include "../../abstract/utils/network_msg_queue.h"
 #include "../../abstract/receiving/recv_forwarder.h"
@@ -49,4 +49,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_IFACE_ACCESS_POINT_H
+#endif //NETWORKING_IFACE_ACCESS_POINT_H

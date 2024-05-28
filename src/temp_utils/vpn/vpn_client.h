@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_VPN_CLIENT_H
-#define SERVERCLIENT_VPN_CLIENT_H
+#ifndef NETWORKING_VPN_CLIENT_H
+#define NETWORKING_VPN_CLIENT_H
 
 #include "../../abstract/gateway/gateway.h"
 #include "../../temp_prot_stacks/tcp_client_server/tcp_client.h"
@@ -25,4 +25,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_VPN_CLIENT_H
+#endif //NETWORKING_VPN_CLIENT_H

@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_SEND_MSG_H
-#define SERVERCLIENT_SEND_MSG_H
+#ifndef NETWORKING_SEND_MSG_H
+#define NETWORKING_SEND_MSG_H
 
 #include "../basic_send_medium.h"
 
@@ -49,4 +49,4 @@ public:
 
 using msg_send_medium = basic_send_medium<send_msg<>>;
 
-#endif //SERVERCLIENT_SEND_MSG_H
+#endif //NETWORKING_SEND_MSG_H

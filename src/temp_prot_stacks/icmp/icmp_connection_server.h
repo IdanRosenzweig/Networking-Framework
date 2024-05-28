@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_ICMP_CONNECTION_SERVER_H
-#define SERVERCLIENT_ICMP_CONNECTION_SERVER_H
+#ifndef NETWORKING_ICMP_CONNECTION_SERVER_H
+#define NETWORKING_ICMP_CONNECTION_SERVER_H
 
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
@@ -23,4 +23,4 @@ public:
     int send_data(send_msg<>&& msg) override;
 };
 
-#endif //SERVERCLIENT_ICMP_CONNECTION_SERVER_H
+#endif //NETWORKING_ICMP_CONNECTION_SERVER_H

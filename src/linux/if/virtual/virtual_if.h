@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_VIRTUAL_IF_H
-#define SERVERCLIENT_VIRTUAL_IF_H
+#ifndef NETWORKING_VIRTUAL_IF_H
+#define NETWORKING_VIRTUAL_IF_H
 
 #include <thread>
 #include "../../../abstract/gateway/gateway.h"
@@ -21,4 +21,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_VIRTUAL_IF_H
+#endif //NETWORKING_VIRTUAL_IF_H

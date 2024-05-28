@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_IP_PROXY_CLIENT_H
-#define SERVERCLIENT_IP_PROXY_CLIENT_H
+#ifndef NETWORKING_IP_PROXY_CLIENT_H
+#define NETWORKING_IP_PROXY_CLIENT_H
 
 #include "../../abstract/gateway/gateway.h"
 #include "../../abstract/connection/connection.h"
@@ -29,4 +29,4 @@ public:
     }
 };
 
-#endif //SERVERCLIENT_IP_PROXY_CLIENT_H
+#endif //NETWORKING_IP_PROXY_CLIENT_H

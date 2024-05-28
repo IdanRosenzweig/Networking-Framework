@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_TRIE_H
-#define SERVERCLIENT_TRIE_H
+#ifndef NETWORKING_TRIE_H
+#define NETWORKING_TRIE_H
 
 #include <string>
 using namespace std;
@@ -137,4 +137,4 @@ struct trie_node { // a trie node, representing an entire tree
 
 
 
-#endif //SERVERCLIENT_TRIE_H
+#endif //NETWORKING_TRIE_H

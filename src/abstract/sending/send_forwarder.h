@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_SEND_FORWARDER_H
-#define SERVERCLIENT_SEND_FORWARDER_H
+#ifndef NETWORKING_SEND_FORWARDER_H
+#define NETWORKING_SEND_FORWARDER_H
 
 #include "basic_send_medium.h"
 #include <vector>
@@ -45,4 +45,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_SEND_FORWARDER_H
+#endif //NETWORKING_SEND_FORWARDER_H

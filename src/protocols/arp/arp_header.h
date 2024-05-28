@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_ARP_HEADER_H
-#define SERVERCLIENT_ARP_HEADER_H
+#ifndef NETWORKING_ARP_HEADER_H
+#define NETWORKING_ARP_HEADER_H
 
 #include <stdint.h>
 #include <memory>
@@ -46,4 +46,4 @@ struct arp_header {
     }
 };
 
-#endif //SERVERCLIENT_ARP_HEADER_H
+#endif //NETWORKING_ARP_HEADER_H

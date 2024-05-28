@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_SOCKET_MSG_H
-#define SERVERCLIENT_SOCKET_MSG_H
+#ifndef NETWORKING_SOCKET_MSG_H
+#define NETWORKING_SOCKET_MSG_H
 
 #include "../ip4/ip4_addr.h"
 #include "../../abstract/receiving/msg/received_msg.h"
@@ -17,4 +17,4 @@ struct logical_internet_socket {
     int dest_port;
 };
 
-#endif //SERVERCLIENT_SOCKET_MSG_H
+#endif //NETWORKING_SOCKET_MSG_H

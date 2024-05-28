@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(ServerClient)
+project(Networking)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -80,8 +80,8 @@ add_executable(vpn_client
         src/main/vpn/vpn_client_main.cpp
 
         src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
-#        src/temp_utils/dns_server_client/dns_client.cpp
-#        src/temp_utils/dns_server_client/dns.cpp
+#        src/temp_utils/dns/dns_client.cpp
+#        src/temp_utils/dns/dns.cpp
 )
 #target_link_libraries(vpn_client ${PCAP_LIBRARY})
 #target_link_libraries(vpn_client ${LIBSSH_LIBRARIES})
@@ -119,8 +119,8 @@ add_executable(onion_network_client
         ${LINUX_SRC}
 
         src/main/onion_network/network_client.cpp
-        src/temp_utils/dns_server_client/dns_client.cpp
-        src/temp_utils/dns_server_client/dns.cpp
+        src/temp_utils/dns/dns_client.cpp
+        src/temp_utils/dns/dns.cpp
         src/temp_prot_stacks/udp_client_server/udp_client.cpp
         src/temp_utils/ping/ping_util.cpp
 )
@@ -186,9 +186,9 @@ add_executable(dns_server
         ${LINUX_SRC}
 
         src/main/dns/dns_server.cpp
-        src/temp_utils/dns_server_client/dns_server.cpp
-        src/temp_utils/dns_server_client/database_loader.cpp
-        src/temp_utils/dns_server_client/dns.cpp
+        src/temp_utils/dns/dns_server.cpp
+        src/temp_utils/dns/database_loader.cpp
+        src/temp_utils/dns/dns.cpp
         src/temp_prot_stacks/udp_client_server/udp_server.cpp
         src/temp_prot_stacks/emp/emp_server.cpp
 )
@@ -202,8 +202,8 @@ add_executable(dns_client
         ${LINUX_SRC}
 
         src/main/dns/dns_client.cpp
-        src/temp_utils/dns_server_client/dns_client.cpp
-        src/temp_utils/dns_server_client/dns.cpp
+        src/temp_utils/dns/dns_client.cpp
+        src/temp_utils/dns/dns.cpp
         src/temp_prot_stacks/udp_client_server/udp_client.cpp
         src/temp_prot_stacks/emp/emp_client.cpp
 )

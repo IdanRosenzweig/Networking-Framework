@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H
-#define SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H
+#ifndef NETWORKING_DATA_LINK_LAYER_GATEWAY_H
+#define NETWORKING_DATA_LINK_LAYER_GATEWAY_H
 
 #include "../../abstract/gateway/gateway.h"
 #include "../../abstract/sending/send_forwarder.h"
@@ -23,4 +23,4 @@ public:
     void handle_received_event(received_msg &&event) override;
 };
 
-#endif //SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H
+#endif //NETWORKING_DATA_LINK_LAYER_GATEWAY_H

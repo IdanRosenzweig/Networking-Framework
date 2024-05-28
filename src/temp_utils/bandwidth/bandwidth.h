@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_BANDWIDTH_H
-#define SERVERCLIENT_BANDWIDTH_H
+#ifndef NETWORKING_BANDWIDTH_H
+#define NETWORKING_BANDWIDTH_H
 
 #include "../../abstract/connection/connection.h"
 #include "../../abstract/sniffer/sniffer.h"
@@ -35,4 +35,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_BANDWIDTH_H
+#endif //NETWORKING_BANDWIDTH_H

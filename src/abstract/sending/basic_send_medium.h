@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_BASIC_SEND_MEDIUM_H
-#define SERVERCLIENT_BASIC_SEND_MEDIUM_H
+#ifndef NETWORKING_BASIC_SEND_MEDIUM_H
+#define NETWORKING_BASIC_SEND_MEDIUM_H
 
 template <typename TYPE>
 class basic_send_medium {
@@ -10,4 +10,4 @@ public:
 
     virtual ~basic_send_medium() = default;
 };
-#endif //SERVERCLIENT_BASIC_SEND_MEDIUM_H
+#endif //NETWORKING_BASIC_SEND_MEDIUM_H

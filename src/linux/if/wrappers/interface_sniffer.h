@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_INTERFACE_SNIFFER_H
-#define SERVERCLIENT_INTERFACE_SNIFFER_H
+#ifndef NETWORKING_INTERFACE_SNIFFER_H
+#define NETWORKING_INTERFACE_SNIFFER_H
 
 #include "../../../abstract/sniffer/sniffer.h"
 #include "../iface_access_point.h"
@@ -29,4 +29,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_INTERFACE_SNIFFER_H
+#endif //NETWORKING_INTERFACE_SNIFFER_H

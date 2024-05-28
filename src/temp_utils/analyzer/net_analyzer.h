@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_NET_ANALYZER_H
-#define SERVERCLIENT_NET_ANALYZER_H
+#ifndef NETWORKING_NET_ANALYZER_H
+#define NETWORKING_NET_ANALYZER_H
 
 #include "../../linux/if/iface_access_point.h"
 #include "../../abstract/receiving/msg/received_msg.h"
@@ -71,4 +71,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_NET_ANALYZER_H
+#endif //NETWORKING_NET_ANALYZER_H

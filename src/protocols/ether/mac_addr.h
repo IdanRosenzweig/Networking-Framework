@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_MAC_ADDR_H
-#define SERVERCLIENT_MAC_ADDR_H
+#ifndef NETWORKING_MAC_ADDR_H
+#define NETWORKING_MAC_ADDR_H
 
 #include <stdint.h>
 #include <string>
@@ -27,4 +27,4 @@ mac_addr convert_to_mac_addr(const std::string& str);
 
 std::string convert_to_str(mac_addr addr);
 
-#endif //SERVERCLIENT_MAC_ADDR_H
+#endif //NETWORKING_MAC_ADDR_H

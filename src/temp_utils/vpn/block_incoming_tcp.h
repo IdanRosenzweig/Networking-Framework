@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_BLOCK_INCOMING_TCP_H
-#define SERVERCLIENT_BLOCK_INCOMING_TCP_H
+#ifndef NETWORKING_BLOCK_INCOMING_TCP_H
+#define NETWORKING_BLOCK_INCOMING_TCP_H
 
 #include <netinet/in.h>
 #include <linux/if_ether.h>
@@ -56,4 +56,4 @@ public:
     }
 };
 
-#endif //SERVERCLIENT_BLOCK_INCOMING_TCP_H
+#endif //NETWORKING_BLOCK_INCOMING_TCP_H

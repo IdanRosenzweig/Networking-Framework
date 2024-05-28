@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_SNIFFER_H
-#define SERVERCLIENT_SNIFFER_H
+#ifndef NETWORKING_SNIFFER_H
+#define NETWORKING_SNIFFER_H
 
 #include <vector>
 #include <iostream>
@@ -37,4 +37,4 @@ struct sniffer {
 
 };
 
-#endif //SERVERCLIENT_SNIFFER_H
+#endif //NETWORKING_SNIFFER_H

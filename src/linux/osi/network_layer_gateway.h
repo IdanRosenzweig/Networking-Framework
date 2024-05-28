@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_NETWORK_LAYER_GATEWAY_H
-#define SERVERCLIENT_NETWORK_LAYER_GATEWAY_H
+#ifndef NETWORKING_NETWORK_LAYER_GATEWAY_H
+#define NETWORKING_NETWORK_LAYER_GATEWAY_H
 
 #include "../../abstract/gateway/gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
@@ -28,4 +28,4 @@ public:
 };
 
 
-#endif //SERVERCLIENT_NETWORK_LAYER_GATEWAY_H
+#endif //NETWORKING_NETWORK_LAYER_GATEWAY_H
