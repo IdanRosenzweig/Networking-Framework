@@ -26,7 +26,6 @@ linux_virtual_iface::linux_virtual_iface(gateway *gw, string& iface_name) : base
             int cnt = read(fd, buff, 1024);
             if (cnt <= 0) continue;
 
-//            std::cout << "tap sending " << cnt << " bytes" << endl;
             send.set_count(cnt);
             this->base_gw->send_data(std::move(send));
         }
@@ -39,10 +38,7 @@ linux_virtual_iface::~linux_virtual_iface() {
 }
 
 void linux_virtual_iface::handle_received_event(received_msg &&event) {
-    int cnt = event.data.size() - event.curr_offset;
-//    std::cout << "tap received " << cnt << " bytes" << endl;
     write(fd, event.data.data() + event.curr_offset, event.data.size() - event.curr_offset);
-//    write(fd, event.data_t.get(), event.data.size());
 }
 
 

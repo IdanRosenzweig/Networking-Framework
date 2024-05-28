@@ -1,5 +1,5 @@
-#ifndef NETWORKING_ERROR_CODES_H
-#define NETWORKING_ERROR_CODES_H
+#ifndef LINUX_ERROR_CODES_H
+#define LINUX_ERROR_CODES_H
 
 #define OPEN_ERROR (-1)
 #define CLOSE_ERROR (-1)
@@ -13,4 +13,4 @@
 #define CONNECT_ERROR (-1)
 #define ACCEPT_ERROR (-1)
 
-#endif //NETWORKING_ERROR_CODES_H
+#endif //LINUX_ERROR_CODES_H

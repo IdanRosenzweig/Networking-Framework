@@ -36,7 +36,7 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
     // dns queries
     {
         dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), convert_to_ip4_addr("10.100.102.18"),
-                              raw_if); // creating a raw interface_gateway as a network_layer_gateway, because the interface allows just sending the raw ip traffic
+                              raw_if);
 
         // communicate
         vector<string> names = {

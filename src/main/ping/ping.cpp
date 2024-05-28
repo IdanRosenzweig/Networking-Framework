@@ -61,5 +61,4 @@ int main(int argc, char** argv) {
 
     ping_main(interface, convert_to_ip4_addr(dest), count, std::chrono::milliseconds(interval));
 
-//    ping_main("enp0s3", convert_to_ip4_addr("74.6.231.20"), 10);
 }

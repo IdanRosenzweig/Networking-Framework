@@ -4,17 +4,28 @@ project(Networking)
 set(CMAKE_CXX_STANDARD 20)
 
 
+# link with libpcap
 include(FindPCAP.cmake)
-include(FindLibSSH.cmake)
+link_libraries(${PCAP_LIBRARY})
+
+# link with libboost
 find_package(Boost REQUIRED COMPONENTS program_options)
 include_directories(${Boost_INCLUDE_DIRS})
-
-link_libraries(${PCAP_LIBRARY})
-link_libraries(${LIBSSH_LIBRARIES})
 link_libraries(${Boost_LIBRARIES})
 
-
+# allow threads in linux
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+
+set(ABSTRACT_SRC
+        src/abstract/protocol_t.cpp
+        src/abstract/connection/conn_aggregator.cpp
+        src/abstract/utils/network_msg_queue.h
+        src/abstract/sniffer/sniffer.h
+        src/abstract/sniffer/basic_sniff_handler.h
+        src/linux/if/wrappers/interface_sniffer.cpp
+        src/linux/if/wrappers/interface_sniffer.h
+)
 
 set(PROTOCOLS_SRC
         src/protocols/ether/ethernet_protocol.cpp
@@ -39,16 +50,6 @@ set(PROTOCOLS_SRC
         src/protocols/tcp/tcp_boundary_preserving_session.cpp
 )
 
-set(ABSTRACT_SRC
-        src/abstract/protocol_t.cpp
-        src/abstract/connection/conn_aggregator.cpp
-        src/abstract/utils/network_msg_queue.h
-        src/abstract/sniffer/sniffer.h
-        src/abstract/sniffer/basic_sniff_handler.h
-        src/linux/if/wrappers/interface_sniffer.cpp
-        src/linux/if/wrappers/interface_sniffer.h
-)
-
 set(LINUX_SRC
         src/linux/if/wrappers/interface_gateway.cpp
         src/linux/if/iface_access_point.cpp
@@ -62,6 +63,7 @@ set(LINUX_SRC
         src/linux/osi/network_layer_gateway.cpp
 )
 
+
 add_executable(vpn_daemon
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
@@ -69,8 +71,6 @@ add_executable(vpn_daemon
 
         src/main/vpn/vpn_daemon_main.cpp
 )
-#target_link_libraries(vpn_daemon ${PCAP_LIBRARY})
-#target_link_libraries(vpn_daemon ${LIBSSH_LIBRARIES})
 
 add_executable(vpn_client
         ${ABSTRACT_SRC}
@@ -83,8 +83,6 @@ add_executable(vpn_client
 #        src/temp_utils/dns/dns_client.cpp
 #        src/temp_utils/dns/dns.cpp
 )
-#target_link_libraries(vpn_client ${PCAP_LIBRARY})
-#target_link_libraries(vpn_client ${LIBSSH_LIBRARIES})
 
 
 add_executable(remote_shell_util
@@ -96,8 +94,6 @@ add_executable(remote_shell_util
         src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
         src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
 )
-#target_link_libraries(remote_shell_util ${PCAP_LIBRARY})
-#target_link_libraries(remote_shell_util ${LIBSSH_LIBRARIES})
 
 
 add_executable(onion_network_node
@@ -109,9 +105,6 @@ add_executable(onion_network_node
         src/temp_utils/proxy/ip_proxy_server.cpp
         src/temp_prot_stacks/udp_client_server/udp_server.cpp
 )
-#target_link_libraries(onion_network_node ${PCAP_LIBRARY})
-#target_link_libraries(onion_network_node ${LIBSSH_LIBRARIES})
-#target_link_libraries(onion_network_node ${Boost_LIBRARIES})
 
 add_executable(onion_network_client
         ${ABSTRACT_SRC}
@@ -124,9 +117,6 @@ add_executable(onion_network_client
         src/temp_prot_stacks/udp_client_server/udp_client.cpp
         src/temp_utils/ping/ping_util.cpp
 )
-#target_link_libraries(onion_network_client ${PCAP_LIBRARY})
-#target_link_libraries(onion_network_client ${LIBSSH_LIBRARIES})
-#target_link_libraries(onion_network_client ${Boost_LIBRARIES})
 
 
 add_executable(ping
@@ -137,9 +127,6 @@ add_executable(ping
         src/main/ping/ping.cpp
         src/temp_utils/ping/ping_util.cpp
 )
-#target_link_libraries(ping ${PCAP_LIBRARY})
-#target_link_libraries(ping ${LIBSSH_LIBRARIES})
-#target_link_libraries(ping ${Boost_LIBRARIES})
 
 add_executable(traceroute
         ${ABSTRACT_SRC}
@@ -149,9 +136,6 @@ add_executable(traceroute
         src/main/ping/traceroute.cpp
         src/temp_utils/ping/traceroute_util.cpp
 )
-#target_link_libraries(traceroute ${PCAP_LIBRARY})
-#target_link_libraries(traceroute ${LIBSSH_LIBRARIES})
-#target_link_libraries(traceroute ${Boost_LIBRARIES})
 
 
 add_executable(bandwidth
@@ -162,8 +146,6 @@ add_executable(bandwidth
         src/main/bandwidth/bandwidth.cpp
         src/temp_utils/bandwidth/bandwidth.cpp
 )
-#target_link_libraries(bandwidth ${PCAP_LIBRARY})
-#target_link_libraries(bandwidth ${LIBSSH_LIBRARIES})
 
 
 add_executable(netcat
@@ -175,9 +157,6 @@ add_executable(netcat
         src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
         src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
 )
-#target_link_libraries(netcat ${PCAP_LIBRARY})
-#target_link_libraries(netcat ${LIBSSH_LIBRARIES})
-#target_link_libraries(netcat ${Boost_LIBRARIES})
 
 
 add_executable(dns_server
@@ -192,9 +171,6 @@ add_executable(dns_server
         src/temp_prot_stacks/udp_client_server/udp_server.cpp
         src/temp_prot_stacks/emp/emp_server.cpp
 )
-#target_link_libraries(dns_server ${PCAP_LIBRARY})
-#target_link_libraries(dns_server ${LIBSSH_LIBRARIES})
-#target_link_libraries(dns_server ${Boost_LIBRARIES})
 
 add_executable(dns_client
         ${ABSTRACT_SRC}
@@ -207,9 +183,6 @@ add_executable(dns_client
         src/temp_prot_stacks/udp_client_server/udp_client.cpp
         src/temp_prot_stacks/emp/emp_client.cpp
 )
-#target_link_libraries(dns_client ${PCAP_LIBRARY})
-#target_link_libraries(dns_client ${LIBSSH_LIBRARIES})
-#target_link_libraries(dns_client ${Boost_LIBRARIES})
 
 
 add_executable(net_scanner
@@ -220,9 +193,6 @@ add_executable(net_scanner
         src/main/net_scanner/net_scanner.cpp
         src/temp_utils/net_arp/net_arp.cpp
 )
-#target_link_libraries(net_scanner ${PCAP_LIBRARY})
-#target_link_libraries(net_scanner ${LIBSSH_LIBRARIES})
-#target_link_libraries(net_scanner ${Boost_LIBRARIES})
 
 add_executable(net_intercept
         ${ABSTRACT_SRC}
@@ -232,9 +202,6 @@ add_executable(net_intercept
         src/main/net_intercept/net_intercept.cpp
         src/temp_utils/net_arp/net_arp.cpp
 )
-#target_link_libraries(net_intercept ${PCAP_LIBRARY})
-#target_link_libraries(net_intercept ${LIBSSH_LIBRARIES})
-#target_link_libraries(net_intercept ${Boost_LIBRARIES})
 
 add_executable(net_analyzer
         ${ABSTRACT_SRC}
@@ -244,9 +211,6 @@ add_executable(net_analyzer
         src/main/net_analyzer/net_analyzer.cpp
         src/temp_utils/analyzer/net_analyzer.cpp
 )
-#target_link_libraries(net_analyzer ${PCAP_LIBRARY})
-#target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
-#target_link_libraries(net_analyzer ${Boost_LIBRARIES})
 
 add_executable(mac_changer
         ${ABSTRACT_SRC}
@@ -256,7 +220,4 @@ add_executable(mac_changer
         src/main/net_intercept/mac_changer.cpp
         src/temp_utils/net_arp/net_arp.cpp
 )
-#target_link_libraries(net_analyzer ${PCAP_LIBRARY})
-#target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
-#target_link_libraries(net_analyzer ${Boost_LIBRARIES})
 

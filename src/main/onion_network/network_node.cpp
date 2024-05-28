@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     opts.add_options()
             ("help,h", "print tool use description")
             ("net-layer-iface", po::value<string>(), "linux interface which can be used to send data to the network layer")
-//            ("client-iface", po::value<string>(), "linux interface to listen on to clients")
+//            ("clients-iface", po::value<string>(), "linux interface to listen on to clients")
             ;
 
     po::variables_map vm;

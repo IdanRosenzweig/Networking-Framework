@@ -8,8 +8,7 @@
 
 class data_link_layer_gateway : public gateway {
     interface_gateway if_gateway;
-//    interface_gateway if_gateway2;
-    send_forwarder<send_msg<>> send_medium; // combines the gateways' send functions
+    send_forwarder<send_msg<>> send_medium;
 
 public:
     weak_ptr<iface_access_point> iface_access;

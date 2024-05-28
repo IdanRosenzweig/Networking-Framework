@@ -48,6 +48,5 @@ int main(int argc, char** argv) {
 
     traceroute_main(interface, convert_to_ip4_addr(dest));
 
-//    traceroute_main("enp0s3", convert_to_ip4_addr(""));
 }
 

@@ -15,7 +15,7 @@ network_layer_gateway::network_layer_gateway(const weak_ptr<iface_access_point>&
         my_ip = get_ip_addr_of_iface(ptr->iface_name);
         default_gw = get_default_gateway_of_iface(ptr->iface_name);
     } else return;
-//    std::cout << "default send_medium is " << convert_to_str(default_gw) << endl;
+//    std::cout << "default gateway is " << convert_to_str(default_gw) << endl;
 
     // send
     ether_prot.send_medium = &dataLinkLayerGateway;

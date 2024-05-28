@@ -12,7 +12,7 @@ using namespace std;
 void vpn_client_main(const string& iface, const string& _new_iface_name, ip4_addr daemon_ip, ip4_addr new_ip, ip4_subnet_mask subnet) {
     std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
 
-    vpn_client vpn(daemon_ip); // iface
+    vpn_client vpn(daemon_ip);
 
     string virt_iface_name = _new_iface_name;
     linux_virtual_iface virt_iface(&vpn, virt_iface_name);
@@ -80,6 +80,4 @@ int main(int argc, char** argv) {
 
     vpn_client_main(iface, "virt0", convert_to_ip4_addr(daemon_ip), convert_to_ip4_addr(new_ip), convert_to_ip4_subnet_mask(subnet));
 
-//    vpn_client_main(convert_to_ip4_addr("10.100.102.31"), "virt0", convert_to_ip4_addr("10.100.102.44"),
-//                    convert_to_ip4_subnet_mask("10.100.102.0/24"));
 }
