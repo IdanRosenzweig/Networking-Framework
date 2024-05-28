@@ -7,7 +7,9 @@
 using namespace std;
 
 void vpn_daemon_main(const string &local_iface, const string &extern_iface) {
-    vpn_daemon vpnDaemon(local_iface);
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(local_iface);
+
+    vpn_daemon vpnDaemon(iface_access);
 
     cout << "daemon started" << endl;
 
@@ -22,7 +24,7 @@ int main(int argc, char **argv) {
 //
 //    po::options_description opts("vpn daemon");
 //    opts.add_options()
-//            ("help", "print tool use description")
+//            ("help,h", "print tool use description")
 //            ("local-iface", po::value<string>(), "linux interface to use to connect to the local network")
 //            ("extern-iface", po::value<string>(), "linux interface to listen on to the vpn client. if not specified, uses the same interface as local-iface")
 //            ;

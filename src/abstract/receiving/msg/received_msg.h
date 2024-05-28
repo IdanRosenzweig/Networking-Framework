@@ -1,13 +1,12 @@
 #ifndef SERVERCLIENT_RECEIVED_MSG_H
 #define SERVERCLIENT_RECEIVED_MSG_H
 
-#include "../../protocol_t.h"
 #include "../../utils/udata.h"
-#include <vector>
-#include <memory>
-#include <cstring>
+#include "../../protocol_t.h"
+#include "../basic_recv_listener.h"
 
-#include <iostream>
+#include <vector>
+#include <cstring>
 using namespace std;
 
 struct received_msg {
@@ -28,7 +27,6 @@ struct received_msg {
     }
 
 //    received_msg(received_msg&& other) {
-//        std::cerr << "recieved_msg&& called" << endl;
 //        data = other.data;
 //        other.data.clear();
 //
@@ -50,7 +48,6 @@ struct received_msg {
     }
 
 //    received_msg& operator=(received_msg&& other) {
-//        std::cerr << " = recieved_msg&& called" << endl;
 //        data = other.data;
 //        other.data.clear();
 //
@@ -63,5 +60,7 @@ struct received_msg {
 //    }
 
 };
+
+using msg_recv_listener = basic_recv_listener<received_msg>;
 
 #endif //SERVERCLIENT_RECEIVED_MSG_H

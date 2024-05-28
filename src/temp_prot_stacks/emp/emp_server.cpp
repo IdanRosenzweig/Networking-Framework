@@ -1,11 +1,11 @@
 #include "emp_server.h"
 #include <linux/ip.h>
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 
 emp_server::emp_server(const udata_t& endpoint, ip4_addr src_ip, gateway* gw) : server_endpoint(endpoint), network_layer_gw(gw) {
 
-    // setup send to raw_session flow
-    ip_prot.gateway = network_layer_gw;
+    // setup send flow
+    ip_prot.send_medium = network_layer_gw;
     ip_prot.next_protocol.set_next_choice(0xa0);
     ip_prot.next_source_addr.set_next_choice(src_ip);
 
@@ -13,7 +13,7 @@ emp_server::emp_server(const udata_t& endpoint, ip4_addr src_ip, gateway* gw) : 
     emp_prot.next_source_point.set_next_choice(server_endpoint);
 
 
-    // setup recv from raw_session flow
+    // setup recv flow
     network_layer_gw->add_listener(&ip_prot);
 
     ip_prot.protocol_handlers[0xa0].push_back( &emp_prot);
@@ -36,7 +36,7 @@ void emp_server::handle_received_event(received_msg &&event) {
     extract_from_network_order(&pack_stack.source_addr,
                                (uint8_t*) &((struct iphdr*) (event.data.data() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
-    this->receive_forwarder::handle_received_event(std::move(pack_stack));
+    this->recv_forwarder::handle_received_event(std::move(pack_stack));
 }
 
 int emp_server::send_data_to_client(ip4_addr client_addr, const udata_t& dest_endpoint, send_msg<> msg) {

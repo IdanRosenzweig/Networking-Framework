@@ -16,7 +16,7 @@ class block_incoming_tcp : public basic_firewall_filter<received_msg> {
     ethernet_protocol ether_prot;
     ip4_protocol ip_prot;
 
-    class examiner : public msg_receiver {
+    class examiner : public msg_recv_listener {
         block_incoming_tcp *master;
     public:
         explicit examiner(block_incoming_tcp *master) : master(master) {}

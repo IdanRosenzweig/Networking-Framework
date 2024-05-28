@@ -1,4 +1,6 @@
-#include "../../linux/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_sniffer.h"
+
 #include "../../temp_utils/bandwidth/bandwidth.h"
 
 #include <iostream>
@@ -6,13 +8,17 @@
 using namespace std;
 
 void bandwidth_main(const string& iface, std::chrono::milliseconds interval) {
-    interface_sniffer sniffer(iface);
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    interface_sniffer sniffer(iface_access);
     bandwidth indicator(&sniffer);
 
     while (true) {
         std::this_thread::sleep_for(interval);
 
-        std::cout << "in: " << indicator.bytes_in_cnt << " B\t" << "out: " << indicator.bytes_out_cnt << " B" << endl;
+        uint64_t out = indicator.bytes_out_cnt;
+        uint64_t in = indicator.bytes_in_cnt;
+        printf("bytes out: %-10lu   bytes in: %-10lu\n", out, in);
         indicator.bytes_in_cnt = 0;
         indicator.bytes_out_cnt = 0;
     }
@@ -23,7 +29,7 @@ int main(int argc, char** argv) {
 
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("interval,i", po::value<int>(), "interval (in ms) between status checks. 1000ms by default")
             ;

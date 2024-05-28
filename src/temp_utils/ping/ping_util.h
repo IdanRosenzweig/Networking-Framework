@@ -7,7 +7,7 @@
 #include "../../abstract/utils/circular_buffer.h"
 #include "../../abstract/gateway/gateway.h"
 
-class ping_util : private receive_queue<received_msg> {
+class ping_util : private recv_queue<received_msg> {
     gateway *network_layer_gw;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;

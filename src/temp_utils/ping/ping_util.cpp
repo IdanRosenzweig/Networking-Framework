@@ -1,12 +1,12 @@
 #include "ping_util.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 #include <linux/icmp.h>
 #include <iostream>
 using namespace std;
 
 ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
     // setup send flow
-    ip_client.gateway = network_layer_gw;
+    ip_client.send_medium = network_layer_gw;
     ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
     ip_client.next_source_addr.set_next_choice(src_ip);
 
@@ -43,8 +43,6 @@ void ping_util::ping_node() {
     int i = 0;
     do {
 
-        std::this_thread::sleep_for(delay_interval.get_next_choice());
-
         auto start = std::chrono::high_resolution_clock::now(); // count start time
 
         recv_queue.clear();
@@ -62,7 +60,7 @@ void ping_util::ping_node() {
             // recv
             std::cout << "sent icmp echo" << endl;
 
-            received_msg* msg = recv_queue.front<500>();
+            received_msg* msg = recv_queue.front<2000>();
             if (msg == nullptr) {
                 std::cerr << "no reply was received after reasonable time, sending again" << endl;
                 continue;
@@ -98,8 +96,10 @@ void ping_util::ping_node() {
                               << "\tdelay=" << duration.count() << " millisecs" << std::endl;
                     break;
                 }
-                default:
+                default: {
+                    std::cerr << "received unsupported type of icmp" << std::endl;
                     failed = true;
+                }
             }
 
             if (!failed) break;
@@ -109,6 +109,8 @@ void ping_util::ping_node() {
         content.sequence++;
         icmp_client.next_content.set_next_choice(*(uint32_t*) &content);
         i++;
+
+        std::this_thread::sleep_for(delay_interval.get_next_choice());
 
     } while (i < count.get_next_choice());
 

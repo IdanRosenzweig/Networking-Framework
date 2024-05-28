@@ -73,11 +73,11 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 
         std::cout << "received response" << endl;
         uint16_t no_answers = response.ans_count;
-        std::cout << "- " << no_answers << " answers" << endl;
+        std::cout << "# " << no_answers << " answers" << endl;
         uint16_t no_authoritative_answers = response.auth_count;
-        std::cout << "- " << no_authoritative_answers << " authoritative server answers" << endl;
+        std::cout << "# " << no_authoritative_answers << " authoritative server answers" << endl;
         uint16_t no_addit_data = response.add_count;
-        std::cout << "- " << no_addit_data << " additional records data" << endl << endl;
+        std::cout << "# " << no_addit_data << " additional records data" << endl << endl;
 
         // jump over the queries we sent
         curr_ptr += queries_sz;

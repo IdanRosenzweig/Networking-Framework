@@ -1,15 +1,17 @@
-#include "../../linux/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 
 #include "../../temp_utils/vpn/vpn_client.h"
-#include "../../linux/virtual_if.h"
+#include "../../linux/if/virtual/virtual_if.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
 
 void vpn_client_main(const string& iface, const string& _new_iface_name, ip4_addr daemon_ip, ip4_addr new_ip, ip4_subnet_mask subnet) {
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
     vpn_client vpn(daemon_ip); // iface
 
     string virt_iface_name = _new_iface_name;
@@ -36,7 +38,7 @@ int main(int argc, char** argv) {
 
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use to connect to the daemon")
             ("daemon-ip,d", po::value<string>(), "ip of the daemon")
             ("new-ip", po::value<string>(), "new ip to use when connecting to the remote network")

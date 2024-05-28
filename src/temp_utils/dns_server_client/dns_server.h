@@ -4,8 +4,8 @@
 #include <fstream>
 #include <string>
 
-#include "../../abstract/receiving/msg/msg_receiver.h"
-#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/receiving/msg/received_msg.h"
+#include "../../abstract/sending/msg/send_msg.h"
 #include "../../abstract/utils/trie.h"
 
 #include "dns.h"
@@ -16,8 +16,8 @@
 #include "../../temp_prot_stacks/emp/emp_server.h"
 
 
-class dns_server : private basic_receiver<udp_packet_stack> {
-//class dns_server : private basic_receiver<emp_packet_stack> {
+class dns_server : private basic_recv_listener<udp_packet_stack> {
+//class dns_server : private basic_recv_listener<emp_packet_stack> {
 
     udp_server udpServer;
 //    emp_server empServer;

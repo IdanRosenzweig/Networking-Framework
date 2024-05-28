@@ -56,8 +56,7 @@ void net_analyzer::icmp_handler::handle_received_event(received_msg &&event) {
     std::cout << endl;
 }
 
-net_analyzer::net_analyzer(const string& interface) : raw_sniffer(interface) {
-    raw_sniffer.add_sniffer((basic_sniffer*) this);
+net_analyzer::net_analyzer(struct sniffer* _sniffer) : sniffer(_sniffer), outgoing_sniff(this), incoming_sniff(this) {
 
     ethernetProtocol.default_handler = &etherHandler;
     ethernetProtocol.protocol_handlers[htons(ETH_P_IP)].push_back( &ip4Protocol);
@@ -77,32 +76,30 @@ net_analyzer::net_analyzer(const string& interface) : raw_sniffer(interface) {
 //    icmpProtocol.default_handler = &displayer;
 }
 
-void net_analyzer::handle_outgoing_packet(const received_msg &msg) {
+void net_analyzer::outgoing_sniff::handle_received_event(received_msg &&event) {
     std::cout << "##### outgoing packet" << endl;
     std::cout << "##### protocol stack" << endl;
-    received_msg copy(msg);
-    ethernetProtocol.handle_received_event(std::move(copy));
+    received_msg copy(event);
+    master->ethernetProtocol.handle_received_event(std::move(copy));
 
     std::cout << "##### hex dump" << endl;
     FILE* pipe = popen("/usr/bin/hd", "w");
-    fwrite(msg.data.data(), 1, msg.data.size(), pipe);
+    fwrite(event.data.data(), 1, event.data.size(), pipe);
     pclose(pipe);
 
     std::cout << endl;
-
 }
 
-void net_analyzer::handle_incoming_packet(const received_msg &msg) {
+void net_analyzer::incoming_sniff::handle_received_event(received_msg &&event) {
     std::cout << "##### incoming packet" << endl;
     std::cout << "### protocol stack" << endl;
-    received_msg copy(msg);
-    ethernetProtocol.handle_received_event(std::move(copy));
+    received_msg copy(event);
+    master->ethernetProtocol.handle_received_event(std::move(copy));
 
     std::cout << "### hex dump" << endl;
     FILE* pipe = popen("/usr/bin/hd", "w");
-    fwrite(msg.data.data(), 1, msg.data.size(), pipe);
+    fwrite(event.data.data(), 1, event.data.size(), pipe);
     pclose(pipe);
 
     std::cout << endl;
 }
-

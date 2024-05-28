@@ -1,9 +1,9 @@
 #ifndef SERVERCLIENT_NET_ANALYZER_H
 #define SERVERCLIENT_NET_ANALYZER_H
 
-#include "../../linux/interface_sniffer.h"
-#include "../../abstract/receiving/msg/msg_receiver.h"
-#include "../../abstract/sniffer/msg_sniffer.h"
+#include "../../linux/if/iface_access_point.h"
+#include "../../abstract/receiving/msg/received_msg.h"
+#include "../../abstract/sniffer/basic_sniff_handler.h"
 
 #include "../../protocols/ether/ethernet_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
@@ -11,11 +11,34 @@
 #include "../../protocols/tcp/tcp_protocol.h"
 #include "../../protocols/icmp/icmp_protocol.h"
 
-class net_analyzer : public msg_sniffer {
-    interface_sniffer raw_sniffer;
+class net_analyzer {
+    // ptr to the sniffer providing the messages
+    struct sniffer* sniffer;
 
+    // classes handling whenever sniffed messages arrives
+    class outgoing_sniff : public basic_sniff_handler {
+        net_analyzer* master;
+    public:
+        explicit outgoing_sniff(net_analyzer *master) : master(master) {}
+
+        void handle_received_event(received_msg &&event) override;
+
+    };
+    outgoing_sniff outgoing_sniff;
+
+    class incoming_sniff : public basic_sniff_handler {
+        net_analyzer* master;
+    public:
+        explicit incoming_sniff(net_analyzer *master) : master(master) {}
+
+        void handle_received_event(received_msg &&event) override;
+    };
+
+    incoming_sniff incoming_sniff;
+
+    // actual protocols that will process sniffed messages
     ethernet_protocol ethernetProtocol;
-    class ether_handler : public msg_receiver {
+    class ether_handler : public msg_recv_listener {
     public:
         void handle_received_event(received_msg &&event) override;
     } etherHandler;
@@ -23,13 +46,13 @@ class net_analyzer : public msg_sniffer {
 //    net_arp arpProtocol;
 
     ip4_protocol ip4Protocol;
-    class ip4_handler : public msg_receiver {
+    class ip4_handler : public msg_recv_listener {
     public:
         void handle_received_event(received_msg &&event) override;
     } ip4Handler;
 
     udp_protocol udpProtocol;
-    class udp_handler : public msg_receiver {
+    class udp_handler : public msg_recv_listener {
     public:
         void handle_received_event(received_msg &&event) override;
     } udpHandler;
@@ -37,17 +60,14 @@ class net_analyzer : public msg_sniffer {
 //    tcp_protocol tcpProtocol;
 
     icmp_protocol icmpProtocol;
-    class icmp_handler : public msg_receiver {
+    class icmp_handler : public msg_recv_listener {
     public:
         void handle_received_event(received_msg &&event) override;
     } icmpHandler;
 
 public:
-    net_analyzer(const string& interface);
+    net_analyzer(struct sniffer* sniffer);
 
-    void handle_outgoing_packet(const received_msg &msg) override;
-
-    void handle_incoming_packet(const received_msg &msg) override;
 };
 
 

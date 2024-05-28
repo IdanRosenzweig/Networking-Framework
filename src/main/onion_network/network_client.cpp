@@ -7,8 +7,8 @@
 #include "../../temp_utils/onion_network/onion_network_client.h"
 #include "../../temp_utils/ping/ping_util.h"
 
-#include "../../linux/virtual_if.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/virtual/virtual_if.h"
+#include "../../linux/if/hardware.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -17,7 +17,9 @@ using namespace std;
 
 
 void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) {
-    onion_network_client proxy(path, get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    onion_network_client proxy(path, get_ip_addr_of_iface(iface), new network_layer_gateway(iface_access));
 
     string new_iface = "virt0";
     linux_virtual_iface virt_iface(&proxy, new_iface);
@@ -29,7 +31,7 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
 //
 //    }
 
-    auto raw_if = new interface_gateway(iface);
+    auto raw_if = new interface_gateway(iface_access);
 
     // dns queries
     {
@@ -102,7 +104,7 @@ int main(int argc, char **argv) {
 
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use to connect to the first node in the path")
             ("path,p", po::value<vector<string>>()->multitoken(),
              "the path along the onion network to use");

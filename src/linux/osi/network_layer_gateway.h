@@ -4,23 +4,27 @@
 #include "../../abstract/gateway/gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
 #include "../../temp_utils/net_arp/net_arp.h"
-#include "../interface_gateway.h"
+#include "data_link_layer_gateway.h"
+#include "../if/wrappers/interface_gateway.h"
 
 class network_layer_gateway : public gateway {
 private:
-    // in typical local networks, the data_link_layer_gateway to the network layer is through the router, by marking
-    // ip protocol in the ethertype field
+    // in typical local networks, the send_medium to the network layer is through the router,
+    // as a default send_medium
 
-    interface_gateway interfaceGateway;
+    data_link_layer_gateway dataLinkLayerGateway;
     ethernet_protocol ether_prot;
 
     net_arp arp_handler;
 
 public:
-    network_layer_gateway(const string& interface);
+    network_layer_gateway(const weak_ptr<iface_access_point>& access);
+
+    ~network_layer_gateway();
 
     int send_data(send_msg<>&& msg) override;
 
+    void handle_received_event(received_msg &&event) override;
 };
 
 

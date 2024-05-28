@@ -1,9 +1,9 @@
 #include "tcp_session.h"
+#include "../../linux/error_codes.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
-
 #include <iostream>
-
 using namespace std;
 
 tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
@@ -19,7 +19,7 @@ tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
             memset(buff, 0, BUFF_SZ);
 
             int data_sz = recv(this->sd, buff, BUFF_SZ, 0);
-            if (data_sz == -1) {
+            if (data_sz == RECV_ERROR) {
                 alive = false;
 //                std::cerr << "tcp_client_server seseion couldn't read" << endl;
                 break;
@@ -48,8 +48,7 @@ tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
 }
 
 tcp_session_conn::~tcp_session_conn() {
-//    std::cout << "tcp_session deconsturcotor" << endl;
-    if (worker.joinable()) worker.detach();
+    worker.detach();
     close(sd);
 }
 
@@ -73,14 +72,18 @@ int tcp_session_conn::send_data(send_msg<>&& msg) {
                 throw;
             }
         }
-        return 0;
+        return SEND_MEDIUM_ERROR;
     }
 
-    return send(sd, msg.get_active_buff(), msg.get_count(), 0);
+    int res = send(sd, msg.get_active_buff(), msg.get_count(), 0);
+    if (res == SEND_ERROR || res == 0)
+        return SEND_MEDIUM_ERROR;
+    else
+        return res;
 }
 
 void tcp_session_conn::handle_received_event(received_msg &&event) {
-    receive_forwarder::handle_received_event(std::move(event));
+    recv_forwarder::handle_received_event(std::move(event));
 }
 
 

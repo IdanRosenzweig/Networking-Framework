@@ -3,7 +3,7 @@
 
 #include "session_conn.h"
 #include "session_generator.h"
-#include "../receiving/msg/msg_receiver.h"
+#include "../receiving/msg/received_msg.h"
 #include "session_handler.h"
 #include <memory>
 #include <vector>
@@ -52,7 +52,7 @@ class session_manager {
         }
     };
 
-    struct sessions_recv : basic_receiver<SESSION_TYPE> {
+    struct sessions_recv : basic_recv_listener<SESSION_TYPE> {
         session_manager *master;
 
         void handle_received_event(SESSION_TYPE &&event) override {

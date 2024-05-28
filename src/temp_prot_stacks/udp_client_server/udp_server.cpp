@@ -1,15 +1,15 @@
 #include "udp_server.h"
 #include <linux/ip.h>
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 
 udp_server::udp_server(int serverPort, ip4_addr src_ip, gateway* gw) : server_port(serverPort), network_layer_gw(gw) {
 
     // setup send flow
-    ip_server.gateway = network_layer_gw;
+    ip_server.send_medium = network_layer_gw;
     ip_server.next_protocol.set_next_choice(IPPROTO_UDP);
     ip_server.next_source_addr.set_next_choice(src_ip);
 
-    _udp_server.gateway = &ip_server;
+    _udp_server.send_medium = &ip_server;
     _udp_server.next_source_port.set_next_choice(server_port);
 
 
@@ -35,7 +35,7 @@ void udp_server::handle_received_event(received_msg &&event) {
     extract_from_network_order(&pack_stack.source_addr,
                                (uint8_t*) &((struct iphdr*) (event.data.data() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
-    this->receive_forwarder<udp_packet_stack>::handle_received_event(std::move(pack_stack));
+    this->recv_forwarder<udp_packet_stack>::handle_received_event(std::move(pack_stack));
 }
 
 int udp_server::send_data_to_client(ip4_addr dest_addr, int dest_port, send_msg<> msg) {

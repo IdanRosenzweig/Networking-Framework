@@ -1,4 +1,5 @@
 #include "virtual_if.h"
+#include "../../error_codes.h"
 
 #include "tun_tap.h"
 #include <unistd.h>
@@ -9,7 +10,7 @@ linux_virtual_iface::linux_virtual_iface(gateway *gw, string& iface_name) : base
     base_gw->add_listener(this);
 
     fd = open_raw_tap(iface_name);
-    if (fd == -1) {
+    if (fd == OPEN_ERROR) {
         std::cerr << "can't create virual tap interface" << endl;
         throw;
     }
@@ -34,7 +35,7 @@ linux_virtual_iface::linux_virtual_iface(gateway *gw, string& iface_name) : base
 
 linux_virtual_iface::~linux_virtual_iface() {
     base_gw->remove_listener(this);
-    if (worker.joinable()) worker.detach();
+    worker.detach();
 }
 
 void linux_virtual_iface::handle_received_event(received_msg &&event) {

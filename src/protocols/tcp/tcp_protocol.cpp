@@ -1,4 +1,6 @@
 #include "tcp_protocol.h"
+#include "../../linux/error_codes.h"
+
 #include <netinet/ip.h>
 #include <iostream>
 #include <netinet/tcp.h>
@@ -15,17 +17,17 @@ tcp_protocol::tcp_protocol(bool server) {
                 SOCK_STREAM,
                 IPPROTO_TCP // TCP
         );
-        if (sd == -1) {
+        if (sd == OPEN_ERROR) {
             std::cerr << "can't open socket" << endl;
             return;
         }
 
         int enabled = 1;
-        if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == -1) {
+        if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == SETSOCKOPT_ERROR) {
             std::cerr << "can't setsockopt reuseaddr" << endl;
             return;
         }
-        if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == -1) {
+        if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == SETSOCKOPT_ERROR) {
             std::cerr << "can't setsockopt tcp_nodelay" << endl;
             return;
         }
@@ -41,31 +43,31 @@ tcp_protocol::tcp_protocol(bool server) {
                 sd,
                 (struct sockaddr *) &addr,
                 sizeof(addr)
-        ) == -1) {
+        ) == BIND_ERROR) {
             std::cerr << "bind err" << endl;
             return;
         }
 
         // listening on the socket
-        if (listen(sd, 1) == -1) {
+        if (listen(sd, 1) == LISTEN_ERROR) {
             std::cerr << "listen err" << endl;
             return;
         }
 
         worker = std::thread([&]() -> void {
             while (true) {
-                int client_sd;
-                struct sockaddr_in client_addr;
-                socklen_t len = sizeof(client_addr);
 
                 // accepting a new session
                 std::cout << "waiting for a tcp session..." << endl;
-                client_sd = accept(
+
+                int client_sd;
+                struct sockaddr_in client_addr;
+                socklen_t len = sizeof(client_addr);
+                if ((client_sd = accept(
                         sd,
                         (struct sockaddr *) &client_addr,
                         &len
-                );
-                if (client_sd == -1) {
+                )) == ACCEPT_ERROR) {
                     std::cout << "can't accept the session" << endl;
                     continue;
                 }
@@ -85,9 +87,7 @@ tcp_protocol::tcp_protocol(bool server) {
 }
 
 tcp_protocol::~tcp_protocol() {
-//    std::cout << "tcp_protocol deconstruct" << endl;
-    if (worker.joinable())
-        worker.detach();
+    worker.detach();
     close(sd);
 }
 
@@ -95,17 +95,17 @@ tcp_session_type tcp_protocol::start_session() {
     int session_sd = socket(AF_INET,
                             SOCK_STREAM,
                             IPPROTO_TCP);
-    if (session_sd == -1) {
+    if (session_sd == SOCKET_ERROR) {
         std::cerr << "can't open socket" << std::endl;
         throw;
     }
 
     int enabled = 1;
-    if (setsockopt(session_sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == -1) {
+    if (setsockopt(session_sd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled)) == SETSOCKOPT_ERROR) {
         std::cerr << "can't setsockopt reuseaddr" << std::endl;
         throw;
     }
-    if (setsockopt(session_sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == -1) {
+    if (setsockopt(session_sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == SETSOCKOPT_ERROR) {
         std::cerr << "can't setsockopt tcp_nodelay" << std::endl;
         throw;
     }
@@ -123,7 +123,7 @@ tcp_session_type tcp_protocol::start_session() {
         address.sin_family = AF_INET;
         address.sin_addr.s_addr = INADDR_ANY;
         address.sin_port = htons(next_source_port.get_next_choice());
-        if (bind(session_sd, (struct sockaddr *) &address, sizeof(address)) == -1) {
+        if (bind(session_sd, (struct sockaddr *) &address, sizeof(address)) == BIND_ERROR) {
             std::cerr << "can't bind to local port" << std::endl;
             throw;
         }
@@ -133,7 +133,7 @@ tcp_session_type tcp_protocol::start_session() {
     if (connect(session_sd,
                 (struct sockaddr *) &my_addr,
                 sizeof(my_addr)
-    ) < 0) {
+    ) == CONNECT_ERROR) {
         std::cerr << "can't connect to the server" << std::endl;
         throw;
     }

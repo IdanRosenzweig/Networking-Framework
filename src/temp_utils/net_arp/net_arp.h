@@ -5,13 +5,13 @@
 #include <vector>
 #include <utility>
 
-#include "../../abstract/sending/msg/msg_sender.h"
-#include "../../abstract/receiving/msg/msg_receiver.h"
-#include "../../abstract/receiving/receive_queue.h"
+#include "../../abstract/sending/msg/send_msg.h"
+#include "../../abstract/receiving/msg/received_msg.h"
+#include "../../abstract/receiving/recv_queue.h"
 #include "../../abstract/gateway/gateway.h"
 #include "../../abstract/utils/circular_buffer.h"
 
-#include "../../linux/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_gateway.h"
 
 #include "../../protocols/ether/mac_addr.h"
 #include "../../protocols/ether/ethernet_protocol.h"
@@ -19,7 +19,7 @@
 
 #include <linux/if_ether.h>
 
-class net_arp : private receive_queue<received_msg> {
+class net_arp : private recv_queue<received_msg> {
 
     // send
     gateway *data_link_layer_gateway;
@@ -28,7 +28,7 @@ class net_arp : private receive_queue<received_msg> {
 public:
 
     net_arp(gateway *gw) : data_link_layer_gateway(gw) {
-        ether_client.gateway = data_link_layer_gateway;
+        ether_client.send_medium = data_link_layer_gateway;
 //        ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
 //        ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
 //        ether_client.next_source_addr.set_next_choice(my_mac);

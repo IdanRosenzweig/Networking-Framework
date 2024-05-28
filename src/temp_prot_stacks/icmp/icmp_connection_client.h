@@ -5,7 +5,7 @@
 #include "../../protocols/icmp/icmp_protocol.h"
 #include "../../abstract/connection/connection.h"
 #include "../../abstract/gateway/gateway.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 #include "../../linux/osi/network_layer_gateway.h"
 #include "common.h"
 

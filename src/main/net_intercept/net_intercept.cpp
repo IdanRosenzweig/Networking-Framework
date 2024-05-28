@@ -1,6 +1,6 @@
-#include "../../linux/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_gateway.h"
 #include "../../temp_utils/net_arp/net_arp.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 
 #include <boost/program_options.hpp>
@@ -9,18 +9,20 @@
 using namespace std;
 
 void net_intercept_main(const string &iface, const vector<ip4_addr> &victim, ip4_addr dest, bool block) {
-    net_arp scanner(new data_link_layer_gateway(iface));
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    net_arp scanner(new data_link_layer_gateway(iface_access));
 
     scanner.intercept_device_traffic(victim, dest, block, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface));
-}
 
+}
 
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("victims", po::value<vector<string>>()->multitoken(),
              "victims' ip for the attack. if not specified, sends to whole network (broadcast)")

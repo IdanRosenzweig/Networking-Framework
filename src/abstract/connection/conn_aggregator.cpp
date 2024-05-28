@@ -5,10 +5,10 @@
 using namespace std;
 
 void conn_aggregator::add_connection(connection *conn) {
-    conns.push_back(std::make_unique<conn_handler>(this, conn));
+    conns.insert(std::make_unique<conn_handler>(this, conn, next_id++));
 }
 
-conn_handler::conn_handler(conn_aggregator *master, connection *conn) : master(master), my_conn(conn) {
+conn_handler::conn_handler(conn_aggregator *master, connection *conn, int id) : master(master), my_conn(conn), internal_id(id) {
     my_conn->add_listener(this);
 }
 
@@ -21,10 +21,10 @@ int conn_handler::send_data(send_msg<> &&val) {
 }
 
 void conn_handler::handle_received_event(received_msg &&event) {
-    int i = 0;
-    while (i < master->conns.size()) {
-        if (master->conns[i].get() == this) {
-            i++;
+    auto it = master->conns.begin();
+    while (it != master->conns.end()) {
+        if ((*it)->internal_id == this->internal_id) {
+            it++;
             continue;
         }
 
@@ -33,17 +33,15 @@ void conn_handler::handle_received_event(received_msg &&event) {
         memcpy(send.get_active_buff(), event.data.data() + event.curr_offset, cnt);
         send.set_count(cnt);
 
-        int res = master->conns[i]->send_data(std::move(send));
-        if (res == -1) {
-            std::cerr << "couldn't send to aggregator my_conn" << endl;
-            master->conns.erase(master->conns.begin() + i);
-            i++;
+        int res = (*it)->send_data(std::move(send));
+        if (res == SEND_MEDIUM_ERROR || res == 0) {
+            std::cerr << "couldn't forward data to some connection, removing it from the aggregator" << endl;
+            it = master->conns.erase(it);
             continue;
         }
 
-        if (i == 0) std::cout << "aggregator sending to index 0: " << cnt << ", was at offset " << event.curr_offset << endl;
-        else if (i == 1) std::cout << "aggregator sending to index 1: " << cnt << ", was at offset " << event.curr_offset << endl;
-        i++;
+        std::cout << "forwarded data to connection with it " << (*it)->internal_id << endl;
+        it++;
     }
 
 }

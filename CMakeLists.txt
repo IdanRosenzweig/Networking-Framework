@@ -43,16 +43,20 @@ set(ABSTRACT_SRC
         src/abstract/protocol_t.cpp
         src/abstract/connection/conn_aggregator.cpp
         src/abstract/utils/network_msg_queue.h
+        src/abstract/sniffer/sniffer.h
+        src/abstract/sniffer/basic_sniff_handler.h
+        src/linux/if/wrappers/interface_sniffer.cpp
+        src/linux/if/wrappers/interface_sniffer.h
 )
 
 set(LINUX_SRC
-        src/linux/interface_gateway.cpp
-        src/linux/interface_sniffer.cpp
+        src/linux/if/wrappers/interface_gateway.cpp
+        src/linux/if/iface_access_point.cpp
 
-        src/linux/hardware.cpp
+        src/linux/if/hardware.cpp
 
-        src/linux/virtual_if.cpp
-        src/linux/tun_tap.cpp
+        src/linux/if/virtual/virtual_if.cpp
+        src/linux/if/virtual/tun_tap.cpp
 
         src/linux/osi/data_link_layer_gateway.cpp
         src/linux/osi/network_layer_gateway.cpp

@@ -2,25 +2,32 @@
 #define SERVERCLIENT_BANDWIDTH_H
 
 #include "../../abstract/connection/connection.h"
-#include "../../abstract/sniffer/msg_sniffer.h"
+#include "../../abstract/sniffer/sniffer.h"
 
 class bandwidth {
-    multi_msg_sniffer* conn;
+    struct sniffer* sniffer;
 
-    class my_sniff : public msg_sniffer {
+    class outgoing_sniff : public basic_sniff_handler {
         bandwidth* master;
     public:
-        explicit my_sniff(bandwidth *master) : master(master) {}
+        explicit outgoing_sniff(bandwidth *master) : master(master) {}
 
-        void handle_outgoing_packet(const received_msg &msg) override;
+        void handle_received_event(received_msg &&event) override;
 
-        void handle_incoming_packet(const received_msg &msg) override;
     };
-    my_sniff my_sniff;
+    outgoing_sniff outgoing_sniff;
 
+    class incoming_sniff : public basic_sniff_handler {
+        bandwidth* master;
+    public:
+        explicit incoming_sniff(bandwidth *master) : master(master) {}
+
+        void handle_received_event(received_msg &&event) override;
+    };
+    incoming_sniff incoming_sniff;
 
 public:
-    explicit bandwidth(multi_msg_sniffer *conn);
+    explicit bandwidth(struct sniffer *sniffer);
 
     uint64_t bytes_out_cnt = 0;
     uint64_t bytes_in_cnt = 0;

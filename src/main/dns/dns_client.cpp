@@ -1,12 +1,14 @@
 #include "../../temp_utils/dns_server_client/dns_client.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
 
 void dns_client_main(const string& iface, dns_record_type type, const string &key, ip4_addr dns_server) {
-    dns_client client(dns_server, get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
+    std::shared_ptr<iface_access_point> raw_access = make_shared<iface_access_point>(iface);
+
+    dns_client client(dns_server, get_ip_addr_of_iface(iface), new network_layer_gateway(raw_access));
 //    dns_client client(dns_server, new interface_gateway("virt0"));
 
     client.query(type, key);
@@ -18,7 +20,7 @@ int main(int argc, char **argv) {
 
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("server", po::value<string>(),
              "ip of dns server to use. uses 8.8.8.8 by default")
@@ -62,7 +64,5 @@ int main(int argc, char **argv) {
     string key = vm["key"].as<string>();
 
     dns_client_main(iface, str_to_record_type(type), key, convert_to_ip4_addr(server_ip));
-
-//    dns_client_main("enp0s3", str_to_record_type("A"), "google.com", convert_to_ip4_addr("8.8.8.8"));
 
 }

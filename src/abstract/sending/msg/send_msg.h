@@ -1,6 +1,8 @@
 #ifndef SERVERCLIENT_SEND_MSG_H
 #define SERVERCLIENT_SEND_MSG_H
 
+#include "../basic_send_medium.h"
+
 #include <stdint.h>
 #include <cstring>
 
@@ -44,5 +46,7 @@ public:
         toggle = false;
     }
 };
+
+using msg_send_medium = basic_send_medium<send_msg<>>;
 
 #endif //SERVERCLIENT_SEND_MSG_H

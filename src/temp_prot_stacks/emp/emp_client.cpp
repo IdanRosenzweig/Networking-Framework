@@ -1,10 +1,10 @@
 #include "emp_client.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 
 emp_client::emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, const udata_t& src_endpoint,
                        ip4_addr src_ip, gateway * gw) : network_layer_gw(gw) {
     // setup send flow
-    ip_prot.gateway = network_layer_gw;
+    ip_prot.send_medium = network_layer_gw;
     ip_prot.next_protocol.set_next_choice(0xa0);
     ip_prot.next_dest_addr.set_next_choice(dest_ip);
     ip_prot.next_source_addr.set_next_choice(src_ip);

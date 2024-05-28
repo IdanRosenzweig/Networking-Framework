@@ -15,7 +15,7 @@
 class vpn_daemon {
     tcp_server tcpServer;
 
-    class sessions_handler : public basic_receiver<tcp_session_type> {
+    class sessions_handler : public basic_recv_listener<tcp_session_type> {
         vpn_daemon *master;
     public:
 
@@ -26,8 +26,10 @@ class vpn_daemon {
         void handle_received_event(tcp_session_type &&event) override {
             master->tcpSession.push_back(std::move(event));
 
-            master->sessions.emplace_back(master->tcpSession.back().sess_conn.get());
-            master->aggregator.add_connection(&master->sessions.back());
+//            master->sessions.emplace_back(master->tcpSession.back().sess_conn.get());
+//            master->aggregator.add_connection(&master->sessions.back());
+            master->sessions.emplace_back(make_unique<msg_boundary_seperator<>>(master->tcpSession.back().sess_conn.get()));
+            master->aggregator.add_connection(master->sessions.back().get());
         }
 
     } handler;
@@ -37,12 +39,13 @@ class vpn_daemon {
     firewall gateway_firewall;
 
     vector<tcp_session_type> tcpSession;
-    vector<msg_boundary_seperator<>> sessions;
+//    vector<msg_boundary_seperator<>> sessions;
+    vector<unique_ptr<msg_boundary_seperator<>>> sessions;
 
     conn_aggregator aggregator;
 
 public:
-    vpn_daemon(const string &local_interface) : dataLinkLayerGateway(local_interface),
+    vpn_daemon(const weak_ptr<iface_access_point>& access) : dataLinkLayerGateway(access),
                                                 gateway_firewall(&dataLinkLayerGateway), block_filter(5678),
                                                 tcpServer(5678), handler(this) {
         gateway_firewall.incoming_filters.push_back(&block_filter);

@@ -6,7 +6,7 @@
 #include "../../abstract/connection/connection.h"
 #include "../../abstract/gateway/gateway.h"
 #include "../../linux/osi/network_layer_gateway.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 #include "common.h"
 
 // todo packet stack like in udp server

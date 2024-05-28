@@ -4,12 +4,12 @@
 #include <map>
 
 #include "icmp_header.h"
-#include "../../abstract/sending/msg/msg_sender.h"
-#include "../../abstract/receiving/msg/msg_receiver.h"
+#include "../../abstract/sending/msg/send_msg.h"
+#include "../../abstract/receiving/msg/received_msg.h"
 #include "../../abstract/utils/multiplexer.h"
 #include "../../abstract/utils/next_choice.h"
 
-class icmp_protocol : public msg_sender, public msg_receiver {
+class icmp_protocol : public msg_send_medium, public msg_recv_listener {
 public:
 
     icmp_protocol() {
@@ -19,7 +19,7 @@ public:
     }
 
     // send
-    msg_sender* gateway;
+    msg_send_medium* gateway;
     next_choice<int> next_type;
     next_choice<int> next_code;
     next_choice<uint32_t> next_content;
@@ -27,8 +27,8 @@ public:
 
 
     // recv
-    map<int, vector<basic_receiver *>> type_handlers;
-    basic_receiver* default_handler = nullptr;
+    map<int, vector<basic_recv_listener *>> type_handlers;
+    basic_recv_listener* default_handler = nullptr;
     void handle_received_event(received_msg&& msg) override;
 
 };

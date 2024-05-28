@@ -1,16 +1,18 @@
-#include "../../temp_utils//ping/traceroute_util.h"
-#include "../../linux/hardware.h"
+#include "../../temp_utils/ping/traceroute_util.h"
+#include "../../linux/if/hardware.h"
+#include "../../protocols/ip4/ip4_addr.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
 
 void traceroute_main(const string& iface, ip4_addr dest_ip) {
-    traceroute_util tracer(get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    traceroute_util tracer(get_ip_addr_of_iface(iface), new network_layer_gateway(iface_access));
 //    traceroute_util tracer(new interface_gateway("virt0"));
 
     tracer.dest_ip.set_next_choice(dest_ip);
-
     tracer.trace_to_destination();
 }
 
@@ -19,7 +21,7 @@ int main(int argc, char** argv) {
 
     po::options_description opts("search path on ip network to dest device");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "dest ip to search path to");
 

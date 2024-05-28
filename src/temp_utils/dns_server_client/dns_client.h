@@ -1,9 +1,9 @@
 #ifndef SERVERCLIENT_DNS_CLIENT_H
 #define SERVERCLIENT_DNS_CLIENT_H
 
-#include "../../abstract/receiving/receive_queue.h"
+#include "../../abstract/receiving/recv_queue.h"
 #include "../../abstract/receiving/msg/received_msg.h"
-#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/sending/msg/send_msg.h"
 #include "../../abstract/gateway/gateway.h"
 
 #include "../../protocols/ip4/ip4_protocol.h"
@@ -14,7 +14,7 @@
 #include "../../temp_prot_stacks/emp/emp_client.h"
 #include "dns.h"
 
-class dns_client : public receive_queue<received_msg> {
+class dns_client : public recv_queue<received_msg> {
 public:
 
     udp_client udpClient;

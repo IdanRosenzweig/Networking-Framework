@@ -1,4 +1,6 @@
 #include "hardware.h"
+#include "../error_codes.h"
+
 #include <linux/if.h>
 #include <linux/if_ether.h>
 #include <linux/if_arp.h>
@@ -16,7 +18,7 @@ mac_addr get_mac_addr_of_iface(const string &iface) {
     snprintf(ifr.ifr_name, IFNAMSIZ, "%s", iface.c_str());
 
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (ioctl(temp_fd, SIOCGIFHWADDR, &ifr) < 0)
+    if (ioctl(temp_fd, SIOCGIFHWADDR, &ifr) == IOCTL_ERROR)
         return {0};
     close(temp_fd);
 
@@ -35,7 +37,7 @@ void set_mac_addr_for_iface(const string &iface, mac_addr new_addr) {
     memcpy(ifr.ifr_hwaddr.sa_data, &new_addr, sizeof(new_addr));
 
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (ioctl(temp_fd, SIOCSIFHWADDR, &ifr) < 0) {
+    if (ioctl(temp_fd, SIOCSIFHWADDR, &ifr) == IOCTL_ERROR) {
         cerr << "couldn't change the mac address inside the kernel using ioctl" << endl;
     }
     close(temp_fd);
@@ -49,7 +51,7 @@ ip4_addr get_ip_addr_of_iface(const string &iface) {
     struct ifreq my_priv_ip;
     memset(&my_priv_ip, 0, sizeof(struct ifreq));
     strncpy(my_priv_ip.ifr_name, iface.c_str(), IFNAMSIZ - 1);
-    if (ioctl(temp_fd, SIOCGIFADDR, &my_priv_ip) < 0)
+    if (ioctl(temp_fd, SIOCGIFADDR, &my_priv_ip) == IOCTL_ERROR)
         perror("SIOCGIFADDR");
 
     close(temp_fd);

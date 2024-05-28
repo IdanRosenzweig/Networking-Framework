@@ -3,13 +3,13 @@
 
 #include <map>
 
-#include "../../abstract/sending/msg/msg_sender.h"
-#include "../../abstract/receiving/msg/msg_receiver.h"
+#include "../../abstract/sending/msg/send_msg.h"
+#include "../../abstract/receiving/msg/received_msg.h"
 #include "../../abstract/utils/next_choice.h"
 #include "../../abstract/utils/multiplexer.h"
 #include "udp_header.h"
 
-class udp_protocol : public msg_sender, public msg_receiver {
+class udp_protocol : public msg_send_medium, public msg_recv_listener {
 public:
 
     udp_protocol() {
@@ -20,14 +20,14 @@ public:
     // send
     next_choice<int> next_source_port;
     next_choice<int> next_dest_port;
-    msg_sender* gateway;
+    msg_send_medium* send_medium;
 
     int send_data(send_msg<>&& msg) override;
 
 
     // recv
-    map<int, vector<basic_receiver *>> port_handlers;
-    basic_receiver* default_handler = nullptr;
+    map<int, vector<basic_recv_listener *>> port_handlers;
+    basic_recv_listener* default_handler = nullptr;
     void handle_received_event(received_msg&& msg) override;
 
 };

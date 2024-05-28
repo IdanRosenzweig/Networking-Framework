@@ -1,14 +1,15 @@
 #include "../../temp_utils/ping/ping_util.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;
 
 void ping_main(const string& iface, ip4_addr dest_ip, int count, std::chrono::milliseconds interval) {
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
 
 //    ping_util pinger(convert_to_ip4_addr("10.100.102.31"), new network_layer_gateway(iface));
-    ping_util pinger(get_ip_addr_of_iface(iface), new network_layer_gateway(iface));
+    ping_util pinger(get_ip_addr_of_iface(iface), new network_layer_gateway(iface_access));
 
     pinger.dest_ip.set_next_choice(dest_ip);
     pinger.count.set_next_choice(count);
@@ -23,11 +24,11 @@ int main(int argc, char** argv) {
 
     po::options_description opts("ping devices on ip network");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "dest ip to ping")
             ("interval,i", po::value<int>(), "interval in ms between pings. 1000ms by default")
-    ("count", po::value<int>(), "number of times to ping. 10 by default");
+    ("count,c", po::value<int>(), "number of times to ping. 10 by default");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);

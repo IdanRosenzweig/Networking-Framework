@@ -1,8 +1,8 @@
 #ifndef SERVERCLIENT_HARDWARE_H
 #define SERVERCLIENT_HARDWARE_H
 
-#include "../protocols/ether/mac_addr.h"
-#include "../protocols/ip4/ip4_addr.h"
+#include "../../protocols/ether/mac_addr.h"
+#include "../../protocols/ip4/ip4_addr.h"
 
 mac_addr get_mac_addr_of_iface(const string &iface);
 

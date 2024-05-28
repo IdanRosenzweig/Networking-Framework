@@ -7,7 +7,7 @@ using namespace std;
 traceroute_util::traceroute_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
 
     // setup send flow
-    ip_client.gateway = network_layer_gw;
+    ip_client.send_medium = network_layer_gw;
     ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
     ip_client.next_source_addr.set_next_choice(src_ip);
 
@@ -60,7 +60,7 @@ void traceroute_util::trace_to_destination() {
             // recv
             msg = recv_queue.front<500>();
             if (msg == nullptr) {
-//                std::cerr << "no reply was received after reasonable time, sending again" << endl;
+                std::cerr << "no reply was received after reasonable time, sending again" << endl;
                 continue;
             }
             recv_queue.clear();

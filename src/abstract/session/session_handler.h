@@ -15,7 +15,7 @@ public:
     session_handler(SESSION_TYPE &&sess) : session(std::move(sess)) {
     }
 
-    virtual ~session_handler() {}
+    virtual ~session_handler() = default;
 
     virtual void on_session_start() = 0;
 

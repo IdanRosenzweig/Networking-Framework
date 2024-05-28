@@ -5,12 +5,12 @@
 
 #include "mac_addr.h"
 #include "../../abstract/utils/next_choice.h"
-#include "../../abstract/sending/msg/msg_sender.h"
-#include "../../abstract/receiving/msg/msg_receiver.h"
+#include "../../abstract/sending/msg/send_msg.h"
+#include "../../abstract/receiving/msg/received_msg.h"
 #include "../../abstract/utils/multiplexer.h"
 #include <netinet/if_ether.h>
 
-class ethernet_protocol : public msg_sender, public msg_receiver {
+class ethernet_protocol : public msg_send_medium, public msg_recv_listener {
 public:
     ethernet_protocol();
 
@@ -19,14 +19,14 @@ public:
     next_choice<mac_addr> next_dest_addr;
     next_choice<mac_addr> next_source_addr;
 
-    msg_sender* gateway;
+    basic_send_medium* send_medium;
 
     int send_data(send_msg<>&& msg) override;
 
 
     // recv
-    map<int, vector<basic_receiver *>> protocol_handlers;
-    basic_receiver* default_handler = nullptr;
+    map<int, vector<basic_recv_listener *>> protocol_handlers;
+    basic_recv_listener* default_handler = nullptr;
     void handle_received_event(received_msg&& msg) override;
 
 };

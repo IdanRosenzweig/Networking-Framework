@@ -7,7 +7,7 @@
 #include <boost/program_options.hpp>
 using namespace std;
 
-class server_app : public session_handler<tcp_boundary_preserving_session_type>, public msg_receiver {
+class server_app : public session_handler<tcp_boundary_preserving_session_type>, public msg_recv_listener {
 public:
     void on_session_start() override { // when session starts, just add this class to its listeners. this calls just receives the messages and echos them
         session.sess_conn->add_listener(this);
@@ -57,7 +57,7 @@ void shell_server_main(const string& iface, int port) {
 }
 
 
-class client_app : public msg_receiver {
+class client_app : public msg_recv_listener {
 public:
     void handle_received_event(received_msg &&event) override {
         std::cout << event.data.data() + event.curr_offset << endl;
@@ -79,7 +79,7 @@ void shell_client_main(const string& iface, ip4_addr server_ip, int dest_port) {
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
-        if (res == -1 || res == 0) {
+        if (res == SEND_MEDIUM_ERROR || res == 0) {
             std::cerr << "can't send data to server" << endl;
         }
     }
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 
     po::options_description opts("execute shell commands remotely");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
 
             ("client", "use as client")

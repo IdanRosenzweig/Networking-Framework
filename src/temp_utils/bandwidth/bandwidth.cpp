@@ -1,15 +1,16 @@
 #include "bandwidth.h"
 
-void bandwidth::my_sniff::handle_outgoing_packet(const received_msg &msg) {
-    master->bytes_out_cnt += msg.data.size();
+void bandwidth::outgoing_sniff::handle_received_event(received_msg &&event) {
+    master->bytes_out_cnt += event.data.size();
 }
 
-void bandwidth::my_sniff::handle_incoming_packet(const received_msg &msg) {
-    master->bytes_in_cnt += msg.data.size();
+void bandwidth::incoming_sniff::handle_received_event(received_msg &&event) {
+    master->bytes_in_cnt += event.data.size();
 }
 
-bandwidth::bandwidth(multi_msg_sniffer *sniffer) : conn(sniffer), my_sniff(this) {
-    conn->add_sniffer(&my_sniff);
+bandwidth::bandwidth(struct sniffer *_sniffer) : sniffer(_sniffer), outgoing_sniff(this), incoming_sniff(this) {
+    sniffer->outgoing.sniffers.push_back(&outgoing_sniff);
+    sniffer->incoming.sniffers.push_back(&incoming_sniff);
 }
 
 

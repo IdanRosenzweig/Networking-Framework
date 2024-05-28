@@ -25,7 +25,7 @@ public:
     }
 
     void handle_received_event(received_msg&& msg) override {
-        this->receive_forwarder::handle_received_event(std::move(msg));
+        this->recv_forwarder::handle_received_event(std::move(msg));
     }
 };
 

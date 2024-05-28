@@ -1,6 +1,6 @@
-#include "../../linux/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_gateway.h"
 #include "../../temp_utils/net_arp/net_arp.h"
-#include "../../linux/hardware.h"
+#include "../../linux/if/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 
 #include <boost/program_options.hpp>
@@ -8,14 +8,18 @@
 using namespace std;
 
 void arp_scan_single_main(const string& iface, ip4_addr ip_addr) {
-    net_arp scanner(new data_link_layer_gateway(iface));
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    net_arp scanner(new data_link_layer_gateway(iface_access));
 
     std::cout << "mac address associated with ip: " << convert_to_str(ip_addr) << endl;
     cout << convert_to_str(scanner.search_for_mac_addr(ip_addr, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface))) << endl;
 }
 
 void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask) {
-    net_arp scanner(new data_link_layer_gateway(iface));
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    net_arp scanner(new data_link_layer_gateway(iface_access));
 
     auto results = scanner.scan_entire_subnet(mask, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface));
 
@@ -32,7 +36,7 @@ int main(int argc, char **argv) {
 
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "scan for single ip address")
             ("subnet", po::value<string>(), "scan all ip addresses in a subnet");

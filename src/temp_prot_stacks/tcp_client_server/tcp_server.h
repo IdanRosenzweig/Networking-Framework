@@ -12,7 +12,7 @@ class tcp_server : public session_generator<tcp_session_type> {
 
     int server_port;
 
-    class sessions_handler : public basic_receiver<tcp_session_type> {
+    class sessions_handler : public basic_recv_listener<tcp_session_type> {
         tcp_server *master;
 
     public:

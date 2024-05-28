@@ -34,7 +34,7 @@ int ethernet_protocol::send_data(send_msg<>&& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(struct ether_header) + msg.get_count());
-    return gateway->send_data(std::move(msg));
+    return send_medium->send_data(std::move(msg));
 
 }
 

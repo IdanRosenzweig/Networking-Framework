@@ -15,7 +15,7 @@
 
 using tcp_session_type = session_t<tcp_session_conn, tcp_session_data>;
 
-//class tcp_protocol : public receive_forwarder<std::unique_ptr<tcp_session>> {
+//class tcp_protocol : public recv_forwarder<std::unique_ptr<tcp_session>> {
 class tcp_protocol : public session_generator<tcp_session_type> {
 
     int sd;

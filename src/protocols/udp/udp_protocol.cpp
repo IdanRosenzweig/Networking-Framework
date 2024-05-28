@@ -23,7 +23,7 @@ int udp_protocol::send_data(send_msg<>&& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(udp_header) + msg.get_count());
-    return gateway->send_data(std::move(msg));
+    return send_medium->send_data(std::move(msg));
 }
 
 void udp_protocol::handle_received_event(received_msg&& msg) {

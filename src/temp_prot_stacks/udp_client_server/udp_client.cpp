@@ -2,12 +2,12 @@
 
 udp_client::udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr src_ip, gateway *gw) : network_layer_gw(gw) {
     // setup send flow
-    ip_client.gateway = network_layer_gw;
+    ip_client.send_medium = network_layer_gw;
     ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
     ip_client.next_dest_addr.set_next_choice(dest_ip);
     ip_client.next_source_addr.set_next_choice(src_ip);
 
-    _udp_client.gateway = &ip_client;
+    _udp_client.send_medium = &ip_client;
     _udp_client.next_source_port.set_next_choice(my_port);
     _udp_client.next_dest_port.set_next_choice(dest_port);
 

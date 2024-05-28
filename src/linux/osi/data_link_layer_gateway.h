@@ -2,17 +2,23 @@
 #define SERVERCLIENT_DATA_LINK_LAYER_GATEWAY_H
 
 #include "../../abstract/gateway/gateway.h"
-#include "../interface_gateway.h"
+#include "../../abstract/sending/send_forwarder.h"
+#include "../if/wrappers/interface_gateway.h"
+#include <memory>
 
 class data_link_layer_gateway : public gateway {
-private:
-
     interface_gateway if_gateway;
+//    interface_gateway if_gateway2;
+    send_forwarder<send_msg<>> send_medium; // combines the gateways' send functions
 
 public:
-    data_link_layer_gateway(const string& interface);
+    weak_ptr<iface_access_point> iface_access;
 
-    int send_data(send_msg<>&& val) override;
+    data_link_layer_gateway(const weak_ptr<iface_access_point>& access);
+
+    ~data_link_layer_gateway();
+
+    int send_data(send_msg<> &&val) override;
 
     void handle_received_event(received_msg &&event) override;
 };

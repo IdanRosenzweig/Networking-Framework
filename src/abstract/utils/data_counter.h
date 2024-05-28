@@ -1,9 +1,9 @@
 #ifndef SERVERCLIENT_DATA_COUNTER_H
 #define SERVERCLIENT_DATA_COUNTER_H
 
-#include "../receiving/msg/msg_receiver.h"
+#include "../receiving/msg/received_msg.h"
 
-class data_counter : public msg_receiver {
+class data_counter : public msg_recv_listener {
     int counter = 0;
 public:
     int get_count() {return counter;}

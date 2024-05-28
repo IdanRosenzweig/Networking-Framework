@@ -1,4 +1,4 @@
-#include "../../linux/interface_gateway.h"
+#include "../../linux/if/wrappers/interface_sniffer.h"
 #include "../../temp_utils/analyzer/net_analyzer.h"
 
 #include <boost/program_options.hpp>
@@ -6,7 +6,10 @@
 using namespace std;
 
 void net_analyzer_main(const string& iface) {
-    net_analyzer analyzer(iface);
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    interface_sniffer sniffer(iface_access);
+    net_analyzer analyzer(&sniffer);
 
     while (true) {
 
@@ -18,7 +21,7 @@ namespace po = boost::program_options;
 int main(int argc, char **argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
-            ("help", "print tool use description")
+            ("help,h", "print tool use description")
             ("iface", po::value<string>(), "interface to sniff traffic from")
 //            ("show-hexdump,h", po::value<bool>(), "show hexdump of packets")
             ;

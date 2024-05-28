@@ -2,14 +2,15 @@
 #define SERVERCLIENT_IP_PROXY_SERVER_H
 
 #include "../../abstract/connection/connection.h"
-#include "../../abstract/receiving/msg/msg_receiver.h"
-#include "../../abstract/sending/msg/msg_sender.h"
+#include "../../abstract/receiving/msg/received_msg.h"
+#include "../../abstract/sending/msg/send_msg.h"
 #include "../../abstract/gateway/gateway.h"
 
 #include "../../protocols/ip4/ip4_addr.h"
 
 #include <set>
 #include <cstring>
+#include <memory>
 #include <arpa/inet.h>
 
 class ip_proxy_server;
@@ -17,7 +18,7 @@ class ip_proxy_server;
 class conn_side_handler;
 class network_side_handler;
 
-class conn_side_handler : public msg_sender, public msg_receiver {
+class conn_side_handler : public msg_send_medium, public msg_recv_listener {
     connection * my_conn;
 
 public:
@@ -38,7 +39,7 @@ public:
     void handle_received_event(received_msg&& msg) override; // recv from the raw_session
 };
 
-class network_side_handler : public msg_sender, public msg_receiver {
+class network_side_handler : public msg_send_medium, public msg_recv_listener {
 public:
     ip_proxy_server *server;
 

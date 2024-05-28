@@ -3,7 +3,7 @@
 
 #include "ping_util.h"
 
-class traceroute_util : private receive_queue<received_msg> {
+class traceroute_util : private recv_queue<received_msg> {
     gateway * network_layer_gw;
     ip4_protocol ip_client;
     icmp_protocol icmp_client;

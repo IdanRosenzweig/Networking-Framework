@@ -20,6 +20,13 @@ public:
         base_conn->add_listener(this);
     }
 
+//    msg_boundary_seperator(msg_boundary_seperator&& other) : base_conn(other.base_conn) {
+//        base_conn->add_listener(this);
+//        mid_packet = other.mid_packet;
+//        curr_msg = other.curr_msg;
+//        curr_read = other.curr_read;
+//    }
+
     ~msg_boundary_seperator() {
         base_conn->remove_listener(this);
     }
@@ -70,7 +77,7 @@ public:
             cnt -= reading;
 
             if (curr_read == curr_msg.data.size()) {
-                receive_forwarder::handle_received_event(std::move(curr_msg));
+                recv_forwarder::handle_received_event(std::move(curr_msg));
                 mid_packet = false;
             }
         }
