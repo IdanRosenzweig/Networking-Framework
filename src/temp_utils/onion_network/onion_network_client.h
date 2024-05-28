@@ -35,7 +35,7 @@ public:
     }
 
     void handle_received_event(received_msg &&event) override {
-        receive_multiplexer::handle_received_event(std::move(event));
+        receive_forwarder::handle_received_event(std::move(event));
     }
 
 };

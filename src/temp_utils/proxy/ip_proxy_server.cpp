@@ -1,6 +1,5 @@
 #include "ip_proxy_server.h"
 #include "../../linux/hardware.h"
-#include "../../linux/osi/network_layer_gateway.h"
 #include "../../protocols/ip4/internet_checksum.h"
 #include <linux/ip.h>
 #include <iostream>

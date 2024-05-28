@@ -1,6 +1,5 @@
 #include "net_arp.h"
 
-#include "../../linux/hardware.h"
 #include <iostream>
 #include <cstring>
 #include <netinet/if_ether.h>

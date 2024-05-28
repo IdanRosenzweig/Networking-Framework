@@ -1,9 +1,7 @@
 #include "../../temp_utils/dns_server_client/dns_server.h"
 #include "../../temp_utils/dns_server_client/database_loader.h"
 #include "../../linux/hardware.h"
-#include "../../linux/osi/data_link_layer_gateway.h"
 
-#include <unistd.h>
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;

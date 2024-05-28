@@ -70,7 +70,7 @@ public:
             cnt -= reading;
 
             if (curr_read == curr_msg.data.size()) {
-                receive_multiplexer::handle_received_event(std::move(curr_msg));
+                receive_forwarder::handle_received_event(std::move(curr_msg));
                 mid_packet = false;
             }
         }

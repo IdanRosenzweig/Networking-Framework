@@ -23,7 +23,7 @@ public:
     std::vector<basic_firewall_filter<send_msg<>>*> outgoing_filters; // filters to apply on outgoing packets
     std::vector<basic_firewall_filter<received_msg>*> incoming_filters; // filters to apply to incoming packets
 
-    int send_data(send_msg<> &&val) override { // todo fix the override of send_multiplexer
+    int send_data(send_msg<> &&val) override { // todo fix the override of send_forwarder
         for (const auto& filter : outgoing_filters) {
             switch (filter->calc_policy(val)) {
                 case ALLOW: break; // continue to next filter
@@ -60,7 +60,7 @@ public:
         }
 
 //        std::cout << "firewall accepted incoming packet" << std::endl;
-        receive_multiplexer::handle_received_event(std::move(event));
+        receive_forwarder::handle_received_event(std::move(event));
     }
 
 

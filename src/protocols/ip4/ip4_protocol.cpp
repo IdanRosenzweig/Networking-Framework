@@ -64,8 +64,11 @@ void ip4_protocol::handle_received_event(received_msg&& msg) {
         default_handler->handle_received_event(std::move(copy));
     }
 
-    if (protocol_handlers.is_key_assigned(protocol)) {
-        protocol_handlers.get_val_of_key(protocol)->handle_received_event(std::move(msg));
+    if (protocol_handlers.count(protocol)) {
+        for (auto& handler : protocol_handlers[protocol]) {
+            received_msg copy(msg);
+            handler->handle_received_event(std::move(copy));
+        }
     }
 
 }

@@ -60,15 +60,15 @@ net_analyzer::net_analyzer(const string& interface) : raw_sniffer(interface) {
     raw_sniffer.add_sniffer((basic_sniffer*) this);
 
     ethernetProtocol.default_handler = &etherHandler;
-    ethernetProtocol.protocol_handlers.assign_to_key(htons(ETH_P_IP), &ip4Protocol);
-//    ethernetProtocol.protocol_handlers.assign_to_key(htons(ETH_P_ARP), &arpProtocol);
+    ethernetProtocol.protocol_handlers[htons(ETH_P_IP)].push_back( &ip4Protocol);
+//    ethernetProtocol.protocol_handlers[htons(ETH_P_ARP)].push_back( &arpProtocol);
 
 //    arpProtocol.default_handler = &displayer;
 
     ip4Protocol.default_handler = &ip4Handler;
-    ip4Protocol.protocol_handlers.assign_to_key(IPPROTO_UDP, &udpProtocol);
-//    ip4Protocol.protocol_handlers.assign_to_key(IPPROTO_TCP, &tcpProtocol);
-    ip4Protocol.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmpProtocol);
+    ip4Protocol.protocol_handlers[IPPROTO_UDP].push_back( &udpProtocol);
+//    ip4Protocol.protocol_handlers[IPPROTO_TCP].push_back( &tcpProtocol);
+    ip4Protocol.protocol_handlers[IPPROTO_ICMP].push_back( &icmpProtocol);
 
     udpProtocol.default_handler = &udpHandler;
 //    udpProtocol.default_handler = &displayer;

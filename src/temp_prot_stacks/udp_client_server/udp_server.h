@@ -30,7 +30,7 @@ struct udp_packet_stack {
     }
 };
 
-class udp_server : public msg_receiver, public receive_multiplexer<udp_packet_stack> {
+class udp_server : public msg_receiver, public receive_forwarder<udp_packet_stack> {
 public:
 
     gateway *network_layer_gw;
@@ -49,4 +49,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_EMP_SERVER_H
+#endif //SERVERCLIENT_UDP_SERVER_H

@@ -36,14 +36,14 @@ set(PROTOCOLS_SRC
         src/protocols/msg_boundary/msg_boundary_protocol.cpp
 
         src/protocols/emp/emp.cpp
-        src/protocols/scp/scp_session.cpp
         src/protocols/tcp/tcp_boundary_preserving_session.cpp
-        src/protocols/tcp/tcp_boundary_preserving_session.h
 )
 
 set(ABSTRACT_SRC
         src/abstract/protocol_t.cpp
         src/abstract/connection/conn_aggregator.cpp
+        src/abstract/utils/network_msg_queue.h
+        src/abstract/receiving/basic_forwarder_target.h
 )
 
 set(LINUX_SRC
@@ -257,14 +257,3 @@ add_executable(mac_changer
 #target_link_libraries(net_analyzer ${LIBSSH_LIBRARIES})
 #target_link_libraries(net_analyzer ${Boost_LIBRARIES})
 
-
-add_executable(scp
-        ${ABSTRACT_SRC}
-        ${PROTOCOLS_SRC}
-        ${LINUX_SRC}
-
-        src/protocols/scp/scp_session.cpp
-        src/temp_prot_stacks/scp/scp_client.cpp
-        src/temp_prot_stacks/scp/scp_server.cpp
-        src/temp_prot_stacks/scp/scp_server.h
-)

@@ -23,7 +23,7 @@ network_layer_gateway::network_layer_gateway(const string &interface) : interfac
 
     // recv
     interfaceGateway.add_listener(&ether_prot);
-    ether_prot.protocol_handlers.assign_to_key(htons(ETH_P_IP), this);
+    ether_prot.protocol_handlers[htons(ETH_P_IP)].push_back( this);
 }
 
 int network_layer_gateway::send_data(send_msg<> &&msg) {

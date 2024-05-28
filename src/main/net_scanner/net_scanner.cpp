@@ -3,7 +3,6 @@
 #include "../../linux/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 
-#include <unistd.h>
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;

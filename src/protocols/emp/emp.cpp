@@ -1,6 +1,6 @@
 #include "emp.h"
 #include <iostream>
-#include <netinet/in.h>
+
 #include <cstring>
 using namespace std;
 
@@ -29,7 +29,7 @@ void emp::handle_received_event(received_msg&& msg) {
     udata_t dest;
     curr_buff += decode_data(&dest, curr_buff);
 
-    msg.protocol_offsets.push_back({msg.curr_offset, BS_PORT});
+    msg.protocol_offsets.emplace_back(msg.curr_offset, BS_PORT);
     msg.curr_offset += (int) (curr_buff - buff);
 
 
@@ -39,6 +39,10 @@ void emp::handle_received_event(received_msg&& msg) {
     }
 
     auto it = endpoints_handlers.search(dest);
-    if (it != nullptr) it->key->handle_received_event(std::move(msg));
+    if (it != nullptr)
+        for(auto& handler : it->key) {
+            received_msg copy(msg);
+            handler->handle_received_event(std::move(copy));
+        }
 
 }

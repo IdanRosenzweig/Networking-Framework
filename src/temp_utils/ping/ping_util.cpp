@@ -14,7 +14,7 @@ ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
 
     // setup recv flow
     network_layer_gw->add_listener(&ip_client);
-    ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
+    ip_client.protocol_handlers[IPPROTO_ICMP].push_back( &icmp_client);
 
     icmp_client.default_handler = this;
 

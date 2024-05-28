@@ -26,7 +26,7 @@ class onion_network_node {
         void handle_received_event(udp_packet_stack&& event) override {
             ip_source = event.source_addr;
             port_source = event.source_port;
-            this->receive_multiplexer::handle_received_event(std::move(event.msg));
+            this->receive_forwarder::handle_received_event(std::move(event.msg));
         }
 
         int send_data(send_msg<>&& val) override {

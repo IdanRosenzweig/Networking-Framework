@@ -1,5 +1,5 @@
-#ifndef SERVERCLIENT_RECEIVE_MULTIPLEXER_H
-#define SERVERCLIENT_RECEIVE_MULTIPLEXER_H
+#ifndef SERVERCLIENT_RECEIVE_FORWARDER_H
+#define SERVERCLIENT_RECEIVE_FORWARDER_H
 
 #include "basic_receiver.h"
 #include <set>
@@ -7,10 +7,10 @@
 #include <iostream>
 using namespace std;
 
-// receives events and multiplexes them to multiple receivers
+// receives events and forwards them to multiple receivers
 template <typename TYPE>
-class receive_multiplexer : public basic_receiver<TYPE> {
-    static_assert(std::is_copy_constructible_v<TYPE>, "type for receive_multiplexer must be somehow copy constructable");
+class receive_forwarder : public basic_receiver<TYPE> {
+    static_assert(std::is_copy_constructible_v<TYPE>, "type for receive_forwarder must be somehow copy constructable");
     std::set<basic_receiver<TYPE>*> listeners;
 
 public:
@@ -40,4 +40,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_RECEIVE_MULTIPLEXER_H
+#endif //SERVERCLIENT_RECEIVE_FORWARDER_H

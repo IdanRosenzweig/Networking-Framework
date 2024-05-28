@@ -18,6 +18,8 @@ public:
 
     icmp_connection_server(ip4_addr dest_ip, ip4_addr src_ip, gateway* gw);
 
+    ~icmp_connection_server();
+
     int send_data(send_msg<>&& msg) override;
 };
 

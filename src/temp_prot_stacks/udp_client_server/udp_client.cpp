@@ -15,9 +15,9 @@ udp_client::udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr sr
     network_layer_gw->add_listener(&ip_client);
 
     // todo change to both udp_client_server and raw_session matching
-    ip_client.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_client);
+    ip_client.protocol_handlers[IPPROTO_UDP].push_back( &_udp_client);
 
-    _udp_client.port_handlers.assign_to_key(my_port, this);
+    _udp_client.port_handlers[my_port].push_back(this);
 }
 
 udp_client::~udp_client() {

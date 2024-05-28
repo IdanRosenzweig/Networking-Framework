@@ -3,7 +3,6 @@
 #include "../../linux/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 
-#include <unistd.h>
 #include <boost/program_options.hpp>
 #include <iostream>
 
@@ -29,7 +28,6 @@ int main(int argc, char **argv) {
              "destination ip from the victims into")
             ("block", po::value<bool>(),
              "blocks the traffic, in addition to sniffing it. if not specified, true by default");
-//    ("both", "preform attack in both directions, from the victim to the dest and the opposite");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);
@@ -58,13 +56,9 @@ int main(int argc, char **argv) {
         block = vm["block"].as<bool>();
     }
 
-    bool has_victim;
     vector<string> victims;
-    if (!vm.count("victims")) {
-        has_victim = false;
-    } else {
+    if (vm.count("victims")) {
         victims = vm["victims"].as<vector<string>>();
-        has_victim = true;
     }
 
 

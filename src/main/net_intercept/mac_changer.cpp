@@ -3,10 +3,8 @@
 #include "../../linux/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 
-#include <unistd.h>
 #include <boost/program_options.hpp>
 #include <iostream>
-#include <sys/ioctl.h>
 using namespace std;
 
 void change_local_mac_main(const string &iface, const string &assoc_iface, mac_addr new_mac) {

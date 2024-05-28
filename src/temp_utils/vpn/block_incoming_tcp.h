@@ -39,8 +39,8 @@ class block_incoming_tcp : public basic_firewall_filter<received_msg> {
 
 public:
     block_incoming_tcp(int port) : blocked_port(port), tcp_examine(this) {
-        ether_prot.protocol_handlers.assign_to_key(htons(ETH_P_IP), &ip_prot);
-        ip_prot.protocol_handlers.assign_to_key(IPPROTO_TCP, &tcp_examine);
+        ether_prot.protocol_handlers[htons(ETH_P_IP)].push_back( &ip_prot);
+        ip_prot.protocol_handlers[IPPROTO_TCP].push_back( &tcp_examine);
     }
 
     firewall_policy calc_policy(const received_msg &msg) override {

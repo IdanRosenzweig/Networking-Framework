@@ -80,7 +80,7 @@ int tcp_session_conn::send_data(send_msg<>&& msg) {
 }
 
 void tcp_session_conn::handle_received_event(received_msg &&event) {
-    receive_multiplexer::handle_received_event(std::move(event));
+    receive_forwarder::handle_received_event(std::move(event));
 }
 
 

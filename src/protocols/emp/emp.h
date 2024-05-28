@@ -19,11 +19,11 @@ public:
     int send_data(send_msg<>&& msg) override;
 
     // recv
-    trie_node<uint8_t, 256, [](uint8_t val) -> size_t {return val;}, basic_receiver*> endpoints_handlers;
+    trie_node<uint8_t, 256, [](uint8_t val) -> size_t {return val;}, vector<basic_receiver*>> endpoints_handlers;
     basic_receiver* default_handler = nullptr;
 
     void handle_received_event(received_msg&& msg) override;
 
 };
 
-#endif //SERVERCLIENT_IP4_PROTOCOL_H
+#endif //SERVERCLIENT_EMP_H

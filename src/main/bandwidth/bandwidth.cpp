@@ -1,7 +1,6 @@
 #include "../../linux/interface_gateway.h"
 #include "../../temp_utils/bandwidth/bandwidth.h"
 
-#include <unistd.h>
 #include <iostream>
 #include <boost/program_options.hpp>
 using namespace std;

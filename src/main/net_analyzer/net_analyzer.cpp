@@ -1,7 +1,6 @@
 #include "../../linux/interface_gateway.h"
 #include "../../temp_utils/analyzer/net_analyzer.h"
 
-#include <unistd.h>
 #include <boost/program_options.hpp>
 #include <iostream>
 using namespace std;

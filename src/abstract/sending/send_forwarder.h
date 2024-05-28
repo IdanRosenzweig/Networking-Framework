@@ -1,11 +1,11 @@
-#ifndef SERVERCLIENT_SEND_MULTIPLEXER_H
-#define SERVERCLIENT_SEND_MULTIPLEXER_H
+#ifndef SERVERCLIENT_SEND_FORWARDER_H
+#define SERVERCLIENT_SEND_FORWARDER_H
 
 #include "basic_sender.h"
 #include <vector>
 
 template <typename TYPE>
-class send_multiplexer : public basic_sender<TYPE> {
+class send_forwarder : public basic_sender<TYPE> {
     std::vector<basic_sender<TYPE>*> targets;
 
 public:
@@ -27,4 +27,4 @@ public:
 
 };
 
-#endif //SERVERCLIENT_SEND_MULTIPLEXER_H
+#endif //SERVERCLIENT_SEND_FORWARDER_H

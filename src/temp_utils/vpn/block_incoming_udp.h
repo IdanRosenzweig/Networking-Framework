@@ -19,8 +19,8 @@ class block_incoming_udp : public basic_firewall_filter<received_msg> {
 
 public:
     block_incoming_udp(int port) {
-        ip_prot.protocol_handlers.assign_to_key(IPPROTO_UDP, &udp_prot);
-        udp_prot.port_handlers.assign_to_key(port, &counter);
+        ip_prot.protocol_handlers[IPPROTO_UDP].push_back( &udp_prot);
+        udp_prot.port_handlers[port].push_back(&counter);
     }
 
     firewall_policy calc_policy(const received_msg& msg) override {

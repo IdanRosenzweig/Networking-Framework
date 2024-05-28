@@ -5,6 +5,7 @@
 #include <thread>
 #include <thread>
 
+// simple circular queue ds
 template <typename T, int BUFF_SZ = 1024>
 struct circular_buffer {
 private:
@@ -16,8 +17,6 @@ private:
     // the current buffer is [base_in, base_in + count), (circular indexes)
 
 public:
-
-    circular_buffer() {}
 
     inline bool is_empty() {
         return count == 0;

@@ -90,7 +90,6 @@ int extract_encoded_name(ustring *dest, uint8_t *curr_ptr, uint8_t *packet_buff)
         count += 1;
 
     return count;
-    return count;
 }
 
 

@@ -17,9 +17,9 @@ emp_client::emp_client(ip4_addr dest_ip, const udata_t& dest_endpoint, const uda
     network_layer_gw->add_listener(&ip_prot);
 
     // todo change to both udp_client_server and raw_session matching
-    ip_prot.protocol_handlers.assign_to_key(0xa0, &emp_prot);
+    ip_prot.protocol_handlers[0xa0].push_back( &emp_prot);
 
-    emp_prot.endpoints_handlers.add_word(src_endpoint)->key = this;
+    emp_prot.endpoints_handlers.add_word(src_endpoint)->key.push_back(this);
 }
 
 emp_client::~emp_client() {

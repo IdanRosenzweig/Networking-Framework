@@ -1,8 +1,6 @@
 #include "icmp_protocol.h"
 #include <iostream>
-#include <linux/icmp.h>
 #include <cstring>
-#include <thread>
 #include "icmp_header.h"
 #include "../ip4/internet_checksum.h"
 
@@ -11,7 +9,7 @@ using namespace std;
 int icmp_protocol::send_data(send_msg<>&& msg) {
     uint8_t* buff = msg.get_reserve_buff();
 
-    icmp_header *packet = reinterpret_cast<icmp_header*>(buff);
+    struct icmp_header *packet = reinterpret_cast<icmp_header*>(buff);
     packet->type = next_type.get_next_choice();
     packet->code = next_code.get_next_choice();
     packet->content.raw = next_content.get_next_choice();
@@ -39,12 +37,14 @@ void icmp_protocol::handle_received_event(received_msg&& msg) {
 
     if (default_handler != nullptr) {
         received_msg copy(msg);
-        default_handler->handle_received_event(std::move(msg));
+        default_handler->handle_received_event(std::move(copy));
     }
 
-    if (type_handlers.is_key_assigned(type)) {
-        type_handlers.get_val_of_key(type)->handle_received_event(std::move(msg));
-//        return;
+    if (type_handlers.count(type)) {
+        for (auto& handler : type_handlers[type]) {
+            received_msg copy(msg);
+            handler->handle_received_event(std::move(copy));
+        }
     }
 
 }

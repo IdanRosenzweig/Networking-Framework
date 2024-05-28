@@ -16,9 +16,9 @@ emp_server::emp_server(const udata_t& endpoint, ip4_addr src_ip, gateway* gw) : 
     // setup recv from raw_session flow
     network_layer_gw->add_listener(&ip_prot);
 
-    ip_prot.protocol_handlers.assign_to_key(0xa0, &emp_prot);
+    ip_prot.protocol_handlers[0xa0].push_back( &emp_prot);
 
-    emp_prot.endpoints_handlers.add_word(endpoint)->key = this;
+    emp_prot.endpoints_handlers.add_word(endpoint)->key.push_back(this);
 }
 
 emp_server::~emp_server() {
@@ -36,7 +36,7 @@ void emp_server::handle_received_event(received_msg &&event) {
     extract_from_network_order(&pack_stack.source_addr,
                                (uint8_t*) &((struct iphdr*) (event.data.data() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
-    this->receive_multiplexer::handle_received_event(std::move(pack_stack));
+    this->receive_forwarder::handle_received_event(std::move(pack_stack));
 }
 
 int emp_server::send_data_to_client(ip4_addr client_addr, const udata_t& dest_endpoint, send_msg<> msg) {

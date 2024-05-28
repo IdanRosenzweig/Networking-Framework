@@ -16,9 +16,9 @@ udp_server::udp_server(int serverPort, ip4_addr src_ip, gateway* gw) : server_po
     // setup recv flow
     network_layer_gw->add_listener(&ip_server);
 
-    ip_server.protocol_handlers.assign_to_key(IPPROTO_UDP, &_udp_server);
+    ip_server.protocol_handlers[IPPROTO_UDP].push_back( &_udp_server);
 
-    _udp_server.port_handlers.assign_to_key(server_port, (basic_receiver<received_msg> *) this);
+    _udp_server.port_handlers[server_port].push_back(this);
 }
 
 udp_server::~udp_server() {
@@ -35,7 +35,7 @@ void udp_server::handle_received_event(received_msg &&event) {
     extract_from_network_order(&pack_stack.source_addr,
                                (uint8_t*) &((struct iphdr*) (event.data.data() + (event.protocol_offsets[event.protocol_offsets.size() - 2]).first))->saddr);
 
-    this->receive_multiplexer<udp_packet_stack>::handle_received_event(std::move(pack_stack));
+    this->receive_forwarder<udp_packet_stack>::handle_received_event(std::move(pack_stack));
 }
 
 int udp_server::send_data_to_client(ip4_addr dest_addr, int dest_port, send_msg<> msg) {

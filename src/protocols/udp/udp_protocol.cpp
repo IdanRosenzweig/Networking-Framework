@@ -41,9 +41,11 @@ void udp_protocol::handle_received_event(received_msg&& msg) {
         default_handler->handle_received_event(std::move(copy));
     }
 
-    if (port_handlers.is_key_assigned(port)) {
-         port_handlers.get_val_of_key(port)->handle_received_event(std::move(msg));
-//         return;
+    if (port_handlers.count(port)) {
+        for (auto& handler : port_handlers[port]) {
+            received_msg copy(msg);
+            handler->handle_received_event(std::move(copy));
+        }
     }
 
 }

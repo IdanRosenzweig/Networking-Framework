@@ -35,7 +35,7 @@ public:
 
         // for receiving
         data_link_layer_gateway->add_listener(&ether_client);
-        ether_client.protocol_handlers.assign_to_key(htons(ETH_P_ARP), this);
+        ether_client.protocol_handlers[htons(ETH_P_ARP)].push_back( this);
     }
 
     ~net_arp() {

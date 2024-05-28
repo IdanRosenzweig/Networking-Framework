@@ -14,9 +14,9 @@ icmp_connection_client::icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip
     // setup recv flow
     network_layer_gw->add_listener(&ip_client);
 
-    ip_client.protocol_handlers.assign_to_key(IPPROTO_ICMP, &icmp_client);
+    ip_client.protocol_handlers[IPPROTO_ICMP].push_back( &icmp_client);
 
-    icmp_client.type_handlers.assign_to_key(ICMP_CONN_SERVER_TYPE, this);
+    icmp_client.type_handlers[ICMP_CONN_SERVER_TYPE].push_back(this);
 }
 
 icmp_connection_client::~icmp_connection_client() {

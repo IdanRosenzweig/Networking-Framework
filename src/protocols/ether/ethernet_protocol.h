@@ -25,7 +25,7 @@ public:
 
 
     // recv
-    multiplexer<int, basic_receiver*> protocol_handlers;
+    map<int, vector<basic_receiver *>> protocol_handlers;
     basic_receiver* default_handler = nullptr;
     void handle_received_event(received_msg&& msg) override;
 

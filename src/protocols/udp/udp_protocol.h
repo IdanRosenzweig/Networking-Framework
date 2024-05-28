@@ -1,6 +1,8 @@
 #ifndef SERVERCLIENT_UDP_PROTOCOL_H
 #define SERVERCLIENT_UDP_PROTOCOL_H
 
+#include <map>
+
 #include "../../abstract/sending/msg/msg_sender.h"
 #include "../../abstract/receiving/msg/msg_receiver.h"
 #include "../../abstract/utils/next_choice.h"
@@ -24,10 +26,10 @@ public:
 
 
     // recv
-    multiplexer<int, basic_receiver*> port_handlers;
+    map<int, vector<basic_receiver *>> port_handlers;
     basic_receiver* default_handler = nullptr;
     void handle_received_event(received_msg&& msg) override;
 
 };
 
-#endif //SERVERCLIENT_IP4_PROTOCOL_H
+#endif //SERVERCLIENT_UDP_PROTOCOL_H

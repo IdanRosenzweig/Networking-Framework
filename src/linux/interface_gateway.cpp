@@ -4,7 +4,6 @@
 #include <iostream>
 #include <linux/if_ether.h>
 #include <linux/if.h>
-#include <linux/socket.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 

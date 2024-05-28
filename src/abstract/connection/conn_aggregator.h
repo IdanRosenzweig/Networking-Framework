@@ -15,10 +15,7 @@ class conn_aggregator {
 public:
     std::vector<std::unique_ptr<conn_handler>> conns;
 
-    conn_aggregator() {}
-
     void add_connection(connection* conn);
-
 };
 
 

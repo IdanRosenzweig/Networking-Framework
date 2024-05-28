@@ -4,7 +4,6 @@
 #include <linux/if_arp.h>
 #include <cstring>
 #include <cstdio>
-#include <linux/if_ether.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <netinet/in.h>

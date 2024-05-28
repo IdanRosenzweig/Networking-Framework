@@ -16,7 +16,7 @@ struct emp_packet_stack {
     udata_t dest_point;
 };
 
-class emp_server : public msg_receiver, public receive_multiplexer<emp_packet_stack> {
+class emp_server : public msg_receiver, public receive_forwarder<emp_packet_stack> {
     void handle_received_event(received_msg&& event) override;
 
 public:

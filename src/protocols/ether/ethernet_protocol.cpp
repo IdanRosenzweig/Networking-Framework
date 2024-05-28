@@ -9,7 +9,6 @@ ethernet_protocol::ethernet_protocol() {
     next_dest_addr.set_next_choice(BROADCAST_MAC);
 }
 
-
 int ethernet_protocol::send_data(send_msg<>&& msg) {
     uint8_t* buff = msg.get_reserve_buff();
 
@@ -53,9 +52,11 @@ void ethernet_protocol::handle_received_event(received_msg&& msg) {
         default_handler->handle_received_event(std::move(copy));
     }
 
-    if (protocol_handlers.is_key_assigned(ethertype)) {
-        protocol_handlers.get_val_of_key(ethertype)->handle_received_event(std::move(msg));
-//        return;
+    if (protocol_handlers.count(ethertype)) {
+        for (auto& handler : protocol_handlers[ethertype]) {
+            received_msg copy(msg);
+            handler->handle_received_event(std::move(copy));
+        }
     }
 
 }
