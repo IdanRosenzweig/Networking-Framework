@@ -27,10 +27,6 @@ public:
     }
 
     void handle_received_event(TYPE&& event) override {
-
-        if (listeners.size() == 2) {
-            volatile int a= 0;
-        }
         for (auto& listener : listeners) {
             // create a copy of the event and pass it to each of the sub listeners
             TYPE event_copy(event);

@@ -14,6 +14,7 @@ class firewall : public connection {
 public:
     explicit firewall(connection *base) : base(base) {
         base->add_listener(this);
+        this->add_send_target(base);
     }
 
     ~firewall() {
@@ -23,7 +24,7 @@ public:
     std::vector<basic_firewall_filter<send_msg<>>*> outgoing_filters; // filters to apply on outgoing packets
     std::vector<basic_firewall_filter<received_msg>*> incoming_filters; // filters to apply to incoming packets
 
-    int send_data(send_msg<> &&val) override { // todo fix the override of send_forwarder
+    int send_data(send_msg<> &&val) override {
         for (const auto& filter : outgoing_filters) {
             switch (filter->calc_policy(val)) {
                 case ALLOW: break; // continue to next filter
@@ -40,7 +41,7 @@ public:
         }
 
 //        std::cout << "firewall accepted outgoing packet" << std::endl;
-        return base->send_data(std::move(val));
+        return this->send_data(std::move(val));
     }
 
     void handle_received_event(received_msg &&event) override {

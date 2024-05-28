@@ -43,7 +43,6 @@ set(ABSTRACT_SRC
         src/abstract/protocol_t.cpp
         src/abstract/connection/conn_aggregator.cpp
         src/abstract/utils/network_msg_queue.h
-        src/abstract/receiving/basic_forwarder_target.h
 )
 
 set(LINUX_SRC

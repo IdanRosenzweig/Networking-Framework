@@ -10,7 +10,11 @@
 #include <condition_variable>
 using namespace std;
 
-// a queue for storing message for farther receiving/sending.
+// a queue for storing messages for farther receiving/sending.
+// message and stored in a circular queue.
+// add message through add_msg
+// when the queue is not empty, a thread worker will pop messages and use the receive_forwarder api to forward them
+
 template <typename T, int MAX_NO_MSG = 50000>
 class network_msg_queue : public receive_forwarder<T> {
     circular_buffer<T, MAX_NO_MSG> ring_buffer;

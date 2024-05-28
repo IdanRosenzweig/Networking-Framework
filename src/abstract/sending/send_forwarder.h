@@ -16,7 +16,7 @@ public:
     int send_data(TYPE&& val) override {
         int sum = 0;
 
-        for (auto target : targets) {
+        for (auto& target : targets) {
             // create a copy pass it to each of the targets
             TYPE val_copy(val);
             sum += target->send_data(std::move(val_copy));
