@@ -19,17 +19,24 @@ public:
     }
 
     // send
-    msg_send_medium* gateway;
     next_choice<int> next_type;
     next_choice<int> next_code;
     next_choice<uint32_t> next_content;
-    int send_data(send_msg<>&& msg) override;
+    msg_send_forwarder send_medium;
+
+    int send_data(send_msg<> &&msg) override;
 
 
     // recv
-    map<int, vector<basic_recv_listener *>> type_handlers;
-    basic_recv_listener* default_handler = nullptr;
-    void handle_received_event(received_msg&& msg) override;
+#define ICMP_LISTEN_ON_TYPE_INDEX 0
+#define ICMP_LISTEN_ON_CODE_INDEX 1
+    multiplexer<basic_recv_listener *,
+            uint8_t, // type, index 0
+            uint8_t // code, index 1
+    > listeners;
+    basic_recv_listener *default_listener = nullptr;
+
+    void handle_received_event(received_msg &&msg) override;
 
 };
 

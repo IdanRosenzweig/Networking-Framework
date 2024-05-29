@@ -15,20 +15,27 @@ public:
     ip4_protocol();
 
     // send
-    next_choice<int> next_protocol;
+    next_choice<uint8_t> next_protocol;
     next_choice<uint8_t> next_ttl;
     next_choice<ip4_addr> next_dest_addr;
     next_choice<ip4_addr> next_source_addr;
+    msg_send_forwarder send_medium;
 
-    msg_send_medium *send_medium;
-
-    int send_data(send_msg<>&& msg) override;
+    int send_data(send_msg<> &&msg) override;
 
 
     // recv
-    map<int, vector<basic_recv_listener *>> protocol_handlers;
-    basic_recv_listener * default_handler = nullptr;
-    void handle_received_event(received_msg&& msg) override;
+#define IP4_LISTEN_ON_PROTOCOL_INDEX 0
+#define IP4_LISTEN_ON_SRC_ADDR_INDEX 1
+#define IP4_LISTEN_ON_DEST_ADDR_INDEX 2
+    multiplexer<basic_recv_listener *,
+            uint8_t, // protocol, index 0
+            ip4_addr, // src addr, index 1
+            ip4_addr // dest addr, index 2
+    > listeners;
+    basic_recv_listener *default_listener = nullptr;
+
+    void handle_received_event(received_msg &&msg) override;
 
 };
 

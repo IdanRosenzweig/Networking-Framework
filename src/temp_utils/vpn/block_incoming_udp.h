@@ -18,9 +18,12 @@ class block_incoming_udp : public basic_firewall_filter<received_msg> {
     class data_counter counter;
 
 public:
-    block_incoming_udp(int port) {
-        ip_prot.protocol_handlers[IPPROTO_UDP].push_back( &udp_prot);
-        udp_prot.port_handlers[port].push_back(&counter);
+    block_incoming_udp(uint16_t port) {
+        ip_prot.listeners.append_new_empty_handler(&udp_prot);
+        ip_prot.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_UDP);
+
+        udp_prot.listeners.append_new_empty_handler(&counter);
+        udp_prot.listeners.add_requirement_to_last_handler<UDP_LISTEN_ON_PORT_INDEX>(port);
     }
 
     firewall_policy calc_policy(const received_msg& msg) override {

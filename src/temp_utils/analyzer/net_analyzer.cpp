@@ -57,23 +57,29 @@ void net_analyzer::icmp_handler::handle_received_event(received_msg &&event) {
 }
 
 net_analyzer::net_analyzer(struct sniffer* _sniffer) : sniffer(_sniffer), outgoing_sniff(this), incoming_sniff(this) {
+    sniffer->outgoing.sniffers.push_back(&outgoing_sniff);
+    sniffer->incoming.sniffers.push_back(&incoming_sniff);
 
-    ethernetProtocol.default_handler = &etherHandler;
-    ethernetProtocol.protocol_handlers[htons(ETH_P_IP)].push_back( &ip4Protocol);
-//    ethernetProtocol.protocol_handlers[htons(ETH_P_ARP)].push_back( &arpProtocol);
+    ethernetProtocol.default_listener = &etherHandler;
+    ethernetProtocol.listeners.append_new_empty_handler(&ip4Protocol);
+    ethernetProtocol.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_IP));
+//    ethernetProtocol.listeners.append_new_empty_handler(&arpProtocol);
+//    ethernetProtocol.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_ARP));
 
-//    arpProtocol.default_handler = &displayer;
+//    arpProtocol.default_listener = &arpHandler;
 
-    ip4Protocol.default_handler = &ip4Handler;
-    ip4Protocol.protocol_handlers[IPPROTO_UDP].push_back( &udpProtocol);
-//    ip4Protocol.protocol_handlers[IPPROTO_TCP].push_back( &tcpProtocol);
-    ip4Protocol.protocol_handlers[IPPROTO_ICMP].push_back( &icmpProtocol);
+    ip4Protocol.default_listener = &ip4Handler;
+    ip4Protocol.listeners.append_new_empty_handler(&udpProtocol);
+    ip4Protocol.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_UDP);
+    ip4Protocol.listeners.append_new_empty_handler(&icmpProtocol);
+    ip4Protocol.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_ICMP);
+//    ip4Protocol.listeners.append_new_empty_handler(&tcpProtocol);
+//    ip4Protocol.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_TCP);
 
-    udpProtocol.default_handler = &udpHandler;
-//    udpProtocol.default_handler = &displayer;
+    udpProtocol.default_listener = &udpHandler;
 
-    icmpProtocol.default_handler = &icmpHandler;
-//    icmpProtocol.default_handler = &displayer;
+    icmpProtocol.default_listener = &icmpHandler;
+
 }
 
 void net_analyzer::outgoing_sniff::handle_received_event(received_msg &&event) {

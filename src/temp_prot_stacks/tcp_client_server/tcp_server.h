@@ -10,7 +10,7 @@
 class tcp_server : public session_generator<tcp_session_type> {
     tcp_protocol tcp_prot;
 
-    int server_port;
+    uint16_t server_port;
 
     class sessions_handler : public basic_recv_listener<tcp_session_type> {
         tcp_server *master;
@@ -29,11 +29,11 @@ class tcp_server : public session_generator<tcp_session_type> {
     sessions_handler sessionsHandler;
 
 public:
-    tcp_server(int port) : tcp_prot(true), server_port(port), sessionsHandler(this) {
+    tcp_server(uint16_t port) : tcp_prot(true), server_port(port), sessionsHandler(this) {
 
     }
 
-    tcp_session_type start_session(const string& ip, int port);
+    tcp_session_type start_session(const string& ip, uint16_t port);
 
 };
 

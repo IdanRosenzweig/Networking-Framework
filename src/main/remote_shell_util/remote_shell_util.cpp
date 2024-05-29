@@ -47,7 +47,7 @@ private:
 
 using server_sess_manager = session_manager<tcp_boundary_preserving_session_type, server_app>;
 
-void shell_server_main(const string& iface, int port) {
+void shell_server_main(const string& iface, uint16_t port) {
     tcp_boundary_preserving_server server(port);
 
     server_sess_manager app(&server);
@@ -64,7 +64,7 @@ public:
     }
 };
 
-void shell_client_main(const string& iface, ip4_addr server_ip, int dest_port) {
+void shell_client_main(const string& iface, ip4_addr server_ip, uint16_t dest_port) {
 
     tcp_boundary_preserving_client client(server_ip, dest_port, 6799);
 
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
             ("server", "use as server")
 
             ("dest", po::value<string>(), "used for client, dest ip address of the server to connect to")
-            ("port", po::value<int>(),
+            ("port", po::value<uint16_t>(),
              "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
 
     po::variables_map vm;
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
             std::cout << opts << endl;
             return 1;
         }
-        int port = vm["port"].as<int>();
+        uint16_t port = vm["port"].as<uint16_t>();
 
         shell_server_main(iface, port);
 
@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
             std::cout << opts << endl;
             return 1;
         }
-        int port = vm["port"].as<int>();
+        uint16_t port = vm["port"].as<uint16_t>();
 
         if (!vm.count("dest")) {
             std::cout << opts << endl;

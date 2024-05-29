@@ -14,7 +14,7 @@ public:
     // send
     next_choice<udata_t> next_source_point;
     next_choice<udata_t> next_dest_point;
-    msg_send_medium* gateway;
+    msg_send_forwarder send_medium;
 
     int send_data(send_msg<>&& msg) override;
 

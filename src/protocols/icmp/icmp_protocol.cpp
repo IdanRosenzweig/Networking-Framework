@@ -6,10 +6,10 @@
 
 using namespace std;
 
-int icmp_protocol::send_data(send_msg<>&& msg) {
-    uint8_t* buff = msg.get_reserve_buff();
+int icmp_protocol::send_data(send_msg<> &&msg) {
+    uint8_t *buff = msg.get_reserve_buff();
 
-    struct icmp_header *packet = reinterpret_cast<icmp_header*>(buff);
+    struct icmp_header *packet = reinterpret_cast<icmp_header *>(buff);
     packet->type = next_type.get_next_choice();
     packet->code = next_code.get_next_choice();
     packet->content.raw = next_content.get_next_choice();
@@ -21,30 +21,28 @@ int icmp_protocol::send_data(send_msg<>&& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(icmp_header) + msg.get_count());
-    return gateway->send_data(std::move(msg));
+    return send_medium.send_data(std::move(msg));
 }
 
-void icmp_protocol::handle_received_event(received_msg&& msg) {
-//    raw_message_q.push_back(msg);
-
+void icmp_protocol::handle_received_event(received_msg &&msg) {
     uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct icmp_header *icmp = (struct icmp_header *) buff;
+
     uint8_t type = icmp->type;
+    uint8_t code = icmp->code;
 
     msg.protocol_offsets.push_back({msg.curr_offset, ICMP});
     msg.curr_offset += sizeof(struct icmp_header);
 
-    if (default_handler != nullptr) {
+    if (default_listener != nullptr) {
         received_msg copy(msg);
-        default_handler->handle_received_event(std::move(copy));
+        default_listener->handle_received_event(std::move(copy));
     }
 
-    if (type_handlers.count(type)) {
-        for (auto& handler : type_handlers[type]) {
-            received_msg copy(msg);
-            handler->handle_received_event(std::move(copy));
-        }
+    for (auto listener: listeners.stream_array({type, code})) {
+        received_msg copy(msg);
+        listener->handle_received_event(std::move(copy));
     }
 
 }

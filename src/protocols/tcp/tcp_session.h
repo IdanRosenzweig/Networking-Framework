@@ -11,8 +11,8 @@
 // things related to the logical tcp session
 struct tcp_session_data {
     ip4_addr dest_addr;
-    int source_port;
-    int dest_port;
+    uint16_t source_port;
+    uint16_t dest_port;
 };
 
 // things related to the pure network connection

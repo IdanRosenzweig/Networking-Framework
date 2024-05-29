@@ -28,14 +28,14 @@ class net_arp : private recv_queue<received_msg> {
 public:
 
     net_arp(gateway *gw) : data_link_layer_gateway(gw) {
-        ether_client.send_medium = data_link_layer_gateway;
-//        ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
-//        ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
-//        ether_client.next_source_addr.set_next_choice(my_mac);
+        // send flow
+        ether_client.send_medium.add_send_channel(data_link_layer_gateway);
 
-        // for receiving
+        // recv flow
         data_link_layer_gateway->add_listener(&ether_client);
-        ether_client.protocol_handlers[htons(ETH_P_ARP)].push_back( this);
+
+        ether_client.listeners.append_new_empty_handler(this);
+        ether_client.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_ARP));
     }
 
     ~net_arp() {

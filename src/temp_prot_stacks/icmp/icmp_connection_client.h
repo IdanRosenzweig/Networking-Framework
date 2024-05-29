@@ -12,8 +12,8 @@
 class icmp_connection_client : public connection {
 public:
     gateway * network_layer_gw;
-    ip4_protocol ip_client;
-    icmp_protocol icmp_client;
+    ip4_protocol ip_prot;
+    icmp_protocol icmp_prot;
 
     icmp_connection_client(ip4_addr dest_ip, ip4_addr src_ip, gateway * gw);
 

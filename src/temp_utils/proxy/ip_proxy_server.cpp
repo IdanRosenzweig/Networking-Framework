@@ -101,7 +101,7 @@ void network_side_handler::handle_received_event(received_msg&& msg) {
     ip_hdr->check = 0;
     ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
 
-    std::cout << "sending reply back to " << convert_to_str(server->conn_handler->my_source) << endl;
+    std::cout << "sending reply back to " << convert_to_str(server->conn_handler->my_source) << ", " << cnt << " bytes" << endl;
     send_msg send;
     memcpy(send.get_active_buff(), buff, cnt);
     send.set_count(cnt);

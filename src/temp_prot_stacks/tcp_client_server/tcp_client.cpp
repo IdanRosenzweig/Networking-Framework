@@ -1,6 +1,6 @@
 #include "tcp_client.h"
 
-tcp_client::tcp_client(ip4_addr ip, int port, int my_port) : tcp_prot(false) {
+tcp_client::tcp_client(ip4_addr ip, uint16_t port, uint16_t my_port) : tcp_prot(false) {
     tcp_prot.next_addr.set_next_choice(ip);
     tcp_prot.next_dest_port.set_next_choice(port);
     tcp_prot.next_source_port.set_next_choice(my_port);

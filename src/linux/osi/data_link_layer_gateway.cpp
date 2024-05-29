@@ -4,7 +4,7 @@ using namespace std;
 
 data_link_layer_gateway::data_link_layer_gateway(const weak_ptr<iface_access_point>& access) : iface_access(access), if_gateway(access) {
     if_gateway.add_listener(this);
-    this->send_medium.add_send_medium(&if_gateway);
+    this->send_medium.add_send_channel(&if_gateway);
 }
 
 data_link_layer_gateway::~data_link_layer_gateway() {

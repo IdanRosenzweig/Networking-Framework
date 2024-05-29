@@ -47,4 +47,5 @@ ip4_addr smallest_ip_addr_in_subnet(ip4_subnet_mask subnet);
 
 bool is_inside_subnet(ip4_subnet_mask subnet, ip4_addr ip);
 
+
 #endif //NETWORKING_IP4_ADDR_H

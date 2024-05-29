@@ -24,7 +24,7 @@ class block_incoming_tcp : public basic_firewall_filter<received_msg> {
     public:
         void handle_received_event(received_msg &&event) override {
             struct tcphdr *tcp_hdr = reinterpret_cast<tcphdr *>(event.data.data() + event.curr_offset);
-            int dest_port = ntohs(tcp_hdr->dest);
+            uint16_t dest_port = ntohs(tcp_hdr->dest);
 //            std::cout << "tcp examiner got " << dest_port << endl;
             if (dest_port == master->blocked_port) {
 //                std::cout << "blocking" << endl;
@@ -34,13 +34,16 @@ class block_incoming_tcp : public basic_firewall_filter<received_msg> {
 
     } tcp_examine;
 
-    int blocked_port;
+    uint16_t blocked_port;
     bool blocked_flag = false;
 
 public:
-    block_incoming_tcp(int port) : blocked_port(port), tcp_examine(this) {
-        ether_prot.protocol_handlers[htons(ETH_P_IP)].push_back( &ip_prot);
-        ip_prot.protocol_handlers[IPPROTO_TCP].push_back( &tcp_examine);
+    block_incoming_tcp(uint16_t port) : blocked_port(port), tcp_examine(this) {
+        ether_prot.listeners.append_new_empty_handler(&ip_prot);
+        ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_IP));
+
+        ip_prot.listeners.append_new_empty_handler(&tcp_examine);
+        ip_prot.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_TCP);
     }
 
     firewall_policy calc_policy(const received_msg &msg) override {

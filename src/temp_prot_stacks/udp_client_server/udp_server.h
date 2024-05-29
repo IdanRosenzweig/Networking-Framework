@@ -13,8 +13,8 @@
 struct udp_packet_stack {
     received_msg msg;
     ip4_addr source_addr;
-    int source_port;
-    int dest_port;
+    uint16_t source_port;
+    uint16_t dest_port;
 
     udp_packet_stack() {}
     udp_packet_stack(const udp_packet_stack& other) {
@@ -34,16 +34,16 @@ class udp_server : public msg_recv_listener, public recv_forwarder<udp_packet_st
 public:
 
     gateway *network_layer_gw;
-    ip4_protocol ip_server;
-    udp_protocol _udp_server;
+    ip4_protocol ip_prot;
+    udp_protocol udp_prot;
 
-    int server_port;
+    uint16_t server_port;
 
-    udp_server(int serverPort, ip4_addr src_ip, gateway* gw);
+    udp_server(uint16_t serverPort, ip4_addr src_ip, gateway* gw);
 
     ~udp_server();
 
-    int send_data_to_client(ip4_addr dest_addr, int dest_port, send_msg<> msg);
+    int send_data_to_client(ip4_addr dest_addr, uint16_t dest_port, send_msg<> msg);
 
     void handle_received_event(received_msg &&event) override;
 

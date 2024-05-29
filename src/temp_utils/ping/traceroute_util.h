@@ -5,8 +5,8 @@
 
 class traceroute_util : private recv_queue<received_msg> {
     gateway * network_layer_gw;
-    ip4_protocol ip_client;
-    icmp_protocol icmp_client;
+    ip4_protocol ip_prot;
+    icmp_protocol icmp_prot;
 
 public:
     traceroute_util(ip4_addr src_ip, gateway* gw);

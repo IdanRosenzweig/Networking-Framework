@@ -1,11 +1,12 @@
 #include "ip4_addr.h"
 #include <iostream>
+#include <cstring>
 
 bool ip4_addr::operator==(const ip4_addr &rhs) const {
-    return octets[0] == rhs.octets[0]
-           && octets[1] == rhs.octets[1]
-           && octets[2] == rhs.octets[2]
-           && octets[3] == rhs.octets[3];
+    for (int i = 0; i < sizeof(octets); i++)
+        if (octets[i] != rhs.octets[i])
+            return false;
+    return true;
 }
 
 bool ip4_addr::operator!=(const ip4_addr &rhs) const {
@@ -13,18 +14,9 @@ bool ip4_addr::operator!=(const ip4_addr &rhs) const {
 }
 
 bool ip4_addr::operator<(const ip4_addr &rhs) const {
-    if (octets[0] != rhs.octets[0])
-        return octets[0] < rhs.octets[0];
-
-    if (octets[1] != rhs.octets[1])
-        return octets[1] < rhs.octets[1];
-
-    if (octets[2] != rhs.octets[2])
-        return octets[2] < rhs.octets[2];
-
-    if (octets[3] != rhs.octets[3])
-        return octets[3] < rhs.octets[3];
-
+    for (int i = 0; i < sizeof(octets); i++)
+        if (octets[i] != rhs.octets[i])
+            return octets[i] < rhs.octets[i];
     return false;
 }
 
@@ -80,17 +72,11 @@ string convert_to_str(ip4_addr ip_addr) {
 }
 
 void write_in_network_order(uint8_t *dest, ip4_addr *source) {
-    dest[0] = source->octets[0];
-    dest[1] = source->octets[1];
-    dest[2] = source->octets[2];
-    dest[3] = source->octets[3];
+    memcpy(dest, source->octets, sizeof(ip4_addr::octets));
 }
 
 void extract_from_network_order(ip4_addr *dest, uint8_t *source) {
-    dest->octets[0] = source[0];
-    dest->octets[1] = source[1];
-    dest->octets[2] = source[2];
-    dest->octets[3] = source[3];
+    memcpy(dest->octets, source, sizeof(ip4_addr::octets));
 }
 
 

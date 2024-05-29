@@ -58,7 +58,7 @@ void dns_client::query(dns_record_type type, const std::string& key) {
 //    empClient.send_data(send);
 
         // receive answer
-        received_msg* reply = recv_queue.front<200>();
+        received_msg* reply = recv_queue.front<1000>();
         if (reply == nullptr) {
             std::cerr << "didn't receive dns resopnse in reasonable time, sending again" << endl;
             continue;

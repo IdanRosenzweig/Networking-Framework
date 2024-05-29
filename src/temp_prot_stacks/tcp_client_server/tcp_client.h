@@ -11,7 +11,7 @@ public:
 
     tcp_session_type session;
 
-    tcp_client(ip4_addr ip, int port, int my_port);
+    tcp_client(ip4_addr ip, uint16_t port, uint16_t my_port);
 
     int send_data(send_msg<>&& val) override;
 

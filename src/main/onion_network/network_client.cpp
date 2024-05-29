@@ -30,8 +30,9 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
 //    while (true) {
 //
 //    }
+    std::shared_ptr<iface_access_point> new_iface_access = make_shared<iface_access_point>(new_iface);
 
-    auto raw_if = new interface_gateway(iface_access);
+    auto raw_if = new interface_gateway(new_iface_access);
 
     // dns queries
     {
@@ -62,6 +63,7 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
         for (string &str: names) {
             dns_client.query(DNS_TYPE_A, str);
             std::cout << endl;
+            std::this_thread::sleep_for(100ms);
         }
     }
 
@@ -84,6 +86,7 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
                 "162.159.152.4",
                 "171.66.3.9",
                 "172.217.22.46",
+
                 "142.251.142.206"
         };
 
@@ -94,6 +97,7 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
             pinger.dest_ip.set_next_choice(convert_to_ip4_addr(str));
             pinger.ping_node();
             std::cout << endl;
+            std::this_thread::sleep_for(100ms);
         }
     }
 

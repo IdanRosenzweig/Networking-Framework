@@ -28,8 +28,8 @@ public:
     ~tcp_protocol();
 
     next_choice<ip4_addr> next_addr;
-    next_choice<int> next_dest_port;
-    next_choice<int> next_source_port;
+    next_choice<uint16_t> next_dest_port;
+    next_choice<uint16_t> next_source_port;
 
     tcp_session_type start_session();
 

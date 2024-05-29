@@ -6,15 +6,15 @@
 
 struct socket_msg { // represents msg to endpoint
     ip4_addr source_addr;
-    int source_port;
-    int dest_port;
+    uint16_t source_port;
+    uint16_t dest_port;
     received_msg msg;
 };
 
 struct logical_internet_socket {
     ip4_addr source_addr;
-    int source_port;
-    int dest_port;
+    uint16_t source_port;
+    uint16_t dest_port;
 };
 
 #endif //NETWORKING_SOCKET_MSG_H

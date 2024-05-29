@@ -18,17 +18,21 @@ public:
     }
 
     // send
-    next_choice<int> next_source_port;
-    next_choice<int> next_dest_port;
-    msg_send_medium* send_medium;
+    next_choice<uint16_t> next_source_port;
+    next_choice<uint16_t> next_dest_port;
+    msg_send_forwarder send_medium;
 
-    int send_data(send_msg<>&& msg) override;
+    int send_data(send_msg<> &&msg) override;
 
 
     // recv
-    map<int, vector<basic_recv_listener *>> port_handlers;
-    basic_recv_listener* default_handler = nullptr;
-    void handle_received_event(received_msg&& msg) override;
+#define UDP_LISTEN_ON_PORT_INDEX 0
+    multiplexer<basic_recv_listener *,
+            uint16_t // port, index 0
+    > listeners;
+    basic_recv_listener *default_listener = nullptr;
+
+    void handle_received_event(received_msg &&msg) override;
 
 };
 

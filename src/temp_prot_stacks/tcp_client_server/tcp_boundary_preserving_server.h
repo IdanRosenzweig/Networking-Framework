@@ -27,11 +27,11 @@ class tcp_boundary_preserving_server : public session_generator<tcp_boundary_pre
     } sessionsHandler;
 
 public:
-    tcp_boundary_preserving_server(int port) : raw_tcp_server(port), sessionsHandler(this) {
+    tcp_boundary_preserving_server(uint16_t port) : raw_tcp_server(port), sessionsHandler(this) {
 
     }
 
-    tcp_boundary_preserving_session_type start_session(const string &ip, int port) {
+    tcp_boundary_preserving_session_type start_session(const string &ip, uint16_t port) {
         tcp_session_type raw_sess = raw_tcp_server.start_session(ip, port);
         return tcp_boundary_preserving_session_type(raw_sess.sess_data,
                                                     std::make_unique<tcp_boundary_preserving_session_conn>(

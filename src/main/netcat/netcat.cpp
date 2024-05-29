@@ -25,7 +25,7 @@ private:
 
 using server_sess_manager = session_manager<tcp_boundary_preserving_session_type, server_app>;
 
-void netcat_server_main(const string& iface, int port) {
+void netcat_server_main(const string& iface, uint16_t port) {
     // listening and generating the session
     tcp_boundary_preserving_server server(port);
 
@@ -60,7 +60,7 @@ public:
     }
 };
 
-void netcat_client_main(const string& iface, ip4_addr dest_ip, int port) {
+void netcat_client_main(const string& iface, ip4_addr dest_ip, uint16_t port) {
     tcp_boundary_preserving_client client(dest_ip, port, 1212);
 
     client_app app;
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
             ("server", "use as server")
 
             ("dest", po::value<string>(), "used for client, dest ip address of the server to connect to")
-            ("port", po::value<int>(),
+            ("port", po::value<uint16_t>(),
              "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
 
     po::variables_map vm;
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
             std::cout << opts << endl;
             return 1;
         }
-        int port = vm["port"].as<int>();
+        uint16_t port = vm["port"].as<uint16_t>();
 
         netcat_server_main(iface, port);
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
             std::cout << opts << endl;
             return 1;
         }
-        int port = vm["port"].as<int>();
+        uint16_t port = vm["port"].as<uint16_t>();
 
         if (!vm.count("dest")) {
             std::cout << opts << endl;

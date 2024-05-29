@@ -10,10 +10,10 @@
 class udp_client : public connection {
 public:
     gateway * network_layer_gw;
-    ip4_protocol ip_client;
-    udp_protocol _udp_client;
+    ip4_protocol ip_prot;
+    udp_protocol udp_prot;
 
-    udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr src_ip, gateway * gw);
+    udp_client(ip4_addr dest_ip, uint16_t dest_port, uint16_t my_port, ip4_addr src_ip, gateway * gw);
 
     ~udp_client();
 

@@ -18,7 +18,7 @@ network_layer_gateway::network_layer_gateway(const weak_ptr<iface_access_point>&
 //    std::cout << "default gateway is " << convert_to_str(default_gw) << endl;
 
     // send
-    ether_prot.send_medium = &dataLinkLayerGateway;
+    ether_prot.send_medium.add_send_channel(&dataLinkLayerGateway);
     ether_prot.next_protocol.set_next_choice(htons(ETH_P_IP));
     ether_prot.next_dest_addr.set_next_choice(
             arp_handler.search_for_mac_addr(default_gw, my_mac, my_ip)
@@ -27,7 +27,10 @@ network_layer_gateway::network_layer_gateway(const weak_ptr<iface_access_point>&
 
     // recv
     dataLinkLayerGateway.add_listener(&ether_prot);
-    ether_prot.protocol_handlers[htons(ETH_P_IP)].push_back( this);
+
+    ether_prot.listeners.append_new_empty_handler(this);
+    ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_IP));
+//    ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_DEST_ADDR_INDEX>(my_mac);
 }
 
 network_layer_gateway::~network_layer_gateway() {

@@ -1,5 +1,36 @@
 #include "mac_addr.h"
 #include <stdio.h>
+#include <cstring>
+
+bool mac_addr::operator==(const mac_addr &rhs) const {
+    for (int i = 0; i < sizeof(octets); i++)
+        if (octets[i] != rhs.octets[i])
+            return false;
+    return true;
+}
+
+bool mac_addr::operator!=(const mac_addr &rhs) const {
+    return !(rhs == *this);
+}
+
+bool mac_addr::operator<(const mac_addr &rhs) const {
+    for (int i = 0; i < sizeof(octets); i++)
+        if (octets[i] != rhs.octets[i])
+            return octets[i] < rhs.octets[i];
+    return false;
+}
+
+bool mac_addr::operator>(const mac_addr &rhs) const {
+    return rhs < *this;
+}
+
+bool mac_addr::operator<=(const mac_addr &rhs) const {
+    return !(rhs < *this);
+}
+
+bool mac_addr::operator>=(const mac_addr &rhs) const {
+    return !(*this < rhs);
+}
 
 mac_addr convert_to_mac_addr(const std::string &str) {
     mac_addr addr;
@@ -26,4 +57,12 @@ std::string convert_to_str(mac_addr addr) {
             (unsigned int) addr.octets[5]);
 
     return std::string(buff);
+}
+
+void write_in_network_order(uint8_t* dest, mac_addr* source) {
+    memcpy(dest, source->octets, sizeof(mac_addr::octets));
+}
+
+void extract_from_network_order(mac_addr* dest, uint8_t* source) {
+    memcpy(dest->octets, source, sizeof(mac_addr::octets));
 }

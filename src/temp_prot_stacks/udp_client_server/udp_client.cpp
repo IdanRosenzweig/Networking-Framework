@@ -1,29 +1,31 @@
 #include "udp_client.h"
 
-udp_client::udp_client(ip4_addr dest_ip, int dest_port, int my_port, ip4_addr src_ip, gateway *gw) : network_layer_gw(gw) {
+udp_client::udp_client(ip4_addr dest_ip, uint16_t dest_port, uint16_t my_port, ip4_addr src_ip, gateway *gw) : network_layer_gw(gw) {
     // setup send flow
-    ip_client.send_medium = network_layer_gw;
-    ip_client.next_protocol.set_next_choice(IPPROTO_UDP);
-    ip_client.next_dest_addr.set_next_choice(dest_ip);
-    ip_client.next_source_addr.set_next_choice(src_ip);
+    ip_prot.send_medium.add_send_channel(network_layer_gw);
+    ip_prot.next_protocol.set_next_choice(IPPROTO_UDP);
+    ip_prot.next_dest_addr.set_next_choice(dest_ip);
+    ip_prot.next_source_addr.set_next_choice(src_ip);
 
-    _udp_client.send_medium = &ip_client;
-    _udp_client.next_source_port.set_next_choice(my_port);
-    _udp_client.next_dest_port.set_next_choice(dest_port);
+    udp_prot.send_medium.add_send_channel(&ip_prot);
+    udp_prot.next_source_port.set_next_choice(my_port);
+    udp_prot.next_dest_port.set_next_choice(dest_port);
 
     // setup recv flow
-    network_layer_gw->add_listener(&ip_client);
+    network_layer_gw->add_listener(&ip_prot);
 
-    // todo change to both udp_client_server and raw_session matching
-    ip_client.protocol_handlers[IPPROTO_UDP].push_back( &_udp_client);
+    ip_prot.listeners.append_new_empty_handler(&udp_prot);
+    ip_prot.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_UDP);
+    ip_prot.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_DEST_ADDR_INDEX>(src_ip);
 
-    _udp_client.port_handlers[my_port].push_back(this);
+    udp_prot.listeners.append_new_empty_handler(this);
+    udp_prot.listeners.add_requirement_to_last_handler<UDP_LISTEN_ON_PORT_INDEX>(my_port);
 }
 
 udp_client::~udp_client() {
-    network_layer_gw->remove_listener(&ip_client);
+    network_layer_gw->remove_listener(&ip_prot);
 }
 
 int udp_client::send_data(send_msg<> &&msg) {
-    return _udp_client.send_data(std::move(msg));
+    return udp_prot.send_data(std::move(msg));
 }

@@ -22,7 +22,7 @@ class onion_network_node {
         }
 
         ip4_addr ip_source;
-        int port_source;
+        uint16_t port_source;
         void handle_received_event(udp_packet_stack&& event) override {
             ip_source = event.source_addr;
             port_source = event.source_port;

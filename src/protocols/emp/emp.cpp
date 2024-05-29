@@ -17,7 +17,7 @@ int emp::send_data(send_msg<>&& msg) {
 
     msg.toggle_active_buff();
     msg.set_count((int) (curr_buff - buff));
-    return gateway->send_data(std::move(msg));
+    return send_medium.send_data(std::move(msg));
 }
 
 void emp::handle_received_event(received_msg&& msg) {

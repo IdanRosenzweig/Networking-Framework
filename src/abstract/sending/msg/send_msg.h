@@ -2,6 +2,7 @@
 #define NETWORKING_SEND_MSG_H
 
 #include "../basic_send_medium.h"
+#include "../send_forwarder.h"
 
 #include <stdint.h>
 #include <cstring>
@@ -17,7 +18,7 @@
 
 // ##### THE INITIAL STATE OF SEND_MSG WILL PROBABLY NOT BE PRESERVED AFTER DOING THIS PROCEDURE MULTIPLE TIMES #####
 
-template<int MTU = 4096>
+template<int MTU = 65000>
 class send_msg {
     uint8_t buff1[MTU] = {0};
     uint8_t buff2[MTU] = {0};
@@ -48,5 +49,6 @@ public:
 };
 
 using msg_send_medium = basic_send_medium<send_msg<>>;
+using msg_send_forwarder = send_forwarder<send_msg<>>;
 
 #endif //NETWORKING_SEND_MSG_H

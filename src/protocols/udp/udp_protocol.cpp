@@ -3,11 +3,12 @@
 #include <netinet/in.h>
 #include <cstring>
 #include "../ip4/internet_checksum.h"
+
 using namespace std;
 
 
-int udp_protocol::send_data(send_msg<>&& msg) {
-    uint8_t* buff = msg.get_reserve_buff();
+int udp_protocol::send_data(send_msg<> &&msg) {
+    uint8_t *buff = msg.get_reserve_buff();
 
     // udp_client_server header
     struct udp_header *udp = reinterpret_cast<udp_header *>(buff);
@@ -23,10 +24,11 @@ int udp_protocol::send_data(send_msg<>&& msg) {
 
     msg.toggle_active_buff();
     msg.set_count(sizeof(udp_header) + msg.get_count());
-    return send_medium->send_data(std::move(msg));
+    return send_medium.send_data(std::move(msg));
 }
 
-void udp_protocol::handle_received_event(received_msg&& msg) {
+void udp_protocol::handle_received_event(received_msg &&msg) {
+//    cout << "udp protocol received. forwarding" << endl;
     uint8_t *buff = msg.data.data() + msg.curr_offset;
 
     struct udp_header *udp = (struct udp_header *) buff;
@@ -36,16 +38,14 @@ void udp_protocol::handle_received_event(received_msg&& msg) {
     msg.curr_offset += sizeof(struct udp_header);
 
 
-    if (default_handler != nullptr) {
+    if (default_listener != nullptr) {
         received_msg copy(msg);
-        default_handler->handle_received_event(std::move(copy));
+        default_listener->handle_received_event(std::move(copy));
     }
 
-    if (port_handlers.count(port)) {
-        for (auto& handler : port_handlers[port]) {
-            received_msg copy(msg);
-            handler->handle_received_event(std::move(copy));
-        }
+    for (auto listener: listeners.stream_array({port})) {
+        received_msg copy(msg);
+        listener->handle_received_event(std::move(copy));
     }
 
 }

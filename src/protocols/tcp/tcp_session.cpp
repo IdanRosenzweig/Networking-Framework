@@ -11,7 +11,6 @@ tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
 
     worker = std::thread([&]() -> void {
         while (true) {
-            using namespace std::chrono_literals;
             std::this_thread::sleep_for(10ms);
 
 #define BUFF_SZ 1024

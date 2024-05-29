@@ -14,28 +14,28 @@ class send_forwarder : public basic_send_medium<TYPE> {
     mutex mediums_mtx;
 
 public:
-    void add_send_medium(basic_send_medium<TYPE>* medium) {
+    void add_send_channel(basic_send_medium<TYPE>* channel) {
         lock_guard<mutex> lock(mediums_mtx);
-        mediums.push_back(medium);
+        mediums.push_back(channel);
     }
-    void clear_send_mediums() {
+    void clear_send_channels() {
         lock_guard<mutex> lock(mediums_mtx);
         mediums.clear();
     }
-    void remove_send_medium(basic_send_medium<TYPE>* medium) {
+    void remove_send_channel(basic_send_medium<TYPE>* channel) {
         lock_guard<mutex> lock(mediums_mtx);
-        if (!mediums.count(medium)) {
-            cerr << "trying to remove listener which doesn't exist" << endl;
+        if (!mediums.count(channel)) {
+            cerr << "trying to remove send chanell which doesn't exist" << endl;
             return;
         }
-        mediums.erase(medium);
+        mediums.erase(channel);
     }
 
     int send_data(TYPE&& val) override {
         int sum = 0;
 
         for (auto& target : mediums) {
-            // create a copy pass it to each of the mediums
+            // create a copy pass it to each of the channels
             TYPE val_copy(val);
             sum += target->send_data(std::move(val_copy));
         }

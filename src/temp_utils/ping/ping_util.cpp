@@ -5,19 +5,20 @@
 using namespace std;
 
 ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
-    // setup send flow
-    ip_client.send_medium = network_layer_gw;
-    ip_client.next_protocol.set_next_choice(IPPROTO_ICMP);
-    ip_client.next_source_addr.set_next_choice(src_ip);
+    // send flow
+    ip_prot.send_medium.add_send_channel(network_layer_gw);
+    ip_prot.next_protocol.set_next_choice(IPPROTO_ICMP);
+    ip_prot.next_source_addr.set_next_choice(src_ip);
 
-    icmp_client.gateway = &ip_client;
+    icmp_prot.send_medium.add_send_channel(&ip_prot);
 
-    // setup recv flow
-    network_layer_gw->add_listener(&ip_client);
-    ip_client.protocol_handlers[IPPROTO_ICMP].push_back( &icmp_client);
+    // recv flow
+    network_layer_gw->add_listener(&ip_prot);
 
-    icmp_client.default_handler = this;
+    ip_prot.listeners.append_new_empty_handler(&icmp_prot);
+    ip_prot.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(IPPROTO_ICMP);
 
+    icmp_prot.default_listener = this;
 
     // default values
     count.set_next_choice(10);
@@ -25,20 +26,20 @@ ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
 }
 
 ping_util::~ping_util() {
-    network_layer_gw->remove_listener(&ip_client);
+    network_layer_gw->remove_listener(&ip_prot);
 }
 
 void ping_util::ping_node() {
-    ip_client.next_dest_addr.set_next_choice(dest_ip.get_next_choice());
-    ip_client.next_ttl.set_next_choice(255);
+    ip_prot.next_dest_addr.set_next_choice(dest_ip.get_next_choice());
+    ip_prot.next_ttl.set_next_choice(255);
 
     const char *data = "echo packet";
     int data_sz = strlen(data);
 
-    icmp_client.next_type.set_next_choice(ICMP_ECHO);
-    icmp_client.next_code.set_next_choice(0);
+    icmp_prot.next_type.set_next_choice(ICMP_ECHO);
+    icmp_prot.next_code.set_next_choice(0);
     icmp_header::content::echo_content content{0x1234, 0};
-    icmp_client.next_content.set_next_choice(*(uint32_t*) &content);
+    icmp_prot.next_content.set_next_choice(*(uint32_t*) &content);
 
     int i = 0;
     do {
@@ -52,7 +53,7 @@ void ping_util::ping_node() {
             memcpy(send.get_active_buff(), data, data_sz);
             send.set_count(data_sz);
 
-            if (icmp_client.send_data(std::move(send)) < 1) {
+            if (icmp_prot.send_data(std::move(send)) < 1) {
                 std::cerr << "Failed to send packet" << std::endl;
                 continue;
             }
@@ -107,7 +108,7 @@ void ping_util::ping_node() {
         }
 
         content.sequence++;
-        icmp_client.next_content.set_next_choice(*(uint32_t*) &content);
+        icmp_prot.next_content.set_next_choice(*(uint32_t*) &content);
         i++;
 
         std::this_thread::sleep_for(delay_interval.get_next_choice());
