@@ -29,7 +29,7 @@ int write_in_network_order(uint8_t * dest, ip4_header* src) {
 
 int extract_from_network_order(ip4_header* dest, uint8_t* src) {
     dest->header_len = (*src) & 0b1111;
-    dest->header_len = (*src) & 0b11110000;
+    dest->version = ((*src) & 0b11110000) >> 4;
     src++;
 
     dest->type_of_service = *src++;
