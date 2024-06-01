@@ -59,10 +59,12 @@ std::string convert_to_str(mac_addr addr) {
     return std::string(buff);
 }
 
-void write_in_network_order(uint8_t* dest, mac_addr* source) {
+int write_in_network_order(uint8_t* dest, mac_addr* source) {
     memcpy(dest, source->octets, sizeof(mac_addr::octets));
+    return sizeof(mac_addr::octets);
 }
 
-void extract_from_network_order(mac_addr* dest, uint8_t* source) {
+int extract_from_network_order(mac_addr* dest, uint8_t* source) {
     memcpy(dest->octets, source, sizeof(mac_addr::octets));
+    return sizeof(mac_addr::octets);
 }

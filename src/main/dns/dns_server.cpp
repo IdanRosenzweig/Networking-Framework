@@ -1,6 +1,8 @@
-#include "../../temp_utils/dns/dns_server.h"
-#include "../../temp_utils/dns/database_loader.h"
+#include "../../tools/dns/dns_server.h"
+
 #include "../../linux/if/hardware.h"
+#include "../../linux/if/iface_access_point.h"
+#include "../../linux/osi/network_layer_gateway.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>

@@ -1,8 +1,8 @@
 #include "network_layer_gateway.h"
-#include <linux/if_ether.h>
-#include "../if/hardware.h"
-#include <iostream>
 
+#include "../if/hardware.h"
+
+#include <iostream>
 using namespace std;
 
 network_layer_gateway::network_layer_gateway(const weak_ptr<iface_access_point>& access) : dataLinkLayerGateway(access), arp_handler(&dataLinkLayerGateway) {
@@ -19,7 +19,7 @@ network_layer_gateway::network_layer_gateway(const weak_ptr<iface_access_point>&
 
     // send
     ether_prot.send_medium.add_send_channel(&dataLinkLayerGateway);
-    ether_prot.next_protocol.set_next_choice(htons(ETH_P_IP));
+    ether_prot.next_protocol.set_next_choice(ethernet_header::ethertype_values::ip4);
     ether_prot.next_dest_addr.set_next_choice(
             arp_handler.search_for_mac_addr(default_gw, my_mac, my_ip)
     );
@@ -29,7 +29,7 @@ network_layer_gateway::network_layer_gateway(const weak_ptr<iface_access_point>&
     dataLinkLayerGateway.add_listener(&ether_prot);
 
     ether_prot.listeners.append_new_empty_handler(this);
-    ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_IP));
+    ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(ethernet_header::ethertype_values::ip4);
 //    ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_DEST_ADDR_INDEX>(my_mac);
 }
 
@@ -37,12 +37,12 @@ network_layer_gateway::~network_layer_gateway() {
     dataLinkLayerGateway.remove_listener(&ether_prot);
 }
 
-int network_layer_gateway::send_data(send_msg<> &&msg) {
-    return ether_prot.send_data(std::move(msg));
+int network_layer_gateway::send_data(send_msg_t &&data) {
+    return ether_prot.send_data(std::move(data));
 }
 
-void network_layer_gateway::handle_received_event(received_msg &&event) {
-    recv_forwarder::handle_received_event(std::move(event));
+void network_layer_gateway::handle_callback(recv_msg_t &&data) {
+    recv_forwarder::handle_callback(std::move(data));
 }
 
 

@@ -5,6 +5,14 @@
 
 struct icmp_header {
     uint8_t type;
+    enum type_values : decltype(type) {
+        echoreply = 0,
+        dest_unreachable = 3,
+        redirect = 5,
+        echo = 8,
+        time_exceeded = 11
+    };
+
     uint8_t code;
     uint16_t checksum;
     union content {
@@ -24,5 +32,8 @@ struct icmp_header {
 
 };
 
+int write_in_network_order(uint8_t* dest, icmp_header* src);
+
+int extract_from_network_order(icmp_header* dest, uint8_t* src);
 
 #endif //NETWORKING_ICMP_HEADER_H

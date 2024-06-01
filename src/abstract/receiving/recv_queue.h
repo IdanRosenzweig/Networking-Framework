@@ -2,17 +2,17 @@
 #define NETWORKING_RECV_QUEUE_H
 
 #include "basic_recv_listener.h"
-#include "../utils/circular_buffer.h"
+#include "../utils/circular_queue.h"
 #include <queue>
 
-// receives data and stores it in a queue
+// receives buff and stores it in a queue
 template <typename T>
 class recv_queue : public basic_recv_listener<T> {
 public:
-    circular_buffer<T> recv_queue;
+    circular_queue<T> queue;
 
-    void handle_received_event(T&& event) override {
-        recv_queue.push_back(event);
+    void handle_callback(T&& data) override {
+        queue.push_back(data);
     }
 
 };

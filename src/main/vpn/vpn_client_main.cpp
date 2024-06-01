@@ -1,8 +1,6 @@
-#include "../../linux/if/wrappers/interface_gateway.h"
-#include "../../protocols/ether/ethernet_protocol.h"
-#include "../../protocols/ip4/ip4_protocol.h"
+#include "../../tools/vpn/vpn_client.h"
 
-#include "../../temp_utils/vpn/vpn_client.h"
+#include "../../linux/if/iface_access_point.h"
 #include "../../linux/if/virtual/virtual_if.h"
 
 #include <boost/program_options.hpp>
@@ -17,7 +15,7 @@ void vpn_client_main(const string& iface, const string& _new_iface_name, ip4_add
     string virt_iface_name = _new_iface_name;
     linux_virtual_iface virt_iface(&vpn, virt_iface_name);
 
-    cout << "virtual interface \"" << virt_iface_name << "\" was created. send your data link layer traffic through it" << endl;
+    cout << "virtual interface \"" << virt_iface_name << "\" was created. send your buff link layer traffic through it" << endl;
 
     string assign_ip_comm = "sudo ip addr add " + convert_to_str(new_ip) + "/32 dev " + virt_iface_name;
     system(assign_ip_comm.c_str());

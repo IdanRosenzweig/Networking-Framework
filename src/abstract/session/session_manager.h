@@ -3,7 +3,7 @@
 
 #include "session_conn.h"
 #include "session_generator.h"
-#include "../receiving/msg/received_msg.h"
+#include "../receiving/msg/recv_msg_t.h"
 #include "session_handler.h"
 #include <memory>
 #include <vector>
@@ -55,8 +55,8 @@ class session_manager {
     struct sessions_recv : basic_recv_listener<SESSION_TYPE> {
         session_manager *master;
 
-        void handle_received_event(SESSION_TYPE &&event) override {
-            master->sessions.insert(std::make_unique<internal_session_handler>(std::move(event), master->next_id++));
+        void handle_callback(SESSION_TYPE &&data) override {
+            master->sessions.insert(std::make_unique<internal_session_handler>(std::move(data), master->next_id++));
         }
 
         explicit sessions_recv(session_manager *master) : master(master) {}

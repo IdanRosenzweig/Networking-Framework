@@ -18,9 +18,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 
 set(ABSTRACT_SRC
-        src/abstract/protocol_t.cpp
+        src/protocols/protocol_t.cpp
         src/abstract/connection/conn_aggregator.cpp
-        src/abstract/utils/network_msg_queue.h
+        src/abstract/utils/network_atomic_queue.h
         src/abstract/sniffer/sniffer.h
         src/abstract/sniffer/basic_sniff_handler.h
         src/linux/if/wrappers/interface_sniffer.cpp
@@ -31,7 +31,7 @@ set(PROTOCOLS_SRC
         src/protocols/ether/ethernet_protocol.cpp
         src/protocols/ether/mac_addr.cpp
 
-        src/temp_utils/net_arp/net_arp.cpp
+        src/tools/net_arp/net_arp.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
@@ -44,10 +44,13 @@ set(PROTOCOLS_SRC
 
         src/protocols/icmp/icmp_protocol.cpp
 
-        src/protocols/msg_boundary/msg_boundary_protocol.cpp
-
-        src/protocols/emp/emp.cpp
+        src/protocols/emp/emp_protocol.cpp
         src/protocols/tcp/tcp_boundary_preserving_session.cpp
+        src/protocols/ether/ethernet_header.cpp
+        src/protocols/ip4/ip4_header.cpp
+        src/protocols/ip4/ip4_header.h
+        src/protocols/udp/udp_header.cpp
+        src/protocols/icmp/icmp_header.cpp
 )
 
 set(LINUX_SRC
@@ -79,9 +82,9 @@ add_executable(vpn_client
 
         src/main/vpn/vpn_client_main.cpp
 
-        src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
-#        src/temp_utils/dns/dns_client.cpp
-#        src/temp_utils/dns/dns.cpp
+        src/direct_connections/tcp/tcp_client.cpp
+#        src/tools/dns/dns_client.cpp
+#        src/tools/dns/dns.cpp
 )
 
 
@@ -91,8 +94,8 @@ add_executable(remote_shell_util
         ${LINUX_SRC}
 
         src/main/remote_shell_util/remote_shell_util.cpp
-        src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
-        src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
+        src/direct_connections/tcp/tcp_server.cpp
+        src/direct_connections/tcp/tcp_client.cpp
 )
 
 
@@ -102,8 +105,8 @@ add_executable(onion_network_node
         ${LINUX_SRC}
 
         src/main/onion_network/network_node.cpp
-        src/temp_utils/proxy/ip_proxy_server.cpp
-        src/temp_prot_stacks/udp_client_server/udp_server.cpp
+        src/tools/proxy/ip_proxy_server.cpp
+        src/direct_connections/udp/udp_server.cpp
 )
 
 add_executable(onion_network_client
@@ -112,10 +115,12 @@ add_executable(onion_network_client
         ${LINUX_SRC}
 
         src/main/onion_network/network_client.cpp
-        src/temp_utils/dns/dns_client.cpp
-        src/temp_utils/dns/dns.cpp
-        src/temp_prot_stacks/udp_client_server/udp_client.cpp
-        src/temp_utils/ping/ping_util.cpp
+        src/tools/dns/dns_client.cpp
+        src/tools/dns/dns.cpp
+        src/direct_connections/udp/udp_client.cpp
+        src/tools/ping/ping_util.cpp
+        src/direct_connections/icmp/icmp_client.cpp
+        src/direct_connections/icmp/icmp_server.cpp
 )
 
 
@@ -125,7 +130,7 @@ add_executable(ping
         ${LINUX_SRC}
 
         src/main/ping/ping.cpp
-        src/temp_utils/ping/ping_util.cpp
+        src/tools/ping/ping_util.cpp
 )
 
 add_executable(traceroute
@@ -134,7 +139,7 @@ add_executable(traceroute
         ${LINUX_SRC}
 
         src/main/ping/traceroute.cpp
-        src/temp_utils/ping/traceroute_util.cpp
+        src/tools/ping/traceroute_util.cpp
 )
 
 
@@ -144,7 +149,7 @@ add_executable(bandwidth
         ${LINUX_SRC}
 
         src/main/bandwidth/bandwidth.cpp
-        src/temp_utils/bandwidth/bandwidth.cpp
+        src/tools/bandwidth/bandwidth.cpp
 )
 
 
@@ -154,8 +159,8 @@ add_executable(netcat
         ${LINUX_SRC}
 
         src/main/netcat/netcat.cpp
-        src/temp_prot_stacks/tcp_client_server/tcp_client.cpp
-        src/temp_prot_stacks/tcp_client_server/tcp_server.cpp
+        src/direct_connections/tcp/tcp_client.cpp
+        src/direct_connections/tcp/tcp_server.cpp
 )
 
 
@@ -165,11 +170,10 @@ add_executable(dns_server
         ${LINUX_SRC}
 
         src/main/dns/dns_server.cpp
-        src/temp_utils/dns/dns_server.cpp
-        src/temp_utils/dns/database_loader.cpp
-        src/temp_utils/dns/dns.cpp
-        src/temp_prot_stacks/udp_client_server/udp_server.cpp
-        src/temp_prot_stacks/emp/emp_server.cpp
+        src/tools/dns/dns_server.cpp
+        src/tools/dns/dns.cpp
+        src/direct_connections/udp/udp_server.cpp
+        src/direct_connections/emp/emp_server.cpp
 )
 
 add_executable(dns_client
@@ -178,10 +182,10 @@ add_executable(dns_client
         ${LINUX_SRC}
 
         src/main/dns/dns_client.cpp
-        src/temp_utils/dns/dns_client.cpp
-        src/temp_utils/dns/dns.cpp
-        src/temp_prot_stacks/udp_client_server/udp_client.cpp
-        src/temp_prot_stacks/emp/emp_client.cpp
+        src/tools/dns/dns_client.cpp
+        src/tools/dns/dns.cpp
+        src/direct_connections/udp/udp_client.cpp
+        src/direct_connections/emp/emp_client.cpp
 )
 
 
@@ -191,7 +195,7 @@ add_executable(net_scanner
         ${LINUX_SRC}
 
         src/main/net_scanner/net_scanner.cpp
-        src/temp_utils/net_arp/net_arp.cpp
+        src/tools/net_arp/net_arp.cpp
 )
 
 add_executable(net_intercept
@@ -200,7 +204,7 @@ add_executable(net_intercept
         ${LINUX_SRC}
 
         src/main/net_intercept/net_intercept.cpp
-        src/temp_utils/net_arp/net_arp.cpp
+        src/tools/net_arp/net_arp.cpp
 )
 
 add_executable(net_analyzer
@@ -209,7 +213,7 @@ add_executable(net_analyzer
         ${LINUX_SRC}
 
         src/main/net_analyzer/net_analyzer.cpp
-        src/temp_utils/analyzer/net_analyzer.cpp
+        src/tools/analyzer/net_analyzer.cpp
 )
 
 add_executable(mac_changer
@@ -218,6 +222,6 @@ add_executable(mac_changer
         ${LINUX_SRC}
 
         src/main/net_intercept/mac_changer.cpp
-        src/temp_utils/net_arp/net_arp.cpp
+        src/tools/net_arp/net_arp.cpp
 )
 

@@ -9,28 +9,28 @@
 // provides sub structs "outgoing" and "incoming" which you can attach sniff handlers into
 struct sniffer {
 
-    struct outgoing_handler : public basic_recv_listener<received_msg> {
+    struct outgoing_handler : public basic_recv_listener<recv_msg_t> {
     public:
         std::vector<basic_sniff_handler*> sniffers; // sniffers to call for outgoing packets
 
-        void handle_received_event(received_msg &&event) override {
+        void handle_callback(recv_msg_t &&data) override {
             // send to all sniffers
             for (auto& sniffer : sniffers) {
-                received_msg copy(event);
-                sniffer->handle_received_event(std::move(copy));
+                recv_msg_t copy(data);
+                sniffer->handle_callback(std::move(copy));
             }
         }
     } outgoing;
 
-    struct incoming_handler : public basic_recv_listener<received_msg> {
+    struct incoming_handler : public basic_recv_listener<recv_msg_t> {
     public:
         std::vector<basic_sniff_handler*> sniffers; // sniffers to call for incoming packets
 
-        void handle_received_event(received_msg &&event) override {
+        void handle_callback(recv_msg_t &&data) override {
             // send to all sniffers
             for (auto& sniffer : sniffers) {
-                received_msg copy(event);
-                sniffer->handle_received_event(std::move(copy));
+                recv_msg_t copy(data);
+                sniffer->handle_callback(std::move(copy));
             }
         }
     } incoming;

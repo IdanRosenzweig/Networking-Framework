@@ -1,7 +1,7 @@
 #ifndef NETWORKING_NEXT_CHOICE_H
 #define NETWORKING_NEXT_CHOICE_H
 
-// generic class for choosing the next option (could be next protocol to receive, next raw_session to send msg to, next port to listen on...)
+// generic class for choosing the next option (could be next protocol to receive, next raw_session to send plain_data to, next port to listen on...)
 template <typename CHOICE>
 struct next_choice {
 private:

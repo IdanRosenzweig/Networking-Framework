@@ -8,7 +8,7 @@
 
 class data_link_layer_gateway : public gateway {
     interface_gateway if_gateway;
-    send_forwarder<send_msg<>> send_medium;
+    send_forwarder<send_msg_t> send_medium;
 
 public:
     weak_ptr<iface_access_point> iface_access;
@@ -17,9 +17,9 @@ public:
 
     ~data_link_layer_gateway();
 
-    int send_data(send_msg<> &&val) override;
+    int send_data(send_msg_t &&data) override;
 
-    void handle_received_event(received_msg &&event) override;
+    void handle_callback(recv_msg_t &&data) override;
 };
 
 #endif //NETWORKING_DATA_LINK_LAYER_GATEWAY_H

@@ -30,9 +30,9 @@ public:
 
     ~tcp_session_conn();
 
-    int send_data(send_msg<>&& msg) override;
+    int send_data(send_msg_t&&data) override;
 
-    void handle_received_event(received_msg&& event) override;
+    void handle_callback(recv_msg_t&& data) override;
 
 };
 

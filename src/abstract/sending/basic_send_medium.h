@@ -4,9 +4,9 @@
 template <typename TYPE>
 class basic_send_medium {
 public:
-    // this function is called to send
+    // call this function send buff
 #define SEND_MEDIUM_ERROR (-1)
-    virtual int send_data(TYPE&& val) = 0;
+    virtual int send_data(TYPE&& data) = 0;
 
     virtual ~basic_send_medium() = default;
 };

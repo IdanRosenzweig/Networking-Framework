@@ -17,9 +17,9 @@ void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *b
         return;
     }
 
-    received_msg msg;
-    msg.data = udata_t(data_sz, 0x00);
-    memcpy(msg.data.data(), bytes, data_sz);
+    recv_msg_t msg;
+    msg.buff = udata_t(data_sz, 0x00);
+    memcpy(msg.buff.data(), bytes, data_sz);
     msg.curr_offset = 0;
     class_ptr->outgoing_network_queue.add_msg(std::move(msg));
 }
@@ -32,9 +32,9 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
         return;
     }
 
-    received_msg msg;
-    msg.data = udata_t(data_sz, 0x00);
-    memcpy(msg.data.data(), bytes, data_sz);
+    recv_msg_t msg;
+    msg.buff = udata_t(data_sz, 0x00);
+    memcpy(msg.buff.data(), bytes, data_sz);
     msg.curr_offset = 0;
     class_ptr->incoming_network_queue.add_msg(std::move(msg));
 }
@@ -99,7 +99,7 @@ iface_access_point::iface_access_point(const string& iface) : iface_name(iface) 
 
 //    std::this_thread::sleep_for(2000ms); // ensure the pcap_loop has started
 
-    // sending data out
+    // sending buff out
     fd = socket(
             AF_PACKET,
             SOCK_RAW,
@@ -130,7 +130,7 @@ iface_access_point::iface_access_point(const string& iface) : iface_name(iface) 
     if (bind(fd, (struct sockaddr *) &outputServer, sizeof(outputServer)) == BIND_ERROR)
         perror("bind");
 
-    // set ll socket msg
+    // set ll socket plain_data
 //    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
 }
 
@@ -143,7 +143,7 @@ iface_access_point::~iface_access_point() {
 
 int iface_access_point::send_out(void* ptr, int cnt) {
 //    int res = sendto(fd,
-//                msg.buff, msg.count,
+//                plain_data.buff, plain_data.count,
 //                0,
 //                reinterpret_cast<const sockaddr *>(&dest_addr), sizeof(dest_addr));
     int res = send(fd,

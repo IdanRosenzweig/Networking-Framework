@@ -14,9 +14,9 @@ public:
         listener = handler;
     }
 
-    void generate_event(SESSION_TYPE&& event) {
+    void generate_session(SESSION_TYPE&& session) {
         if (listener != nullptr)
-            listener->handle_received_event(std::move(event));
+            listener->handle_callback(std::move(session));
     }
 };
 

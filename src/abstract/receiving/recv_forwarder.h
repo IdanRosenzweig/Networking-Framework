@@ -40,13 +40,13 @@ public:
         listeners.erase(listener);
     }
 
-    void handle_received_event(TYPE &&event) override {
+    void handle_callback(TYPE &&data) override {
         lock_guard<mutex> lock(listeners_mtx);
         int no_listeners = listeners.size();
         for (auto &listener: listeners) {
             // create a copy of the event and pass it to each of the sub listeners
-            TYPE event_copy(event);
-            listener->handle_received_event(std::move(event_copy));
+            TYPE data_copy(data);
+            listener->handle_callback(std::move(data_copy));
         }
     }
 

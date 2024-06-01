@@ -26,8 +26,8 @@ mac_addr convert_to_mac_addr(const std::string& str);
 
 std::string convert_to_str(mac_addr addr);
 
-void write_in_network_order(uint8_t* dest, mac_addr* source);
+int write_in_network_order(uint8_t* dest, mac_addr* source);
 
-void extract_from_network_order(mac_addr* dest, uint8_t* source);
+int extract_from_network_order(mac_addr* dest, uint8_t* source);
 
 #endif //NETWORKING_MAC_ADDR_H

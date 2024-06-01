@@ -2,7 +2,7 @@
 #define NETWORKING_BASIC_FIREWALL_FILTER_H
 
 #include "firewall_policy.h"
-#include "../receiving/msg/received_msg.h"
+#include "../receiving/msg/recv_msg_t.h"
 
 template <typename TYPE>
 class basic_firewall_filter {

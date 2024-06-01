@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-// forwards data along multiple mediums
+// forwards buff along multiple mediums
 template <typename TYPE>
 class send_forwarder : public basic_send_medium<TYPE> {
     std::vector<basic_send_medium<TYPE>*> mediums;
@@ -31,13 +31,13 @@ public:
         mediums.erase(channel);
     }
 
-    int send_data(TYPE&& val) override {
+    int send_data(TYPE&& data) override {
         int sum = 0;
 
         for (auto& target : mediums) {
             // create a copy pass it to each of the channels
-            TYPE val_copy(val);
-            sum += target->send_data(std::move(val_copy));
+            TYPE data_copy(data);
+            sum += target->send_data(std::move(data));
         }
 
         return sum;

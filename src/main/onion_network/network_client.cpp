@@ -1,20 +1,16 @@
+#include "../../tools/onion_network/onion_network_client.h"
 
-#include "../../temp_utils/proxy/ip_proxy_client.h"
-
-#include "../../temp_prot_stacks/udp_client_server/udp_client.h"
-#include "../../temp_utils/dns/dns_client.h"
-#include "../../temp_prot_stacks/icmp/icmp_connection_client.h"
-#include "../../temp_utils/onion_network/onion_network_client.h"
-#include "../../temp_utils/ping/ping_util.h"
+#include "../../tools/dns/dns_client.h"
+#include "../../tools/ping/ping_util.h"
 
 #include "../../linux/if/virtual/virtual_if.h"
+#include "../../linux/if/iface_access_point.h"
 #include "../../linux/if/hardware.h"
+#include "../../linux/osi/network_layer_gateway.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
-
 using namespace std;
-
 
 void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) {
     std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);

@@ -15,7 +15,7 @@ public:
 
     ~interface_gateway();
 
-    int send_data(send_msg<>&& msg) override;
+    int send_data(send_msg_t&&data) override;
 
 };
 

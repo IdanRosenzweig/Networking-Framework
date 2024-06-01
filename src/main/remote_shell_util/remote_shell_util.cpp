@@ -1,5 +1,5 @@
-#include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_client.h"
-#include "../../temp_prot_stacks/tcp_client_server/tcp_boundary_preserving_server.h"
+#include "../../direct_connections/tcp/tcp_boundary_preserving_client.h"
+#include "../../direct_connections/tcp/tcp_boundary_preserving_server.h"
 #include "../../abstract/session/session_manager.h"
 
 #include <string>
@@ -16,13 +16,13 @@ public:
     explicit server_app(tcp_boundary_preserving_session_type &&sess) : session_handler(std::move(sess)) {}
 
 private:
-    void handle_received_event(received_msg &&event) override {
-        uint8_t * msg = event.data.data() + event.curr_offset;
+    void handle_callback(recv_msg_t &&data) override {
+        uint8_t * msg = data.buff_at_curr_offset();
         std::cout << "client's command: " << msg << endl;
 
         FILE* proc_ptr = popen((const char*) msg, "r");
         if (proc_ptr == nullptr) { // send some error message
-            send_msg<> send;
+            send_msg_t send;
 #define ERR_OUTPUT "err"
             int err_len = strlen(ERR_OUTPUT);
             memcpy(send.get_active_buff(), ERR_OUTPUT, err_len);
@@ -32,7 +32,7 @@ private:
             return;
         }
 
-        send_msg<> send;
+        send_msg_t send;
         int total_cnt = 0;
         while (true) {
             uint8_t byte;
@@ -59,8 +59,8 @@ void shell_server_main(const string& iface, uint16_t port) {
 
 class client_app : public msg_recv_listener {
 public:
-    void handle_received_event(received_msg &&event) override {
-        std::cout << event.data.data() + event.curr_offset << endl;
+    void handle_callback(recv_msg_t &&data) override {
+        std::cout << data.buff_at_curr_offset() << endl;
     }
 };
 
@@ -75,12 +75,12 @@ void shell_client_main(const string& iface, ip4_addr server_ip, uint16_t dest_po
         string str;
         getline(cin, str);
 
-        send_msg send;
+        send_msg_t send;
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
         if (res == SEND_MEDIUM_ERROR || res == 0) {
-            std::cerr << "can't send data to server" << endl;
+            std::cerr << "can't send buff to server" << endl;
         }
     }
 }

@@ -10,8 +10,8 @@ interface_gateway::~interface_gateway() {
         ptr->incoming_traffic.remove_listener(this);
 };
 
-int interface_gateway::send_data(send_msg<> &&msg) {
+int interface_gateway::send_data(send_msg_t &&data) {
     if (shared_ptr<iface_access_point> ptr = iface_access.lock())
-        return ptr->send_out(msg.get_active_buff(), msg.get_count());
+        return ptr->send_out(data.get_active_buff(), data.get_count());
     else return 0;
 }

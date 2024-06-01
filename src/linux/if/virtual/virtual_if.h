@@ -3,7 +3,7 @@
 
 #include <thread>
 #include "../../../abstract/gateway/gateway.h"
-#include "../../../abstract/receiving/msg/received_msg.h"
+#include "../../../abstract/receiving/msg/recv_msg_t.h"
 
 class linux_virtual_iface : public msg_recv_listener {
     gateway* base_gw;
@@ -11,7 +11,7 @@ class linux_virtual_iface : public msg_recv_listener {
 
     std::thread worker;
 
-    void handle_received_event(received_msg &&event) override;
+    void handle_callback(recv_msg_t &&data) override;
 
 public:
     explicit linux_virtual_iface(gateway *gw, string& iface_name);

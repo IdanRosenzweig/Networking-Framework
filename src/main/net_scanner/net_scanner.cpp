@@ -1,5 +1,5 @@
-#include "../../linux/if/wrappers/interface_gateway.h"
-#include "../../temp_utils/net_arp/net_arp.h"
+#include "../../tools/net_arp/net_arp.h"
+
 #include "../../linux/if/hardware.h"
 #include "../../linux/osi/data_link_layer_gateway.h"
 

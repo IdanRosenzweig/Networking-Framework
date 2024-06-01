@@ -3,7 +3,7 @@
 
 #include "../../abstract/gateway/gateway.h"
 #include "../../protocols/ether/ethernet_protocol.h"
-#include "../../temp_utils/net_arp/net_arp.h"
+#include "../../tools/net_arp/net_arp.h"
 #include "data_link_layer_gateway.h"
 #include "../if/wrappers/interface_gateway.h"
 
@@ -22,9 +22,9 @@ public:
 
     ~network_layer_gateway();
 
-    int send_data(send_msg<>&& msg) override;
+    int send_data(send_msg_t&&data) override;
 
-    void handle_received_event(received_msg &&event) override;
+    void handle_callback(recv_msg_t &&data) override;
 };
 
 

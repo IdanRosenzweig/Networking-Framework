@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <tuple>
+#include <map>
 using namespace std;
-
 
 // template to get the i-th type from a variadic template
 template<size_t INDEX, typename First, typename... Rest>
@@ -58,7 +58,7 @@ private:
         size_t no_reqs = 0; // number of requirements this handle has
         size_t reqs_satisfied = 0; // current number of requirements met
 
-        DATA data; // the actual data related to this handler
+        DATA data; // the actual buff related to this handler
         explicit handler(const DATA &data) : data(data) {}
     };
 

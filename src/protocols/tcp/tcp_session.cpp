@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <iostream>
+
 using namespace std;
 
 tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
@@ -20,28 +21,28 @@ tcp_session_conn::tcp_session_conn(int _sd) : sd(_sd) {
             int data_sz = recv(this->sd, buff, BUFF_SZ, 0);
             if (data_sz == RECV_ERROR) {
                 alive = false;
-//                std::cerr << "tcp_client_server seseion couldn't read" << endl;
+//                std::cerr << "tcp seseion couldn't read" << endl;
                 break;
             } else if (data_sz == 0) {
                 alive = false;
-//                std::cerr << "tcp_client_server session ended" << endl;
+//                std::cerr << "tcp session ended" << endl;
                 break;
             }
 
-//            std::cout << "tcp_client_server session read size " << data_sz << endl;
+//            std::cout << "tcp session read size " << data_sz << endl;
 
-            received_msg msg;
-            msg.data = udata_t(data_sz, 0x00);
-            memcpy(msg.data.data(), buff, data_sz);
+            recv_msg_t msg;
+            msg.buff = udata_t(data_sz, 0x00);
+            memcpy(msg.buff.data(), buff, data_sz);
             msg.curr_offset = 0;
 //            uint8_t *alloc_msg = new uint8_t[data_sz];
 //            memcpy(alloc_msg, buff, data_sz);
 //
-//            received_msg msg;
-//            msg.data = unique_ptr<uint8_t>(alloc_msg);
-//            msg.data.size() = data_sz;
-//            msg.curr_offset = 0;
-            this->handle_received_event(std::move(msg));
+//            recv_msg_t plain_data;
+//            plain_data.buff = unique_ptr<uint8_t>(alloc_msg);
+//            plain_data.buff.size() = data_sz;
+//            plain_data.curr_offset = 0;
+            this->handle_callback(std::move(msg));
         }
     });
 }
@@ -51,7 +52,7 @@ tcp_session_conn::~tcp_session_conn() {
     close(sd);
 }
 
-int tcp_session_conn::send_data(send_msg<>&& msg) {
+int tcp_session_conn::send_data(send_msg_t &&data) {
     if (!alive) return -1;
 
     int error = 0;
@@ -74,15 +75,15 @@ int tcp_session_conn::send_data(send_msg<>&& msg) {
         return SEND_MEDIUM_ERROR;
     }
 
-    int res = send(sd, msg.get_active_buff(), msg.get_count(), 0);
+    int res = send(sd, data.get_active_buff(), data.get_count(), 0);
     if (res == SEND_ERROR || res == 0)
         return SEND_MEDIUM_ERROR;
     else
         return res;
 }
 
-void tcp_session_conn::handle_received_event(received_msg &&event) {
-    recv_forwarder::handle_received_event(std::move(event));
+void tcp_session_conn::handle_callback(recv_msg_t &&data) {
+    recv_forwarder::handle_callback(std::move(data));
 }
 
 

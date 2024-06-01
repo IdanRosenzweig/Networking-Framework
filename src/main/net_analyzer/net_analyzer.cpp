@@ -1,5 +1,7 @@
+#include "../../tools/analyzer/net_analyzer.h"
+
+#include "../../linux/if/iface_access_point.h"
 #include "../../linux/if/wrappers/interface_sniffer.h"
-#include "../../temp_utils/analyzer/net_analyzer.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>

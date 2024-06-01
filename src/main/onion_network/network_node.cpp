@@ -1,6 +1,8 @@
-#include "../../linux/osi/network_layer_gateway.h"
-#include "../../temp_utils/onion_network/onion_network_node.h"
+#include "../../tools/onion_network/onion_network_node.h"
+
 #include "../../linux/if/hardware.h"
+#include "../../linux/osi/network_layer_gateway.h"
+#include "../../linux/if/iface_access_point.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -23,7 +25,7 @@ int main(int argc, char** argv) {
     po::options_description opts("Allowed options");
     opts.add_options()
             ("help,h", "print tool use description")
-            ("net-layer-iface", po::value<string>(), "linux interface which can be used to send data to the network layer")
+            ("net-layer-iface", po::value<string>(), "linux interface which can be used to send buff to the network layer")
 //            ("clients-iface", po::value<string>(), "linux interface to listen on to clients")
             ;
 

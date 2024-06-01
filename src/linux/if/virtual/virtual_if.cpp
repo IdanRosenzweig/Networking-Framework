@@ -20,7 +20,7 @@ linux_virtual_iface::linux_virtual_iface(gateway *gw, string& iface_name) : base
     worker = std::thread([&]() -> void {
         while (true) {
 
-            send_msg<> send;
+            send_msg_t send;
             uint8_t *buff = send.get_active_buff();
 
             int cnt = read(fd, buff, 1024);
@@ -37,8 +37,8 @@ linux_virtual_iface::~linux_virtual_iface() {
     worker.detach();
 }
 
-void linux_virtual_iface::handle_received_event(received_msg &&event) {
-    write(fd, event.data.data() + event.curr_offset, event.data.size() - event.curr_offset);
+void linux_virtual_iface::handle_callback(recv_msg_t &&data) {
+    write(fd, data.buff_at_curr_offset(), data.buff_cnt_at_curr_offset());
 }
 
 

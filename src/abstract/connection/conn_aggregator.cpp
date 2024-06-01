@@ -16,11 +16,11 @@ conn_handler::~conn_handler() {
     my_conn->remove_listener(this);
 }
 
-int conn_handler::send_data(send_msg<> &&val) {
-    return my_conn->send_data(std::move(val));
+int conn_handler::send_data(send_msg_t &&data) {
+    return my_conn->send_data(std::move(data));
 }
 
-void conn_handler::handle_received_event(received_msg &&event) {
+void conn_handler::handle_callback(recv_msg_t &&data) {
     auto it = master->conns.begin();
     while (it != master->conns.end()) {
         if ((*it)->internal_id == this->internal_id) {
@@ -28,19 +28,19 @@ void conn_handler::handle_received_event(received_msg &&event) {
             continue;
         }
 
-        send_msg<> send;
-        int cnt = event.data.size() - event.curr_offset;
-        memcpy(send.get_active_buff(), event.data.data() + event.curr_offset, cnt);
+        send_msg_t send;
+        size_t cnt = data.buff_cnt_at_curr_offset();
+        memcpy(send.get_active_buff(), data.buff_at_curr_offset(), cnt);
         send.set_count(cnt);
 
         int res = (*it)->send_data(std::move(send));
         if (res == SEND_MEDIUM_ERROR || res == 0) {
-            std::cerr << "couldn't forward data to some connection, removing it from the aggregator" << endl;
+            std::cerr << "couldn't forward buff to some connection, removing it from the aggregator" << endl;
             it = master->conns.erase(it);
             continue;
         }
 
-        std::cout << "forwarded data to connection with it " << (*it)->internal_id << endl;
+        std::cout << "forwarded buff to connection with it " << (*it)->internal_id << endl;
         it++;
     }
 

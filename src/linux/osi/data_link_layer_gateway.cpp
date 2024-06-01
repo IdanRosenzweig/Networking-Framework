@@ -11,10 +11,10 @@ data_link_layer_gateway::~data_link_layer_gateway() {
     if_gateway.remove_listener(this);
 }
 
-int data_link_layer_gateway::send_data(send_msg<> &&val) {
-    return send_medium.send_data(std::move(val));
+int data_link_layer_gateway::send_data(send_msg_t &&data) {
+    return send_medium.send_data(std::move(data));
 }
 
-void data_link_layer_gateway::handle_received_event(received_msg &&event) {
-    recv_forwarder::handle_received_event(std::move(event));
+void data_link_layer_gateway::handle_callback(recv_msg_t &&data) {
+    recv_forwarder::handle_callback(std::move(data));
 }

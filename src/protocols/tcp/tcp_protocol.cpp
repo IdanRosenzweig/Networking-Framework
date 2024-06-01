@@ -76,10 +76,11 @@ tcp_protocol::tcp_protocol(bool server) {
                 ip4_addr addr;
                 extract_from_network_order(&addr, (uint8_t *) &client_addr.sin_addr.s_addr);
 
-                this->session_generator::generate_event(tcp_session_type(tcp_session_data{addr,
-                                                                                          ntohs(client_addr.sin_port),
-                                                                                          5678},
-                                                                         std::make_unique<tcp_session_conn>(client_sd))
+                this->session_generator::generate_session(tcp_session_type(tcp_session_data{addr,
+                                                                                            ntohs(client_addr.sin_port),
+                                                                                            5678},
+                                                                           std::make_unique<tcp_session_conn>(
+                                                                                   client_sd))
                 );
             }
         });
