@@ -16,28 +16,13 @@ class tcp_boundary_preserving_server : public session_generator<tcp_boundary_pre
             master->raw_tcp_server.set_generator_listener(this);
         }
 
-        void handle_callback(tcp_session_type &&data) override {
-            master->generate_session(
-                    std::move(tcp_boundary_preserving_session_type(data.sess_data,
-                                                         std::make_unique<tcp_boundary_preserving_session_conn>(
-                                                                 std::move(data.sess_conn))
-                    ))
-            );
-        }
+        void handle_callback(tcp_session_type &&data) override;
     } sessionsHandler;
 
 public:
-    tcp_boundary_preserving_server(uint16_t port) : raw_tcp_server(port), sessionsHandler(this) {
+    tcp_boundary_preserving_server(uint16_t port);
 
-    }
-
-    tcp_boundary_preserving_session_type start_session(const string &ip, uint16_t port) {
-        tcp_session_type raw_sess = raw_tcp_server.start_session(ip, port);
-        return tcp_boundary_preserving_session_type(raw_sess.sess_data,
-                                                    std::make_unique<tcp_boundary_preserving_session_conn>(
-                                                            std::move(raw_sess.sess_conn))
-        );
-    }
+    tcp_boundary_preserving_session_type start_session(const string &ip, uint16_t port);
 
 };
 

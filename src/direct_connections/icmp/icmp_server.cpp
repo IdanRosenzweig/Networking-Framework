@@ -20,6 +20,7 @@ icmp_server::icmp_server(ip4_addr dest_ip, ip4_addr src_ip, gateway* gw) : netwo
 
     prot_stack.icmp_prot.listeners.append_new_empty_handler(this);
     prot_stack.icmp_prot.listeners.add_requirement_to_last_handler<ICMP_LISTEN_ON_TYPE_INDEX>(ICMP_CONN_CLIENT_TYPE);
+    prot_stack.icmp_prot.listeners.add_requirement_to_last_handler<ICMP_LISTEN_ON_CODE_INDEX>(ICMP_CONN_CLIENT_CODE);
 }
 
 icmp_server::~icmp_server() {

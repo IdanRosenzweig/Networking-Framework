@@ -29,28 +29,25 @@ set(ABSTRACT_SRC
 
 set(PROTOCOLS_SRC
         src/protocols/ether/ethernet_protocol.cpp
+        src/protocols/ether/ethernet_header.cpp
         src/protocols/ether/mac_addr.cpp
-
-        src/tools/net_arp/net_arp.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
         src/protocols/ip4/internet_checksum.cpp
+        src/protocols/ip4/ip4_header.cpp
 
         src/protocols/tcp/tcp_protocol.cpp
         src/protocols/tcp/tcp_session.cpp
+        src/protocols/tcp/tcp_boundary_preserving_session.cpp
 
         src/protocols/udp/udp_protocol.cpp
+        src/protocols/udp/udp_header.cpp
 
         src/protocols/icmp/icmp_protocol.cpp
+        src/protocols/icmp/icmp_header.cpp
 
         src/protocols/emp/emp_protocol.cpp
-        src/protocols/tcp/tcp_boundary_preserving_session.cpp
-        src/protocols/ether/ethernet_header.cpp
-        src/protocols/ip4/ip4_header.cpp
-        src/protocols/ip4/ip4_header.h
-        src/protocols/udp/udp_header.cpp
-        src/protocols/icmp/icmp_header.cpp
 )
 
 set(LINUX_SRC
@@ -63,70 +60,90 @@ set(LINUX_SRC
         src/linux/if/virtual/tun_tap.cpp
 
         src/linux/osi/data_link_layer_gateway.cpp
+        src/tools/net_arp/net_arp.cpp
         src/linux/osi/network_layer_gateway.cpp
 )
 
+set(DIRECT_CONNECTION
+        src/direct_connections/udp/udp_client.cpp
+        src/direct_connections/udp/udp_server.cpp
+
+        src/direct_connections/tcp/tcp_client.cpp
+        src/direct_connections/tcp/tcp_server.cpp
+        src/direct_connections/tcp/tcp_boundary_preserving_client.cpp
+        src/direct_connections/tcp/tcp_boundary_preserving_server.cpp
+
+        src/direct_connections/icmp/icmp_client.cpp
+        src/direct_connections/icmp/icmp_server.cpp
+
+        src/direct_connections/emp/emp_client.cpp
+        src/direct_connections/emp/emp_server.cpp
+
+)
 
 add_executable(vpn_daemon
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/vpn/vpn_daemon_main.cpp
+        src/tools/vpn/vpn_daemon.cpp
 )
 
 add_executable(vpn_client
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/vpn/vpn_client_main.cpp
 
-        src/direct_connections/tcp/tcp_client.cpp
-#        src/tools/dns/dns_client.cpp
-#        src/tools/dns/dns.cpp
+        src/tools/vpn/vpn_client.cpp
 )
 
 
 add_executable(remote_shell_util
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
-        src/main/remote_shell_util/remote_shell_util.cpp
-        src/direct_connections/tcp/tcp_server.cpp
-        src/direct_connections/tcp/tcp_client.cpp
+        src/main/remote_shell/remote_shell_util.cpp
 )
 
 
 add_executable(onion_network_node
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
-        src/main/onion_network/network_node.cpp
+        src/main/onion_network/onion_network_node_main.cpp
         src/tools/proxy/ip_proxy_server.cpp
-        src/direct_connections/udp/udp_server.cpp
+        src/tools/onion_network/onion_network_node.cpp
 )
 
 add_executable(onion_network_client
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
-        src/main/onion_network/network_client.cpp
+        src/main/onion_network/onion_network_client_main.cpp
+        src/tools/proxy/ip_proxy_client.h
+        src/tools/onion_network/onion_network_client.cpp
+
+        src/tools/ping/ping_util.cpp
         src/tools/dns/dns_client.cpp
         src/tools/dns/dns.cpp
-        src/direct_connections/udp/udp_client.cpp
-        src/tools/ping/ping_util.cpp
-        src/direct_connections/icmp/icmp_client.cpp
-        src/direct_connections/icmp/icmp_server.cpp
 )
 
 
 add_executable(ping
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/ping/ping.cpp
@@ -136,6 +153,7 @@ add_executable(ping
 add_executable(traceroute
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/ping/traceroute.cpp
@@ -146,6 +164,7 @@ add_executable(traceroute
 add_executable(bandwidth
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/bandwidth/bandwidth.cpp
@@ -156,42 +175,40 @@ add_executable(bandwidth
 add_executable(netcat
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/netcat/netcat.cpp
-        src/direct_connections/tcp/tcp_client.cpp
-        src/direct_connections/tcp/tcp_server.cpp
 )
 
 
 add_executable(dns_server
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/dns/dns_server.cpp
         src/tools/dns/dns_server.cpp
         src/tools/dns/dns.cpp
-        src/direct_connections/udp/udp_server.cpp
-        src/direct_connections/emp/emp_server.cpp
 )
 
 add_executable(dns_client
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/dns/dns_client.cpp
         src/tools/dns/dns_client.cpp
         src/tools/dns/dns.cpp
-        src/direct_connections/udp/udp_client.cpp
-        src/direct_connections/emp/emp_client.cpp
 )
 
 
 add_executable(net_scanner
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/net_scanner/net_scanner.cpp
@@ -201,6 +218,7 @@ add_executable(net_scanner
 add_executable(net_intercept
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/net_intercept/net_intercept.cpp
@@ -210,6 +228,7 @@ add_executable(net_intercept
 add_executable(net_analyzer
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/net_analyzer/net_analyzer.cpp
@@ -219,6 +238,7 @@ add_executable(net_analyzer
 add_executable(mac_changer
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
+        ${DIRECT_CONNECTION}
         ${LINUX_SRC}
 
         src/main/net_intercept/mac_changer.cpp

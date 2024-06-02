@@ -18,7 +18,7 @@ under `src/connection/session`:
 * `session_conn`: just a typedef for `connection`, this represents a networking login for the networking connection part of a communication session
 * `session_t`: a class representing a full communication session. this includes both the `session_conn` part and arbitrary data stored regarding the session (priority, initiation time, id...)
 * `session_generator`: a class which generates sessions
-* `session_handler`: pure virtual class, which represents a handler for a newly generated session. this is essential a wrapper handler around a session.
+* `session_handler`: pure virtual class, which represents a handler for a newly generated session. this is essentially a wrapper handler around a session.
 * `session_manger`: a class which takes the sessions generated from a `session_generator`, stores them and calls `session_handler` around them.
 
 # gateways

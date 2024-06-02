@@ -32,7 +32,8 @@ void onion_network_node_main(const string &iface, const vector<ip4_addr> &path) 
 
     // dns queries
     {
-        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), convert_to_ip4_addr("10.100.102.18"),
+        ip4_addr my_valid_ip = get_ip_addr_of_iface(iface);
+        dns_client dns_client(convert_to_ip4_addr("8.8.8.8"), my_valid_ip,
                               raw_if);
 
         // communicate

@@ -17,28 +17,17 @@ class onion_network_node {
     public:
         onion_network_node* master;
 
-        explicit server_app_handler(onion_network_node *master) : master(master) {
-            master->udpServer.add_listener(this);
-        }
+        explicit server_app_handler(onion_network_node *master);
 
         ip4_addr ip_source;
         uint16_t port_source;
-        void handle_callback(udp_packet_stack&& data) override {
-            ip_source = data.source_addr;
-            port_source = data.source_port;
-            this->recv_forwarder::handle_callback(std::move(data.plain_data));
-        }
+        void handle_callback(udp_packet_stack&& data) override;
 
-        int send_data(send_msg_t&& data) override {
-            return master->udpServer.send_data_to_client(ip_source, port_source, std::move(data));
-        }
+        int send_data(send_msg_t&& data) override;
     } udp_single_conn;
 
 public:
-    onion_network_node(ip4_addr src_ip, gateway* network_layer_gw) : proxy(src_ip, network_layer_gw), udpServer(ONION_NETWORK_NODE_LISTEN_PORT, src_ip, network_layer_gw), udp_single_conn(this) {
-        // add a single connection to the onion_network
-        proxy.set_proxied_connection(&udp_single_conn);
-    }
+    onion_network_node(ip4_addr src_ip, gateway* network_layer_gw);
 };
 
 

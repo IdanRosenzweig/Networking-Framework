@@ -10,14 +10,9 @@ class tcp_boundary_preserving_session_conn : public session_conn {
     msg_boundary_seperator<> client;
 
 public:
-    tcp_boundary_preserving_session_conn(std::unique_ptr<tcp_session_conn> &&session) : raw_session(std::move(session)),
-                                                                                        client(raw_session.get()) {
-        client.add_listener(this);
-    }
+    tcp_boundary_preserving_session_conn(std::unique_ptr<tcp_session_conn> &&session);
 
-    int send_data(send_msg_t &&data) override {
-        return client.send_data(std::move(data));
-    }
+    int send_data(send_msg_t &&data) override;
 
 };
 

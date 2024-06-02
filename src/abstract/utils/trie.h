@@ -49,7 +49,7 @@ struct trie_node { // a trie node, representing an entire tree
     void remove_all_children() {
         for (size_t i = 0; i < RANGE; i++) {
             trie_node *child = children[i];
-            if (child == nullptr) return; // child doesn't exists
+            if (child == nullptr) return; // child doesn't exist
 
             delete child; // deconstructor will call child->remove_all_children()
         }

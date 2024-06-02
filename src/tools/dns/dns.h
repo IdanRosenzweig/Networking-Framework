@@ -50,7 +50,7 @@ struct dns_header { // all fields stored in host byte order
     uint16_t rcode: 4; // response code
     uint16_t cd: 1; // checking disabled
     uint16_t ad: 1; // authenticated plain_data
-    uint16_t z: 1; // its z! reserved
+    uint16_t z: 1; // reserved
     uint16_t ra: 1; // recursion available
 
     uint16_t query_count; // number of query entries

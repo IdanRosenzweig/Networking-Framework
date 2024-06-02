@@ -19,18 +19,9 @@ class vpn_daemon {
         vpn_daemon *master;
     public:
 
-        explicit sessions_handler(vpn_daemon *_master) : master(_master) {
-            master->tcpServer.set_generator_listener(this);
-        }
+        explicit sessions_handler(vpn_daemon *_master);
 
-        void handle_callback(tcp_session_type &&data) override {
-            master->tcpSession.push_back(std::move(data));
-
-//            master->sessions.emplace_back(master->tcpSession.back().sess_conn.get());
-//            master->aggregator.add_connection(&master->sessions.back());
-            master->sessions.emplace_back(make_unique<msg_boundary_seperator<>>(master->tcpSession.back().sess_conn.get()));
-            master->aggregator.add_connection(master->sessions.back().get());
-        }
+        void handle_callback(tcp_session_type &&data) override;
 
     } handler;
 
@@ -45,12 +36,7 @@ class vpn_daemon {
     conn_aggregator aggregator;
 
 public:
-    vpn_daemon(const weak_ptr<iface_access_point>& access) : dataLinkLayerGateway(access),
-                                                gateway_firewall(&dataLinkLayerGateway), block_filter(5678),
-                                                tcpServer(5678), handler(this) {
-        gateway_firewall.incoming_filters.push_back(&block_filter);
-        aggregator.add_connection(&gateway_firewall);
-    }
+    vpn_daemon(const weak_ptr<iface_access_point>& access);
 
 
 };

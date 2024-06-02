@@ -11,14 +11,9 @@ public:
 
     msg_boundary_seperator<> client;
 
-    tcp_boundary_preserving_client(ip4_addr ip, uint16_t port, uint16_t my_port) : tcpClient(ip, port, my_port),
-                                                                         client(&tcpClient) {
-        client.add_listener(this);
-    }
+    tcp_boundary_preserving_client(ip4_addr ip, uint16_t port, uint16_t my_port);
 
-    int send_data(send_msg_t &&data) override {
-        return client.send_data(std::move(data));
-    }
+    int send_data(send_msg_t &&data) override;
 };
 
 

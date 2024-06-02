@@ -10,6 +10,7 @@ std::string convert_to_str(protocol_t prot) {
         case TCP: return "tcp";
         case ICMP: return "icmp";
         case DNS: return "dns";
+        case EMP: return "emp";
     }
 
     return "";
@@ -23,6 +24,7 @@ protocol_t convert_str_to_protocol_t(const std::string& prot) {
     else if (prot == "tcp") return TCP;
     else if (prot == "icmp") return ICMP;
     else if (prot == "dns") return DNS;
+    else if (prot == "emp") return EMP;
     else {
         std::cerr << "invalid protocol" << std::endl;
         throw;
