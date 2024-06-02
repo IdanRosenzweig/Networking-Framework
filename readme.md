@@ -14,15 +14,13 @@ in addition, this project contains many networking tools built entirely on top o
 * and more...
 
 # structure
-abstract core networking logic used in the project [networking_logic](docs/networking_logic.md)
-
-the various protocols implemented in the project [protocols](docs/protocols.md)
-
-extending that, common aggregation of protocol stacks implemented in the project [protocol_stacks](docs/protocol_stacks.md)
-
-many networking utilities implemented in the project [tools](docs/tools.md)
-
-linux related features and functions used in the project [linux](docs/linux_related.md)
+| what                                               | docs file                                    |
+|----------------------------------------------------|----------------------------------------------|
+| abstract core networking logic used in the project | [networking_logic](docs/networking_logic.md) |
+| the various protocols implemented in the project   | [protocols](docs/protocols.md)               |
+|extending that, common aggregation of protocol stacks implemented in the project| [protocol_stacks](docs/protocol_stacks.md)   |
+|many networking utilities implemented in the project| [tools](docs/tools.md)                       |
+|linux related features and functions used in the project| [linux](docs/linux_related.md)               |
 
 # build
 the project uses the cmake build system, with the main build file CMakeFile.txt located at the root directory.
