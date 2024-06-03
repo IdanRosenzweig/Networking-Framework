@@ -2,9 +2,15 @@
 #include "../../direct_connections/tcp/tcp_boundary_preserving_server.h"
 #include "../../abstract/session/session_manager.h"
 
+#include "../../linux/if/iface_access_point.h"
+
 #include <boost/program_options.hpp>
+#include <string>
 #include <iostream>
 using namespace std;
+
+#define NETCAT_SERVER_PORT 6977
+#define NETCAT_CLIENT_PORT 5455
 
 class server_app : public session_handler<tcp_boundary_preserving_session_type>, public msg_recv_listener {
 public:
@@ -24,8 +30,10 @@ private:
 using server_sess_manager = session_manager<tcp_boundary_preserving_session_type, server_app>;
 
 void netcat_server_main(const string& iface, uint16_t port) {
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
     // listening and generating the session
-    tcp_boundary_preserving_server server(port);
+    tcp_boundary_preserving_server server(port, iface);
 
     // handling and storing the sessions
     server_sess_manager app(&server);
@@ -59,7 +67,9 @@ public:
 };
 
 void netcat_client_main(const string& iface, ip4_addr dest_ip, uint16_t port) {
-    tcp_boundary_preserving_client client(dest_ip, port, 1212);
+    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+
+    tcp_boundary_preserving_client client(dest_ip, port, NETCAT_CLIENT_PORT, iface);
 
     client_app app;
     client.add_listener(&app);
@@ -72,8 +82,10 @@ void netcat_client_main(const string& iface, ip4_addr dest_ip, uint16_t port) {
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
-        if (res == SEND_MEDIUM_ERROR || res == 0) {
+        if (res == 0) {
             std::cerr << "can't send buff to server" << endl;
+        } else if (res == SEND_MEDIUM_ERROR) {
+            std::cerr << "err sending buff to server" << endl;
         }
     }
 }
@@ -92,7 +104,7 @@ int main(int argc, char **argv) {
 
             ("dest", po::value<string>(), "used for client, dest ip address of the server to connect to")
             ("port", po::value<uint16_t>(),
-             "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
+             "if used for client, this is the port that the server listens on. if not specified, uses some default value. \nif used on server. this is the port to listen on. if not specified, uses some default value");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);
@@ -118,20 +130,18 @@ int main(int argc, char **argv) {
     }
 
     if (server) {
+        uint16_t port;
         if (!vm.count("port")) {
-            std::cout << opts << endl;
-            return 1;
-        }
-        uint16_t port = vm["port"].as<uint16_t>();
+            port = NETCAT_SERVER_PORT;
+        } else port = vm["port"].as<uint16_t>();
 
         netcat_server_main(iface, port);
 
     } else {
+        uint16_t port;
         if (!vm.count("port")) {
-            std::cout << opts << endl;
-            return 1;
-        }
-        uint16_t port = vm["port"].as<uint16_t>();
+            port = NETCAT_SERVER_PORT;
+        } else port = vm["port"].as<uint16_t>();
 
         if (!vm.count("dest")) {
             std::cout << opts << endl;

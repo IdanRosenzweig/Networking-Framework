@@ -29,7 +29,7 @@ class tcp_server : public session_generator<tcp_session_type> {
     sessions_handler sessionsHandler;
 
 public:
-    tcp_server(uint16_t port) : tcp_prot(true), server_port(port), sessionsHandler(this) {
+    tcp_server(uint16_t port, const string& iface) : tcp_prot(true, port, iface), server_port(port), sessionsHandler(this) {
 
     }
 

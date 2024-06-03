@@ -1,6 +1,7 @@
 #include "../../tools/vpn/vpn_client.h"
 
 #include "../../linux/if/iface_access_point.h"
+#include "../../linux/if/wrappers/interface_gateway.h"
 #include "../../linux/if/virtual/virtual_if.h"
 
 #include <boost/program_options.hpp>
@@ -10,7 +11,8 @@ using namespace std;
 void vpn_client_main(const string& iface, const string& _new_iface_name, ip4_addr daemon_ip, ip4_addr new_ip, ip4_subnet_mask subnet) {
     std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
 
-    vpn_client vpn(daemon_ip);
+//    vpn_client vpn(daemon_ip, new interface_gateway(iface_access));
+    vpn_client vpn(daemon_ip, iface);
 
     string virt_iface_name = _new_iface_name;
     linux_virtual_iface virt_iface(&vpn, virt_iface_name);

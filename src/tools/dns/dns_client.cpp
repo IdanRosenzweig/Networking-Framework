@@ -7,7 +7,7 @@ using namespace std;
 
 dns_client::dns_client(ip4_addr dest_server_ip, ip4_addr src_ip, gateway *network_layer_gw) : udpClient(dest_server_ip,
                                                                                                         DNS_SERVER_PORT,
-                                                                                                        1212, src_ip,
+                                                                                                        1999, src_ip,
                                                                                                         network_layer_gw) {
     udpClient.recv_forwarder<udp_packet_stack>::add_listener(&responds_recv_q);
 }

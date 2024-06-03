@@ -9,7 +9,7 @@ void tcp_boundary_preserving_server::sessions_handler::handle_callback(tcp_sessi
     );
 }
 
-tcp_boundary_preserving_server::tcp_boundary_preserving_server(uint16_t port) : raw_tcp_server(port), sessionsHandler(this) {
+tcp_boundary_preserving_server::tcp_boundary_preserving_server(uint16_t port, const string& iface) : raw_tcp_server(port, iface), sessionsHandler(this) {
 
 }
 

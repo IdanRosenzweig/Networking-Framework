@@ -20,7 +20,7 @@ class tcp_boundary_preserving_server : public session_generator<tcp_boundary_pre
     } sessionsHandler;
 
 public:
-    tcp_boundary_preserving_server(uint16_t port);
+    tcp_boundary_preserving_server(uint16_t port, const string& iface);
 
     tcp_boundary_preserving_session_type start_session(const string &ip, uint16_t port);
 

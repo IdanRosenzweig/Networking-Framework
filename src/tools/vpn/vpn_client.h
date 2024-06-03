@@ -12,7 +12,7 @@ class vpn_client : public gateway {
     msg_boundary_seperator<> client;
 
 public:
-    vpn_client(ip4_addr daemon_ip);
+    vpn_client(ip4_addr daemon_ip, const string& iface);
 
     int send_data(send_msg_t&& data) override;
 };

@@ -14,8 +14,8 @@ void vpn_daemon::sessions_handler::handle_callback(tcp_session_type &&data) {
 }
 
 vpn_daemon::vpn_daemon(const weak_ptr<iface_access_point> &access) : dataLinkLayerGateway(access),
-                                                                     gateway_firewall(&dataLinkLayerGateway), block_filter(5678),
-                                                                     tcpServer(5678), handler(this) {
+                                                                     gateway_firewall(&dataLinkLayerGateway), block_filter(VPN_DAEMON_PORT),
+                                                                     tcpServer(VPN_DAEMON_PORT, access.lock()->iface_name), handler(this) {
     gateway_firewall.incoming_filters.push_back(&block_filter);
     aggregator.add_connection(&gateway_firewall);
 }

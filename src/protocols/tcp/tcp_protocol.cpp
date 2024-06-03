@@ -4,13 +4,10 @@
 #include <netinet/ip.h>
 #include <iostream>
 #include <netinet/tcp.h>
+#include <linux/if.h>
 
-tcp_protocol::tcp_protocol(bool server) {
-    // prevent linux from sending "destination port unreachable" when this class receives packets.
-    // because this class doesn't bind any port in the kernel
-//    system("sudo iptables -A OUTPUT -p icmp --icmp-type destination-unreachable -j DROP");
-
-    if (server) {
+tcp_protocol::tcp_protocol(bool server, uint16_t port, const string& iface) : need_server(server), server_port(port), local_iface(iface) {
+    if (need_server) {
         // opening a file descriptor
         sd = socket(
                 AF_INET, // IPv4
@@ -32,11 +29,20 @@ tcp_protocol::tcp_protocol(bool server) {
             return;
         }
 
-        // binding a socket
+        // bind the socket to specific interface
+        struct ifreq ifr;
+        memset(&ifr, 0, sizeof(ifr));
+        snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", local_iface.c_str());
+        if (setsockopt(sd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) == SETSOCKOPT_ERROR) {
+            std::cerr << "can't bind to linux interface" << endl;
+            return;
+        }
+
+        // binding the socket to the port and any address
         struct sockaddr_in addr;
         memset((void *) &addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
-        addr.sin_port = htons(5678);
+        addr.sin_port = htons(server_port);
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
         if (bind(
@@ -78,7 +84,7 @@ tcp_protocol::tcp_protocol(bool server) {
 
                 this->session_generator::generate_session(tcp_session_type(tcp_session_data{addr,
                                                                                             ntohs(client_addr.sin_port),
-                                                                                            5678},
+                                                                                            this->server_port},
                                                                            std::make_unique<tcp_session_conn>(
                                                                                    client_sd))
                 );
@@ -88,6 +94,7 @@ tcp_protocol::tcp_protocol(bool server) {
 }
 
 tcp_protocol::~tcp_protocol() {
+
     worker.detach();
     close(sd);
 }
@@ -108,6 +115,15 @@ tcp_session_type tcp_protocol::start_session() {
     }
     if (setsockopt(session_sd, IPPROTO_TCP, TCP_NODELAY, &enabled, sizeof(enabled)) == SETSOCKOPT_ERROR) {
         std::cerr << "can't setsockopt tcp_nodelay" << std::endl;
+        throw;
+    }
+
+    // bind the socket to specific interface
+    struct ifreq ifr;
+    memset(&ifr, 0, sizeof(ifr));
+    snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", local_iface.c_str());
+    if (setsockopt(session_sd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) == SETSOCKOPT_ERROR) {
+        std::cerr << "can't bind to linux interface" << endl;
         throw;
     }
 

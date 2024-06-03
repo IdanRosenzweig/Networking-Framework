@@ -16,12 +16,16 @@
 using tcp_session_type = session_t<tcp_session_conn, tcp_session_data>;
 
 class tcp_protocol : public session_generator<tcp_session_type> {
+    string local_iface;
+
+    bool need_server;
+    uint16_t server_port;
     int sd;
     std::thread worker;
 
 public:
 
-    tcp_protocol(bool SERVER);
+    tcp_protocol(bool need_server, uint16_t port, const string& iface);
 
     ~tcp_protocol();
 

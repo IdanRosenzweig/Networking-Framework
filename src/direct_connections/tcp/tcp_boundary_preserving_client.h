@@ -11,7 +11,7 @@ public:
 
     msg_boundary_seperator<> client;
 
-    tcp_boundary_preserving_client(ip4_addr ip, uint16_t port, uint16_t my_port);
+    tcp_boundary_preserving_client(ip4_addr ip, uint16_t port, uint16_t my_port, const string& iface);
 
     int send_data(send_msg_t &&data) override;
 };

@@ -7,6 +7,9 @@
 #include <boost/program_options.hpp>
 using namespace std;
 
+#define REMOTE_SHELL_SERVER_PORT 6977
+#define REMOTE_SHELL_CLIENT_PORT 5455
+
 class server_app : public session_handler<tcp_boundary_preserving_session_type>, public msg_recv_listener {
 public:
     void on_session_start() override { // when session starts, just add this class to its listeners. this calls just receives the messages and echos them
@@ -48,7 +51,7 @@ private:
 using server_sess_manager = session_manager<tcp_boundary_preserving_session_type, server_app>;
 
 void shell_server_main(const string& iface, uint16_t port) {
-    tcp_boundary_preserving_server server(port);
+    tcp_boundary_preserving_server server(port, iface);
 
     server_sess_manager app(&server);
 
@@ -66,7 +69,7 @@ public:
 
 void shell_client_main(const string& iface, ip4_addr server_ip, uint16_t dest_port) {
 
-    tcp_boundary_preserving_client client(server_ip, dest_port, 6799);
+    tcp_boundary_preserving_client client(server_ip, dest_port, REMOTE_SHELL_CLIENT_PORT, iface);
 
     client_app app;
     client.add_listener(&app);
@@ -79,8 +82,10 @@ void shell_client_main(const string& iface, ip4_addr server_ip, uint16_t dest_po
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
-        if (res == SEND_MEDIUM_ERROR || res == 0) {
+        if (res == 0) {
             std::cerr << "can't send buff to server" << endl;
+        } else if (res == SEND_MEDIUM_ERROR) {
+            std::cerr << "err sending buff to server" << endl;
         }
     }
 }
@@ -125,20 +130,18 @@ int main(int argc, char** argv) {
     }
 
     if (server) {
+        uint16_t port;
         if (!vm.count("port")) {
-            std::cout << opts << endl;
-            return 1;
-        }
-        uint16_t port = vm["port"].as<uint16_t>();
+            port = REMOTE_SHELL_SERVER_PORT;
+        } else port = vm["port"].as<uint16_t>();
 
         shell_server_main(iface, port);
 
     } else {
+        uint16_t port;
         if (!vm.count("port")) {
-            std::cout << opts << endl;
-            return 1;
-        }
-        uint16_t port = vm["port"].as<uint16_t>();
+            port = REMOTE_SHELL_SERVER_PORT;
+        } else port = vm["port"].as<uint16_t>();
 
         if (!vm.count("dest")) {
             std::cout << opts << endl;

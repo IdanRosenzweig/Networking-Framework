@@ -1,7 +1,7 @@
 #include "vpn_client.h"
 
-vpn_client::vpn_client(ip4_addr daemon_ip) :
-        tcp(daemon_ip, 5678, 1212), client(&tcp) {
+vpn_client::vpn_client(ip4_addr daemon_ip, const string& iface) :
+        tcp(daemon_ip, VPN_DAEMON_PORT, VPN_CLIENT_PORT, iface), client(&tcp) {
     client.add_listener(this);
 //tcp.add_listener(this);
 }
