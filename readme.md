@@ -17,6 +17,8 @@ in addition, this project contains many networking tools and classes that are bu
 * vpn
 * onion network
 
+this project also contains implementation for my own protocol, called "endpoint multiplexing protocol" (EMP) which is an unbounded, port-like multiplexing protocol. this protocol provides an alternative to the limited TCP and UDP ports (only ~65000 possible ports) via unbounded arrays of unsigned bytes.
+
 # structure
 
 | what                                                                                                    | docs file                                    |
