@@ -17,19 +17,19 @@ in addition, this project contains many networking tools and classes that are bu
 * vpn
 * onion network
 
-this project also contains implementation for my own protocol, called "endpoint multiplexing protocol" (EMP) which is an unbounded, port-like multiplexing protocol. this protocol provides an alternative to the limited TCP and UDP ports (only ~65000 possible ports) via unbounded arrays of unsigned bytes.
+this project also contains implementation for my own protocol, called "endpoint multiplexing protocol" (EMP) which is an unbounded, port-like multiplexing protocol. this protocol provides an alternative to the limited TCP/UDP ports (only ~65000 possible ports), by using unbounded arrays of unsigned bytes.
 
 # structure
 
-| what                                                                                                    | docs file                                    |
-|---------------------------------------------------------------------------------------------------------|----------------------------------------------|
-| abstract core networking logic used in the project                                                      | [networking_logic](docs/networking_logic.md) |
-| the various protocols implemented in the project                                                        | [protocols](docs/protocols.md)               |
-| my own protocol implemented in the project                                                              | [my own protocol](docs/my_own_protocol.md)   |  
-| extending the raw protocols implementations, the proejct includes common aggregation of protocol stacks | [protocol_stacks](docs/protocol_stacks.md)   |
-| practical, simple, direct communication protocols                                                       | [protocol_stacks](docs/protocol_stacks.md)   |
-| many networking tools implemented in the project and their main files                                   | [tools and main files](docs/tools_and_main.md)        |
-| linux related features and functions used in the project                                                | [linux](docs/linux_related.md)               |
+| what                                                                                                    | docs file                                        |
+|---------------------------------------------------------------------------------------------------------|--------------------------------------------------|
+| abstract core networking logic used in the project                                                      | [networking_logic](docs/networking_logic.md)     |
+| the various protocols implemented in the project                                                        | [protocols](docs/protocols.md)                   |
+| my own protocol implemented in the project                                                              | [my own protocol](docs/my_own_protocol.md)       |  
+| extending the raw protocols implementations, the proejct includes common aggregation of protocol stacks | [protocol stacks](docs/protocol_stacks.md)       |
+| practical, simple, direct communication protocols                                                       | [direct connections](docs/direct_connections.md) |
+| many networking tools implemented in the project and their main files                                   | [tools and main files](docs/tools_and_main.md)   |
+| linux related features and functions used in the project                                                | [linux](docs/linux_related.md)                   |
 
 # build
 
@@ -57,7 +57,7 @@ many targets are found within the file, each building some specific tool.
 # future TODOs
 * actually implemented TCP (current implementation just uses the linux api socket(), bind(), listen(), connect() and wrapps it with `session_generator`)
 * implement DHCP protocol and server
-* implemented ipv4 routing
+* implement ipv4 routing
 * implement port scanner like nmap
 * implement HTTP/S?
 * implement encryption and add it to the vpn tool
