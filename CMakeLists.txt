@@ -64,7 +64,7 @@ set(LINUX_SRC
         src/linux/osi/network_layer_gateway.cpp
 )
 
-set(DIRECT_CONNECTION
+set(DIRECT_CONNECTIONS_SRC
         src/direct_connections/udp/udp_client.cpp
         src/direct_connections/udp/udp_server.cpp
 
@@ -84,7 +84,7 @@ set(DIRECT_CONNECTION
 add_executable(vpn_daemon
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/vpn/vpn_daemon_main.cpp
@@ -94,7 +94,7 @@ add_executable(vpn_daemon
 add_executable(vpn_client
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/vpn/vpn_client_main.cpp
@@ -106,7 +106,7 @@ add_executable(vpn_client
 add_executable(remote_shell_util
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/remote_shell/remote_shell_util.cpp
@@ -116,7 +116,7 @@ add_executable(remote_shell_util
 add_executable(onion_network_node
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/onion_network/onion_network_node_main.cpp
@@ -127,7 +127,7 @@ add_executable(onion_network_node
 add_executable(onion_network_client
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/onion_network/onion_network_client_main.cpp
@@ -143,7 +143,7 @@ add_executable(onion_network_client
 add_executable(ping
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/ping/ping.cpp
@@ -153,7 +153,7 @@ add_executable(ping
 add_executable(traceroute
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/ping/traceroute.cpp
@@ -164,7 +164,7 @@ add_executable(traceroute
 add_executable(bandwidth
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/bandwidth/bandwidth.cpp
@@ -175,7 +175,7 @@ add_executable(bandwidth
 add_executable(netcat
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/netcat/netcat.cpp
@@ -185,7 +185,7 @@ add_executable(netcat
 add_executable(dns_server
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/dns/dns_server.cpp
@@ -196,7 +196,7 @@ add_executable(dns_server
 add_executable(dns_client
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/dns/dns_client.cpp
@@ -208,7 +208,7 @@ add_executable(dns_client
 add_executable(net_scanner
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/net_scanner/net_scanner.cpp
@@ -218,7 +218,7 @@ add_executable(net_scanner
 add_executable(net_intercept
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/net_intercept/net_intercept.cpp
@@ -228,7 +228,7 @@ add_executable(net_intercept
 add_executable(net_analyzer
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/net_analyzer/net_analyzer.cpp
@@ -238,7 +238,7 @@ add_executable(net_analyzer
 add_executable(mac_changer
         ${ABSTRACT_SRC}
         ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTION}
+        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/net_intercept/mac_changer.cpp

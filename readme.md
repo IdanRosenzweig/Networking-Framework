@@ -4,9 +4,9 @@ this project includes core networking software implemented from zero:
 
 * low-level packet analysis and processing framework (similar to the netfilter framework on linux)
 * raw implementation of common networking protocols
-* aggregation of protocols into widely used protocol stacks
+* aggregation of protocols into widely used protocol stacks and packets
 
-in addition, this project contains many networking tools built entirely on top of these networking capabilities:
+in addition, this project contains many networking tools and classes that are built entirely on top of these networking capabilities:
 
 * servers
 * clients
@@ -14,7 +14,6 @@ in addition, this project contains many networking tools built entirely on top o
 * interceptors
 * sniffers
 * analyzers
-* and more...
 
 # structure
 
@@ -35,6 +34,8 @@ the project uses the cmake build system, with the main build file CMakeFile.txt 
 aggregation of the abstract files is stored as ABSTRACT_STR.
 
 aggregation of the raw protocols files is stored as PROTOCOLS_SRC.
+
+aggregation of the direct connections files is stored as DIRECT_CONNECTIONS_SRC.
 
 aggregation of the linux related files is stores as LINUX_SRC.
 
