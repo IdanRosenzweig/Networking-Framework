@@ -25,7 +25,6 @@ int main(int argc, char **argv) {
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "interface to sniff traffic from")
-//            ("hd", po::value<bool>(), "show hexdump of packets")
             ;
 
     po::variables_map vm;

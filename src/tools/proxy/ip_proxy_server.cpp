@@ -66,21 +66,6 @@ void network_side_handler::handle_callback(recv_msg_t&& data) {
     struct ip4_header header;
     extract_from_network_order(&header, buff);
 
-//    for (conn_side_handler* server_app : raw_tcp_server->mappings[source]) {
-//        struct iphdr* ip_hdr = reinterpret_cast<iphdr *>(buff);
-//
-//        // change the dest address
-//        ip4_addr new_dest = server_app->my_source;
-//        write_in_network_order((uint8_t*) &ip_hdr->saddr, &new_dest);
-//
-//        // update checksum
-//        ip_hdr->check = 0;
-//        ip_hdr->check = internet_checksum(reinterpret_cast<const uint16_t *>(buff), sizeof(iphdr));
-//
-//        std::cout << "sending reply back to connection" << endl;
-//        server_app->send_data({buff, cnt});
-//    }
-
     // change dest ip address and write header back
     header.dest_addr = server->conn_handler->my_source;
     header.checksum = 0; // reset checksum

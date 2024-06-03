@@ -12,7 +12,6 @@ void dns_client_main(const string& iface, dns_record_type type, const string &ke
     std::shared_ptr<iface_access_point> raw_access = make_shared<iface_access_point>(iface);
 
     dns_client client(dns_server, get_ip_addr_of_iface(iface), new network_layer_gateway(raw_access));
-//    dns_client client(dns_server, new interface_gateway("virt0"));
 
     client.query(type, key);
 

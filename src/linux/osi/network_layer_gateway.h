@@ -9,8 +9,8 @@
 
 class network_layer_gateway : public gateway {
 private:
-    // in typical local networks, the send_medium to the network layer is through the router,
-    // as a default send_medium
+    // in typical local networks, the gateway to the network layer is through the router,
+    // as a default gatewau
 
     data_link_layer_gateway dataLinkLayerGateway;
     ethernet_protocol ether_prot;

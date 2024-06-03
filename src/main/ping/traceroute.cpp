@@ -12,7 +12,6 @@ void traceroute_main(const string& iface, ip4_addr dest_ip) {
     std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
 
     traceroute_util tracer(get_ip_addr_of_iface(iface), new network_layer_gateway(iface_access));
-//    traceroute_util tracer(new interface_gateway("virt0"));
 
     tracer.dest_ip.set_next_choice(dest_ip);
     tracer.trace_to_destination();
