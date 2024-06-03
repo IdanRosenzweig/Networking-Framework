@@ -11,9 +11,11 @@ in addition, this project contains many networking tools and classes that are bu
 * servers
 * clients
 * device scanners
-* interceptors
+* traffic interceptors
 * sniffers
 * analyzers
+* vpn
+* onion network
 
 # structure
 
