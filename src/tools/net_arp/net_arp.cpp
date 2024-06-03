@@ -73,7 +73,7 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
     }
 }
 
-vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip) {
+vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip, std::chrono::milliseconds delay) {
 #define BUFF_SZ 65536
     uint8_t buff[BUFF_SZ] = {0};
 
@@ -113,13 +113,13 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
 
         curr_ip = generate_next_ip(curr_ip);
 
-        std::this_thread::sleep_for(5ms);
+        std::this_thread::sleep_for(delay);
     }
 
     std::cout << "search sends completed, waiting for replies" << endl;
 
     // wait some reasonable time for all the replies
-    std::this_thread::sleep_for(3000ms);
+    std::this_thread::sleep_for(2000ms);
 
     vector<pair<ip4_addr, mac_addr>> res;
     while (!arp_recv_q.queue.is_empty()) {

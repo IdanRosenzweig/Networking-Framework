@@ -40,7 +40,7 @@ void conn_handler::handle_callback(recv_msg_t &&data) {
             continue;
         }
 
-        std::cout << "forwarded buff to connection with it " << (*it)->internal_id << endl;
+        std::cout << "forwarded data to connection with id " << (*it)->internal_id << endl;
         it++;
     }
 

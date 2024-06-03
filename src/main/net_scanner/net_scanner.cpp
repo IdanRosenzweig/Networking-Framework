@@ -16,12 +16,12 @@ void arp_scan_single_main(const string& iface, ip4_addr ip_addr) {
     cout << convert_to_str(scanner.search_for_mac_addr(ip_addr, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface))) << endl;
 }
 
-void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask) {
+void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask, chrono::duration<int64_t, milli> delay) {
     std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
 
     net_arp scanner(new data_link_layer_gateway(iface_access));
 
-    auto results = scanner.scan_entire_subnet(mask, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface));
+    auto results = scanner.scan_entire_subnet(mask, get_mac_addr_of_iface(iface), get_ip_addr_of_iface(iface), delay);
 
     std::cout << endl << "search result for subnet: " << convert_to_str(mask) << endl;
     for (auto& pair : results) {
@@ -34,12 +34,14 @@ void arp_scan_subnet_main(const string& iface, ip4_subnet_mask mask) {
 int main(int argc, char **argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("Allowed options");
+    po::options_description opts("scan local network for devices");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
             ("ip", po::value<string>(), "scan for single ip address")
-            ("subnet", po::value<string>(), "scan all ip addresses in a subnet");
+            ("subnet", po::value<string>(), "scan all ip addresses in a subnet")
+            ("delay,d", po::value<int>(), "if scanning a subnet, this specifies the delay between the scanning of individual address (in ms). default is 5ms")
+            ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);
@@ -61,7 +63,11 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (vm.count("subnet")) {
-        arp_scan_subnet_main(iface, convert_to_ip4_subnet_mask(vm["subnet"].as<string>()));
+        int delay;
+        if (!vm.count("delay")) delay = 5;
+        else delay = vm["ip"].as<int>();
+
+        arp_scan_subnet_main(iface, convert_to_ip4_subnet_mask(vm["subnet"].as<string>()),std::chrono::milliseconds(delay));
         return 0;
     }
 

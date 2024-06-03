@@ -21,7 +21,7 @@ void dns_client_main(const string& iface, dns_record_type type, const string &ke
 int main(int argc, char **argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("Allowed options");
+    po::options_description opts("perform dns queries");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")

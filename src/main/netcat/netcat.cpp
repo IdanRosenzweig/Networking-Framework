@@ -82,10 +82,8 @@ void netcat_client_main(const string& iface, ip4_addr dest_ip, uint16_t port) {
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
-        if (res == 0) {
-            std::cerr << "can't send buff to server" << endl;
-        } else if (res == SEND_MEDIUM_ERROR) {
-            std::cerr << "err sending buff to server" << endl;
+        if (res == 0 || res == SEND_MEDIUM_ERROR) {
+            std::cerr << "err sending data to server" << endl;
         }
     }
 }
@@ -94,7 +92,7 @@ void netcat_client_main(const string& iface, ip4_addr dest_ip, uint16_t port) {
 int main(int argc, char **argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("send and receive raw text");
+    po::options_description opts("tool for sending and receiving raw text");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")

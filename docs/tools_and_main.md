@@ -103,7 +103,7 @@ similar to a TOR network, this project contains an implementation for a simple o
 
 server daemon to deploy. the machine running this server must be somehow connected to the ip network. this class is essentially a wrapper around `ip_proxy_server` which uses udp to listen to clients.
 
-sample main file for using this tool can be found under `src/main/network/onion_network_node_main.cpp`
+sample main file for using this tool can be found under `src/main/network/onion_network_node_start_main.cpp`
 
 **onion_network_client**:
 

@@ -21,7 +21,7 @@ void net_analyzer_main(const string& iface) {
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-    po::options_description opts("Allowed options");
+    po::options_description opts("analyze traffic of an interface");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "interface to sniff traffic from")

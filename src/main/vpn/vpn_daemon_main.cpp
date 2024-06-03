@@ -24,7 +24,7 @@ void vpn_daemon_main(const string &local_iface) {
 int main(int argc, char **argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("vpn daemon");
+    po::options_description opts("start a vpn daemon");
     opts.add_options()
             ("help,h", "print tool use description")
             ("local-iface", po::value<string>(), "linux interface to use to connect to the local network and to clients")

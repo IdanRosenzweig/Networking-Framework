@@ -82,10 +82,8 @@ void shell_client_main(const string& iface, ip4_addr server_ip, uint16_t dest_po
         memcpy(send.get_active_buff(), str.c_str(), str.size());
         send.set_count(str.size());
         int res = client.send_data(std::move(send));
-        if (res == 0) {
-            std::cerr << "can't send buff to server" << endl;
-        } else if (res == SEND_MEDIUM_ERROR) {
-            std::cerr << "err sending buff to server" << endl;
+        if (res == 0 || res == SEND_MEDIUM_ERROR) {
+            std::cerr << "err sending data to server" << endl;
         }
     }
 }
@@ -104,7 +102,7 @@ int main(int argc, char** argv) {
 
             ("dest", po::value<string>(), "used for client, dest ip address of the server to connect to")
             ("port", po::value<uint16_t>(),
-             "if used for client, this is the port that the server listens on.\nif used on server. this is the port to listen on");
+             "if used for client, this is the port that the server listens on. if not specified, uses some default value\nif used on server, this is the port to listen on. if not specified, uses some default value");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);

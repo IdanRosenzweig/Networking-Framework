@@ -53,10 +53,11 @@ many targets are found within the file, each building some specific tool.
 * actually implemented TCP (current implementation just uses the linux api socket(), bind(), listen(), connect() and wrapps it with `session_generator`)
 * implement DHCP protocol and server
 * implemented ipv4 routing
-* implement port scanner (like nmap)
+* implement port scanner like nmap
 * implement HTTP/S?
 * implement encryption and add it to the vpn tool
 * extend the ip_proxy_server to handle multiple clients (currently handles one client at a time)
 * implement more records types in dns client & server
 * implement a kernel network hook in linux so that a `firewall` can actually block system-wide packets and not only local `connection` classes
 * implement SSH?
+* implement SOCKS api for the onion network (current implementation merely opens a virtual interface which ip traffic can be sent to and received from)

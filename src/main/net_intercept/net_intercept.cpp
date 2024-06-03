@@ -19,7 +19,7 @@ void net_intercept_main(const string &iface, const vector<ip4_addr> &victim, ip4
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
-    po::options_description opts("Allowed options");
+    po::options_description opts("intercept victims' traffic towards some destination. you can block or just sniff the traffic.");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
@@ -27,8 +27,7 @@ int main(int argc, char **argv) {
              "victims' ip for the attack. if not specified, sends to whole network (broadcast)")
             ("dest", po::value<string>(),
              "destination ip from the victims into")
-            ("block", po::value<bool>(),
-             "blocks the traffic, in addition to sniffing it. if not specified, true by default");
+            ("block", "blocks the traffic, in addition to sniffing it.");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);
@@ -52,10 +51,9 @@ int main(int argc, char **argv) {
     }
     string dest = vm["dest"].as<string>();
 
-    bool block = true;
-    if (vm.count("block")) {
-        block = vm["block"].as<bool>();
-    }
+    bool block;
+    if (vm.count("block")) block = true;
+    else block = false;
 
     vector<string> victims;
     if (vm.count("victims")) {

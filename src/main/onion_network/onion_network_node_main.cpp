@@ -22,7 +22,7 @@ void onion_network_node_main(const string& net_layer_iface) {
 int main(int argc, char** argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("Allowed options");
+    po::options_description opts("start onion network server daemon");
     opts.add_options()
             ("help,h", "print tool use description")
             ("net-layer-iface", po::value<string>(), "linux interface which can be used to send buff to the network layer")

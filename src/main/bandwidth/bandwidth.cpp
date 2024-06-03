@@ -27,7 +27,7 @@ void bandwidth_main(const string& iface, std::chrono::milliseconds interval) {
 int main(int argc, char** argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("Allowed options");
+    po::options_description opts("display the amount of outgoing/incoming traffic of an interface");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")

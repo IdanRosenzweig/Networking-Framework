@@ -29,7 +29,7 @@ public:
     mac_addr search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip4_addr src_ip);
 
     // scan the entire subnet for its ip addresses and their associated mac addresses
-    vector<pair<ip4_addr, mac_addr>> scan_entire_subnet(ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip);
+    vector<pair<ip4_addr, mac_addr>> scan_entire_subnet(ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip, std::chrono::milliseconds delay);
 
 
     // spoof the victims_ip devices into thinking that the target_ip address

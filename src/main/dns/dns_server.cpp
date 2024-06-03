@@ -22,7 +22,7 @@ void dns_server_main(const string& iface, const string& db_path) {
 int main(int argc, char** argv) {
     namespace po = boost::program_options;
 
-    po::options_description opts("Allowed options");
+    po::options_description opts("start dns sever daemon");
     opts.add_options()
             ("help,h", "print tool use description")
             ("iface", po::value<string>(), "linux interface to use")
