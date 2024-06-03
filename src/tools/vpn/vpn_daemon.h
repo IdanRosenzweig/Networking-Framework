@@ -25,7 +25,7 @@ class vpn_daemon {
 
     } handler;
 
-    data_link_layer_gateway dataLinkLayerGateway; // todo fix this
+    gateway * data_link_layer_gw;
     block_incoming_tcp block_filter;
     firewall gateway_firewall;
 
@@ -36,7 +36,7 @@ class vpn_daemon {
     conn_aggregator aggregator;
 
 public:
-    vpn_daemon(const weak_ptr<iface_access_point>& access);
+    vpn_daemon(const string& iface, gateway *gw);
 
 
 };
