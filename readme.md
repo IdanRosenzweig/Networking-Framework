@@ -14,7 +14,8 @@ In addition, I implemented various networking tools and utilities which are all 
 * vpn
 * onion network
 
-I also designed and implemented my own protocol called "endpoint multiplexing protocol" (EMP) which provides unbounded, efficient, port-like multiplexing functionality. It is an alternative to the limited TCP/UDP port range (only ~65000 distinct values), which uses unbounded arrays of unsigned bytes.
+I also designed and implemented my own protocol called "endpoint multiplexing protocol" (EMP) which provides unbounded, efficient, port-like multiplexing functionality.
+It is an alternative to the limited TCP/UDP port range (only ~65000 distinct values), and uses unbounded arrays of unsigned bytes.
 
 ## structure
 
