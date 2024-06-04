@@ -1,13 +1,10 @@
-# overview
+# Comprehensive Networking Framework and Tools Suite
 
-this project includes core networking software implemented from zero:
+## overview
+I developed a comprehensive networking framework designed primarily for high-performance packet analysis and processing.
+This robust framework supports most modern protocols (specifically the TCP/IP protocol suite) and contains further core networking software and logic, all implemented from zero.
 
-* low-level packet analysis and processing framework (similar to the netfilter framework on linux)
-* raw implementation of common networking protocols
-* aggregation of protocols into widely used protocol stacks and packets
-
-in addition, this project contains many networking tools and classes that are built entirely on top of these networking capabilities:
-
+In addition, I implemented various networking tools and utilities which are all built entirely on top of the networking capabilities of the framework. Those include:
 * servers
 * clients
 * device scanners
@@ -17,9 +14,9 @@ in addition, this project contains many networking tools and classes that are bu
 * vpn
 * onion network
 
-this project also contains implementation for my own protocol, called "endpoint multiplexing protocol" (EMP) which is an unbounded, port-like multiplexing protocol. this protocol provides an alternative to the limited TCP/UDP ports (only ~65000 possible ports), by using unbounded arrays of unsigned bytes.
+I also designed and implemented my own protocol called "endpoint multiplexing protocol" (EMP) which provides unbounded, efficient, port-like multiplexing functionality. It is an alternative to the limited TCP/UDP port range (only ~65000 distinct values), which uses unbounded arrays of unsigned bytes.
 
-# structure
+## structure
 
 | what                                                                                                    | docs file                                        |
 |---------------------------------------------------------------------------------------------------------|--------------------------------------------------|
@@ -31,7 +28,7 @@ this project also contains implementation for my own protocol, called "endpoint 
 | many networking tools implemented in the project and their main files                                   | [tools and main files](docs/tools_and_main.md)   |
 | linux related features and functions used in the project                                                | [linux](docs/linux_related.md)                   |
 
-# build
+## build
 
 the project uses the cmake build system, with the main build file CMakeFile.txt located at the root directory.
 
@@ -45,7 +42,7 @@ aggregation of the linux related files is stores as LINUX_SRC.
 
 many targets are found within the file, each building some specific tool.
 
-# dependencies
+## dependencies
 
 * this project uses the linux pcap library (libpcap) merely to listen to raw packets coming in/out of linux interfaces
   in a synchronized manner.
@@ -54,7 +51,7 @@ many targets are found within the file, each building some specific tool.
   if you don't want to depend on boost, change the main files and replace the part that uses boost with your own
   argument parser.
 
-# future TODOs
+## future TODOs
 * actually implemented TCP (current implementation just uses the linux api socket(), bind(), listen(), connect() and wrapps it with `session_generator`)
 * implement DHCP protocol and server
 * implement ipv4 routing
