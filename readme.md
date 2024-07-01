@@ -1,21 +1,21 @@
 # Networking Framework and Tools Suite
 
 ## overview
-I developed a comprehensive networking framework designed primarily for high-performance packet analysis and processing.
-This robust framework supports most modern protocols (specifically the TCP/IP protocol suite) and contains further core networking software and logic, all implemented from zero.
+I developed a comprehensive networking framework designed primarily for high-performance processing of raw packets.
+The framework implements most modern protocols (specifically the TCP/IP protocol suite) and contains further core networking software and logic, all implemented from scratch.
 
-In addition, I implemented various networking tools and utilities which are all built entirely on top of the networking capabilities of the framework. Those include:
-* servers
-* clients
-* device scanners
-* traffic interceptors
-* sniffers
-* analyzers
-* vpn
-* onion network
+In addition, I implemented various networking tools and utilities built entirely on top of the framework, including:
+- DNS server & client
+- Remote access VPN
+- IPv4 onion network proxies & client (like TOR)
+- Network traffic scanner & analyzer (like Wireshark/tcpdump)
+- ARP scanner & spoofer 
+- Netcat for raw data communication
+- Remote shell access
+- Ping & Traceroute troubleshooting tools
 
 I also designed and implemented my own protocol called "endpoint multiplexing protocol" (EMP) which provides unbounded, efficient, port-like multiplexing functionality.
-It is an alternative to the limited TCP/UDP port range (only ~65000 distinct values), and uses unbounded arrays of unsigned bytes.
+It is an alternative to the limited TCP/UDP port range (only ~65,000 values), and uses unbounded arrays of unsigned bytes.
 
 ## structure
 
