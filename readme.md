@@ -1,4 +1,4 @@
-# Comprehensive Networking Framework and Tools Suite
+# Networking Framework and Tools Suite
 
 ## overview
 I developed a comprehensive networking framework designed primarily for high-performance packet analysis and processing.
