@@ -4,15 +4,15 @@
 I developed a comprehensive networking framework designed primarily for high-performance processing of raw packets.
 The framework implements most modern protocols (specifically the TCP/IP protocol suite) and contains further core networking software and logic, all implemented from scratch.
 
-In addition, I implemented various networking tools and utilities built entirely on top of the framework, including:
+In addition, I implemented a wide range of modern networking tools which are all built entirely on top of the networking framework:
+- Network sniffer & analyzer (like Wireshark/tcpdump)
+- Remote access VPN (like openvpn)
 - DNS server & client
-- Remote access VPN
-- IPv4 onion network proxies & client (like TOR)
-- Network traffic scanner & analyzer (like Wireshark/tcpdump)
-- ARP scanner & spoofer 
-- Netcat for raw data communication
-- Remote shell access
-- Ping & Traceroute troubleshooting tools
+- Onion network proxies & client (like TOR)
+- Secure remote shell control (like SSH shell)
+- Firewall with custom filter (like iptables)
+- ARP spoofer & scanner (like Ettercap)
+- and many more
 
 I also designed and implemented my own protocol called "endpoint multiplexing protocol" (EMP) which provides unbounded, efficient, port-like multiplexing functionality.
 It is an alternative to the limited TCP/UDP port range (only ~65,000 values), and uses unbounded arrays of unsigned bytes.
