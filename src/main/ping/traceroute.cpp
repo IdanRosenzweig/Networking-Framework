@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     }
     string dest = vm["ip"].as<string>();
 
-    traceroute_main(interface, convert_to_ip4_addr(dest));
+    traceroute_main(interface, str_to_ip4_addr(dest));
 
 }
 

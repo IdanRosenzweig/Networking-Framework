@@ -21,7 +21,7 @@ class conn_side_handler : public msg_send_medium, public msg_recv_listener {
     connection * my_conn;
 
 public:
-    ip4_addr my_source = empty_ip4_addr;
+    ip4_addr my_source = ip4_addr_empty;
 
     explicit conn_side_handler(connection *myConn) : my_conn(myConn) {
         my_conn->add_listener(this);

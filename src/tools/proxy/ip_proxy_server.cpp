@@ -57,7 +57,7 @@ void network_side_handler::handle_callback(recv_msg_t&& data) {
     // make sure there are connections to send the packet to
     // so no nullptr dereference or shit like that happens
     if (server->conn_handler == nullptr) return;
-    if (server->conn_handler->my_source == empty_ip4_addr) return;
+    if (server->conn_handler->my_source == ip4_addr_empty) return;
 
     uint8_t *buff = data.buff_at_curr_offset();
     size_t cnt = data.buff_cnt_at_curr_offset();

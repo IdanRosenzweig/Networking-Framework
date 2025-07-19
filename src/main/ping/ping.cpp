@@ -61,6 +61,6 @@ int main(int argc, char** argv) {
     if (!vm.count("interval")) interval = 1000;
     else interval = vm["interval"].as<int>();
 
-    ping_main(interface, convert_to_ip4_addr(dest), count, std::chrono::milliseconds(interval));
+    ping_main(interface, str_to_ip4_addr(dest), count, std::chrono::milliseconds(interval));
 
 }

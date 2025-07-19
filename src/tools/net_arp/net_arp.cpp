@@ -44,7 +44,7 @@ mac_addr net_arp::search_for_mac_addr(ip4_addr searched_ip, mac_addr src_mac, ip
 
     ether_client.next_protocol.set_next_choice(ethernet_header::ethertype_values::arp);
     ether_client.next_source_addr.set_next_choice(src_mac);
-    ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
+    ether_client.next_dest_addr.set_next_choice(mac_addr_broadcast);
 
     while (true) {
         // send frame
@@ -103,7 +103,7 @@ vector<pair<ip4_addr, mac_addr>> net_arp::scan_entire_subnet(ip4_subnet_mask mas
         // req
         ether_client.next_protocol.set_next_choice(ethernet_header::ethertype_values::arp);
         ether_client.next_source_addr.set_next_choice(src_mac);
-        ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
+        ether_client.next_dest_addr.set_next_choice(mac_addr_broadcast);
 
         int cnt = sizeof(ether_arp);
         send_msg_t request;
@@ -176,7 +176,7 @@ void net_arp::spoof_as_device(const std::vector<ip4_addr> &victims_ip, ip4_addr 
             memset(arp_header->arp_tha, 0xff, ETH_ALEN);
             memset(arp_header->arp_tpa, 0x00, 4);
 
-            ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
+            ether_client.next_dest_addr.set_next_choice(mac_addr_broadcast);
             ether_client.next_protocol.set_next_choice(ethernet_header::ethertype_values::arp);
 
             int cnt = sizeof(ether_arp);
@@ -245,7 +245,7 @@ void net_arp::announce_new_mac(ip4_addr src_ip, mac_addr new_mac) {
 
     ether_client.next_protocol.set_next_choice(ethernet_header::ethertype_values::arp);
     ether_client.next_source_addr.set_next_choice(new_mac);
-    ether_client.next_dest_addr.set_next_choice(BROADCAST_MAC);
+    ether_client.next_dest_addr.set_next_choice(mac_addr_broadcast);
 
     // send frame
     int cnt = sizeof(ether_arp);

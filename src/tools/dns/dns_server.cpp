@@ -155,7 +155,7 @@ void add_a_record(dns_server *server, std::ifstream &input) {
     input >> ip;
 
     auto node = server->mappings_type_a.add_word(domain);
-    node->key = convert_to_ip4_addr(ip);
+    node->key = str_to_ip4_addr(ip);
 }
 
 void add_mx_record(dns_server *server, std::ifstream &input) {

@@ -19,6 +19,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 # add root dir to include path
 include_directories(${CMAKE_SOURCE_DIR})
 
+# compile flags
+add_compile_options(-Werror=return-type)
 
 set(ABSTRACT_SRC
         # src/protocols/protocol_t.cpp
@@ -96,10 +98,15 @@ add_executable(test
         src/protocols/ether/ethernet_header.cpp
         src/protocols/ether/mac_addr.cpp
 
+        src/protocols/arp/arp_header.cpp
+        src/protocols/arp/arp_protocol.cpp
+
         # src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
         src/protocols/ip4/internet_checksum.cpp
         src/protocols/ip4/ip4_header.cpp
+
+        src/tools/arp_scanner/arp_scanner.cpp
 )
 
 add_executable(vpn_daemon

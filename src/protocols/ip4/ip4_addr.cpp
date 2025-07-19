@@ -48,12 +48,9 @@ ip4_addr generate_next_ip(ip4_addr addr) {
     return next_ip;
 }
 
-ip4_addr convert_to_ip4_addr(const string &str) {
+optional<ip4_addr> str_to_ip4_addr(string const& str) {
     unsigned int a, b, c, d;
-    if (sscanf(str.c_str(), "%d.%d.%d.%d", &a, &b, &c, &d) != 4) {
-        std::cerr << "can't convert ip4 address" << std::endl;
-        throw;
-    }
+    if (sscanf(str.c_str(), "%u.%u.%u.%u", &a, &b, &c, &d) != 4) return {};
 
     ip4_addr addr;
     addr.octets[0] = a;
@@ -64,7 +61,7 @@ ip4_addr convert_to_ip4_addr(const string &str) {
     return addr;
 }
 
-string convert_to_str(ip4_addr ip_addr) {
+string ip4_addr_to_str(ip4_addr const& ip_addr) {
     return to_string(ip_addr.octets[0])
            + "." + to_string(ip_addr.octets[1])
            + "." + to_string(ip_addr.octets[2])
@@ -82,14 +79,22 @@ int extract_from_network_order(ip4_addr* dest, uint8_t const* source) {
 }
 
 
-ip4_subnet_mask convert_to_ip4_subnet_mask(const string &str) {
-    int slash = str.find('/');
-    return {convert_to_ip4_addr(str.substr(0, slash)),
-            std::stoi(str.substr(slash + 1))};
+optional<ip4_subnet_mask> str_to_ip4_subnet_mask(string const& str) {
+    auto slash = str.find('/');
+    if (slash == string::npos) return {};
+
+    ip4_addr ip;
+    if (auto res = str_to_ip4_addr(str.substr(0, slash)); res.has_value()) ip = res.value();
+    else return {};
+
+    int mask = std::stoi(str.substr(slash + 1));
+    if (!(0 <= mask <= 32)) return {};
+
+    return {{ip, mask}};
 }
 
-string convert_to_str(ip4_subnet_mask mask) {
-    return convert_to_str(mask.base_addr) + "/" + to_string(mask.no_mask_bits);
+string ip4_subnet_mask_to_str(ip4_subnet_mask mask) {
+    return ip4_addr_to_str(mask.base_addr) + "/" + to_string(mask.no_mask_bits);
 }
 
 ip4_addr smallest_ip_addr_in_subnet(ip4_subnet_mask subnet) {

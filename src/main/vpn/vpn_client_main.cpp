@@ -85,6 +85,6 @@ int main(int argc, char** argv) {
     }
     string subnet = vm["subnet"].as<string>();
 
-    vpn_client_main(iface, "virt0", convert_to_ip4_addr(daemon_ip), convert_to_ip4_addr(new_ip), convert_to_ip4_subnet_mask(subnet));
+    vpn_client_main(iface, "virt0", str_to_ip4_addr(daemon_ip), str_to_ip4_addr(new_ip), convert_to_ip4_subnet_mask(subnet));
 
 }

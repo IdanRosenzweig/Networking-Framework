@@ -8,7 +8,7 @@ end
 
 if not test -f "$build_dir/CMakeCache.txt"
     echo "configuring cmake"
-    cmake -S . -B $build_dir
+    cmake -DCMAKE_BUILD_TYPE=Debug -S . -B $build_dir
 end
 
 if count $argv > /dev/null

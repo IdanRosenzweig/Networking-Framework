@@ -65,6 +65,6 @@ int main(int argc, char **argv) {
     }
     string key = vm["key"].as<string>();
 
-    dns_client_main(iface, str_to_record_type(type), key, convert_to_ip4_addr(server_ip));
+    dns_client_main(iface, str_to_record_type(type), key, str_to_ip4_addr(server_ip));
 
 }

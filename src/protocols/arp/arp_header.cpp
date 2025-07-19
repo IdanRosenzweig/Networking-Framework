@@ -1,5 +1,7 @@
 #include "arp_header.h"
 
+#include <cstdio>
+
 size_t write_in_network_order(uint8_t* dest, arp_header const* src) {
     uint8_t* dest_orig = dest;
 
@@ -16,13 +18,19 @@ size_t write_in_network_order(uint8_t* dest, arp_header const* src) {
     *(uint16_t*)dest = htons(src->op);
     dest += sizeof(src->op);
 
+    if (src->sender_hard_addr.size() != src->hard_addr_sz) {puts("size doesn't match");abort();} // todo make this function return optional<size_t> instead of aborting
     memcpy(dest, src->sender_hard_addr.data(), src->hard_addr_sz);
     dest += src->hard_addr_sz;
+
+    if (src->sender_prot_addr.size() != src->prot_addr_sz) {puts("size doesn't match");abort();} // todo make this function return optional<size_t> instead of aborting
     memcpy(dest, src->sender_prot_addr.data(), src->prot_addr_sz);
     dest += src->prot_addr_sz;
 
+    if (src->target_hard_addr.size() != src->hard_addr_sz) {puts("size doesn't match");abort();} // todo make this function return optional<size_t> instead of aborting
     memcpy(dest, src->target_hard_addr.data(), src->hard_addr_sz);
     dest += src->hard_addr_sz;
+
+    if (src->target_prot_addr.size() != src->prot_addr_sz) {puts("size doesn't match");abort();} // todo make this function return optional<size_t> instead of aborting
     memcpy(dest, src->target_prot_addr.data(), src->prot_addr_sz);
     dest += src->prot_addr_sz;
 
@@ -37,22 +45,22 @@ size_t extract_from_network_order(arp_header* dest, uint8_t const* src) {
     dest->prot_type = ntohs(*(uint16_t*)src);
     src += sizeof(dest->prot_type);
 
-    dest->hard_addr_sz = ntohs(*(uint8_t*)src);
+    dest->hard_addr_sz = *(uint8_t*)src;
     src += sizeof(dest->hard_addr_sz);
-    dest->prot_addr_sz = ntohs(*(uint8_t*)src);
+    dest->prot_addr_sz = *(uint8_t*)src;
     src += sizeof(dest->prot_addr_sz);
 
     dest->op = ntohs(*(uint16_t*)src);
     src += sizeof(dest->op);
 
-    dest->sender_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz);
+    dest->sender_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz); // todo fix vuln here
     src += dest->hard_addr_sz;
-    dest->sender_prot_addr = vector<uint8_t>(src, src + dest->prot_addr_sz);
+    dest->sender_prot_addr = vector<uint8_t>(src, src + dest->prot_addr_sz); // todo fix vuln here
     src += dest->prot_addr_sz;
 
-    dest->target_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz);
+    dest->target_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz); // todo fix vuln here
     src += dest->hard_addr_sz;
-    dest->target_prot_addr = vector<uint8_t>(src, src + dest->prot_addr_sz);
+    dest->target_prot_addr = vector<uint8_t>(src, src + dest->prot_addr_sz); // todo fix vuln here
     src += dest->prot_addr_sz;
 
     return src - src_orig;

@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
         }
         string dest = vm["dest"].as<string>();
 
-        netcat_client_main(iface, convert_to_ip4_addr(dest), port);
+        netcat_client_main(iface, str_to_ip4_addr(dest), port);
     }
 
 }

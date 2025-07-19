@@ -67,10 +67,10 @@ int main(int argc, char **argv) {
     else
         for (string &victim: victims) {
             std::cout << victim << ", ";
-            victims_ip.push_back(convert_to_ip4_addr(victim));
+            victims_ip.push_back(str_to_ip4_addr(victim));
         }
     std::cout << endl;
 
-    net_intercept_main(interface, victims_ip, convert_to_ip4_addr(dest), block);
+    net_intercept_main(interface, victims_ip, str_to_ip4_addr(dest), block);
 
 }

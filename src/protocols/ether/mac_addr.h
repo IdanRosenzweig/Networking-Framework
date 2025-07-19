@@ -21,7 +21,8 @@ struct mac_addr {
     bool operator>=(const mac_addr &rhs) const;
 };
 
-#define BROADCAST_MAC (mac_addr{0xff,0xff,0xff,0xff,0xff,0xff})
+#define mac_addr_broadcast (mac_addr{{0xff,0xff,0xff,0xff,0xff,0xff}})
+#define mac_addr_empty (mac_addr{{0x00,0x00,0x00,0x00,0x00,0x00}})
 
 optional<mac_addr> str_to_mac_addr(string const& str);
 // mac_addr convert_to_mac_addr(const std::string& str);

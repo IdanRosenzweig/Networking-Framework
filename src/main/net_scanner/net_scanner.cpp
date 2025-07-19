@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     string iface = vm["iface"].as<string>();
 
     if (vm.count("ip")) {
-        arp_scan_single_main(iface, convert_to_ip4_addr(vm["ip"].as<string>()));
+        arp_scan_single_main(iface, str_to_ip4_addr(vm["ip"].as<string>()));
         return 0;
     }
     if (vm.count("subnet")) {

@@ -287,7 +287,6 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface) {
     // setup the send access
     struct my_send : public basic_send_medium<vector<uint8_t>> {
         int fd;
-
         my_send(int fd) : fd(fd) {}
 
         err_t send_data(vector<uint8_t> const& data) override {

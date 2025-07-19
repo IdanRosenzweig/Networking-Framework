@@ -1,8 +1,8 @@
-#ifndef NETWORKING_IP4_ADDR_H
-#define NETWORKING_IP4_ADDR_H
+#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
+#include <optional>
 using namespace std;
 
 struct ip4_addr {
@@ -21,13 +21,13 @@ struct ip4_addr {
     bool operator>=(const ip4_addr &rhs) const;
 };
 
-#define empty_ip4_addr ip4_addr{{0,0,0,0}}
+#define ip4_addr_empty (ip4_addr{{0,0,0,0}})
 
 ip4_addr generate_next_ip(ip4_addr addr);
 
-ip4_addr convert_to_ip4_addr(const string &str);
+optional<ip4_addr> str_to_ip4_addr(string const& str);
 
-string convert_to_str(ip4_addr ip_addr);
+string ip4_addr_to_str(ip4_addr const& ip_addr);
 
 int write_in_network_order(uint8_t* dest, ip4_addr const* source);
 
@@ -39,13 +39,11 @@ struct ip4_subnet_mask {
     int no_mask_bits; // the number of bits corresponding to the network mask
 };
 
-ip4_subnet_mask convert_to_ip4_subnet_mask(const string &str);
+optional<ip4_subnet_mask> str_to_ip4_subnet_mask(string const& str);
 
-string convert_to_str(ip4_subnet_mask mask);
+string ip4_subnet_mask_to_str(ip4_subnet_mask mask);
 
 ip4_addr smallest_ip_addr_in_subnet(ip4_subnet_mask subnet);
 
 bool is_inside_subnet(ip4_subnet_mask subnet, ip4_addr ip);
 
-
-#endif //NETWORKING_IP4_ADDR_H
