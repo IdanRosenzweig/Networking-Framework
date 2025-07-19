@@ -1,0 +1,59 @@
+#include "arp_header.h"
+
+size_t write_in_network_order(uint8_t* dest, arp_header const* src) {
+    uint8_t* dest_orig = dest;
+
+    *(uint16_t*)dest = htons(src->hard_type);
+    dest += sizeof(src->hard_type);
+    *(uint16_t*)dest = htons(src->prot_type);
+    dest += sizeof(src->prot_type);
+
+    *(uint8_t*)dest = src->hard_addr_sz;
+    dest += sizeof(src->hard_addr_sz);
+    *(uint8_t*)dest = src->prot_addr_sz;
+    dest += sizeof(src->prot_addr_sz);
+
+    *(uint16_t*)dest = htons(src->op);
+    dest += sizeof(src->op);
+
+    memcpy(dest, src->sender_hard_addr.data(), src->hard_addr_sz);
+    dest += src->hard_addr_sz;
+    memcpy(dest, src->sender_prot_addr.data(), src->prot_addr_sz);
+    dest += src->prot_addr_sz;
+
+    memcpy(dest, src->target_hard_addr.data(), src->hard_addr_sz);
+    dest += src->hard_addr_sz;
+    memcpy(dest, src->target_prot_addr.data(), src->prot_addr_sz);
+    dest += src->prot_addr_sz;
+
+    return dest - dest_orig;
+}
+
+size_t extract_from_network_order(arp_header* dest, uint8_t const* src) {
+    uint8_t const* src_orig = src;
+
+    dest->hard_type = ntohs(*(uint16_t*)src);
+    src += sizeof(dest->hard_type);
+    dest->prot_type = ntohs(*(uint16_t*)src);
+    src += sizeof(dest->prot_type);
+
+    dest->hard_addr_sz = ntohs(*(uint8_t*)src);
+    src += sizeof(dest->hard_addr_sz);
+    dest->prot_addr_sz = ntohs(*(uint8_t*)src);
+    src += sizeof(dest->prot_addr_sz);
+
+    dest->op = ntohs(*(uint16_t*)src);
+    src += sizeof(dest->op);
+
+    dest->sender_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz);
+    src += dest->hard_addr_sz;
+    dest->sender_prot_addr = vector<uint8_t>(src, src + dest->prot_addr_sz);
+    src += dest->prot_addr_sz;
+
+    dest->target_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz);
+    src += dest->hard_addr_sz;
+    dest->target_prot_addr = vector<uint8_t>(src, src + dest->prot_addr_sz);
+    src += dest->prot_addr_sz;
+
+    return src - src_orig;
+}

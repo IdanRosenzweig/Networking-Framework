@@ -71,12 +71,12 @@ string convert_to_str(ip4_addr ip_addr) {
            + "." + to_string(ip_addr.octets[3]);
 }
 
-int write_in_network_order(uint8_t *dest, ip4_addr *source) {
+int write_in_network_order(uint8_t* dest, ip4_addr const* source) {
     memcpy(dest, source->octets, sizeof(ip4_addr::octets));
     return sizeof(ip4_addr::octets);
 }
 
-int extract_from_network_order(ip4_addr *dest, uint8_t *source) {
+int extract_from_network_order(ip4_addr* dest, uint8_t const* source) {
     memcpy(dest->octets, source, sizeof(ip4_addr::octets));
     return sizeof(ip4_addr::octets);
 }

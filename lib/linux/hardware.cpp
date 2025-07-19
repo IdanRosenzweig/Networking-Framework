@@ -1,25 +1,28 @@
 #include "hardware.h"
-#include "../error_codes.h"
+#include "error_codes.h"
 
 #include <linux/if.h>
 #include <linux/if_ether.h>
 #include <linux/if_arp.h>
-#include <cstring>
-#include <cstdio>
+
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <netinet/in.h>
+
+#include <cstring>
+#include <cstdio>
 #include <iostream>
 using namespace std;
 
-mac_addr get_mac_addr_of_iface(const string &iface) {
+
+optional<mac_addr> get_mac_addr_of_iface(string const& iface) {
     struct ifreq ifr;
     memset(&ifr, 0, sizeof ifr);
     snprintf(ifr.ifr_name, IFNAMSIZ, "%s", iface.c_str());
 
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (ioctl(temp_fd, SIOCGIFHWADDR, &ifr) == IOCTL_ERROR)
-        return {0};
+        return {};
     close(temp_fd);
 
     mac_addr addr;
@@ -29,7 +32,7 @@ mac_addr get_mac_addr_of_iface(const string &iface) {
     return addr;
 }
 
-void set_mac_addr_for_iface(const string &iface, mac_addr new_addr) {
+void set_mac_addr_for_iface(string const& iface, mac_addr new_addr) {
     struct ifreq ifr;
     memset(&ifr, 0, sizeof ifr);
     snprintf(ifr.ifr_name, IFNAMSIZ, "%s", iface.c_str());
@@ -44,7 +47,7 @@ void set_mac_addr_for_iface(const string &iface, mac_addr new_addr) {
 
 }
 
-ip4_addr get_ip_addr_of_iface(const string &iface) {
+optional<ip4_addr> get_ip_addr_of_iface(string const& iface) {
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     // Get the private ip address of our device
@@ -52,8 +55,7 @@ ip4_addr get_ip_addr_of_iface(const string &iface) {
     memset(&my_priv_ip, 0, sizeof(struct ifreq));
     strncpy(my_priv_ip.ifr_name, iface.c_str(), IFNAMSIZ - 1);
     if (ioctl(temp_fd, SIOCGIFADDR, &my_priv_ip) == IOCTL_ERROR)
-        perror("SIOCGIFADDR");
-
+        return {};
     close(temp_fd);
 
     ip4_addr ip;
@@ -62,19 +64,19 @@ ip4_addr get_ip_addr_of_iface(const string &iface) {
     return ip;
 }
 
-ip4_addr get_default_gateway_of_iface(const string &iface) {
+optional<ip4_addr> get_default_gateway_of_iface(string const& iface) {
 #define ROUTE_FILE "/proc/net/route"
     FILE *fp = fopen(ROUTE_FILE, "r");
     if (fp == nullptr) {
         std::cerr << "can't open " ROUTE_FILE << std::endl;
-        throw;
+        return {};
     }
 
     // Skip the first line (header)
     char buffer[2000];
     if (fgets(buffer, sizeof(buffer), fp) == nullptr) {
         std::cerr << "invalid header of " ROUTE_FILE << std::endl;
-        throw;
+        return {};
     }
 
     char curr_iface[IFNAMSIZ];
@@ -93,6 +95,5 @@ ip4_addr get_default_gateway_of_iface(const string &iface) {
     }
 
     fclose(fp);
-    return empty_ip4_addr;
-
+    return {};
 }

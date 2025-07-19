@@ -1,5 +1,4 @@
-#ifndef NETWORKING_CIRCULAR_QUEUE_H
-#define NETWORKING_CIRCULAR_QUEUE_H
+#pragma once
 
 #include <utility>
 #include <thread>
@@ -26,31 +25,31 @@ public:
         return count == BUFF_SZ;
     }
 
-    template <int MAX_MILLISEC_TIMEOUT = 1000>
-    inline T* front() {
+    template <typename TIMEOUT_T>
+    inline T* front(TIMEOUT_T timeout) {
         if (!is_empty()) return &buff[base_in];
 
         const auto start = std::chrono::high_resolution_clock::now();
         while (is_empty()) {
             const auto curr = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(curr - start);
+            auto duration = curr - start;
 
-            if (duration > std::chrono::milliseconds(MAX_MILLISEC_TIMEOUT)) return nullptr;
+            if (duration > timeout) return nullptr;
         }
 
         return &buff[base_in];
     }
 
-    template <int MAX_MILLISEC_TIMEOUT = 1000>
-    inline T* rear() {
+    template <typename TIMEOUT_T>
+    inline T* rear(TIMEOUT_T timeout) {
         if (!is_empty()) return &buff[(base_in + count - 1) % BUFF_SZ];
 
         const auto start = std::chrono::high_resolution_clock::now();
         while (is_empty()) {
             const auto curr = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(curr - start);
+            auto duration = curr - start;
 
-            if (duration > std::chrono::milliseconds(MAX_MILLISEC_TIMEOUT)) return nullptr;
+            if (duration > timeout) return nullptr;
         }
 
         return &buff[(base_in + count - 1) % BUFF_SZ];
@@ -76,7 +75,7 @@ public:
         count = 0;
     }
 
-    inline bool push_back(T val) {
+    inline bool push_back(T const& val) {
         if (is_full()) return false;
 
         buff[(base_in + count) % BUFF_SZ] = std::move(val);
@@ -84,7 +83,7 @@ public:
         return true;
     }
 
-    inline bool push_front(T val) {
+    inline bool push_front(T const& val) {
         if (is_full()) return false;
 
         base_in = (base_in - 1 + BUFF_SZ) % BUFF_SZ;
@@ -95,5 +94,3 @@ public:
 
 };
 
-
-#endif //NETWORKING_CIRCULAR_QUEUE_H

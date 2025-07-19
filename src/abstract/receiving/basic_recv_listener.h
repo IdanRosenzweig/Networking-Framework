@@ -1,18 +1,11 @@
-#ifndef NETWORKING_BASIC_RECV_LISTENER_H
-#define NETWORKING_BASIC_RECV_LISTENER_H
+#pragma once
 
-// receiving buff is different from sending buff in the sense that
-// you can control when to send plain_data, but receiving plain_data is rather interrupted.
+// receiving data is often different from sending data in the sense that
+// you can control when to send data, but you don't know when you will receive data.
 
-// regarding network protocols, when sending a plain_data you don't have to worry about the protocol stack (you control it),
-// but when receiving a plain_data you have to process the protocol stack and analyze it
-
-// a basic network api for handling callback buff
 template <typename T>
 class basic_recv_listener {
 public:
-    // this callback function would be called when buff is received
-    virtual void handle_callback(T&& data) = 0;
+    // this callback function will be called when data is received
+    virtual void handle_recv(T const& data) = 0;
 };
-
-#endif //NETWORKING_BASIC_RECV_LISTENER_H

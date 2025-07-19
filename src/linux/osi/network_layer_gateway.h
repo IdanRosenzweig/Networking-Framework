@@ -2,7 +2,7 @@
 #define NETWORKING_NETWORK_LAYER_GATEWAY_H
 
 #include "../../abstract/gateway/gateway.h"
-#include "../../protocols/ether/ethernet_protocol.h"
+#include "../../protocols/ether/ethernet2_protocol.h"
 #include "../../tools/net_arp/net_arp.h"
 #include "data_link_layer_gateway.h"
 #include "../if/wrappers/interface_gateway.h"
@@ -13,7 +13,7 @@ private:
     // as a default gatewau
 
     data_link_layer_gateway dataLinkLayerGateway;
-    ethernet_protocol ether_prot;
+    ethernet2_protocol ether_prot;
 
     net_arp arp_handler;
 

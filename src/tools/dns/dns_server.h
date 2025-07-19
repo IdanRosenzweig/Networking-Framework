@@ -7,7 +7,7 @@
 #include "dns.h"
 
 #include "../../abstract/receiving/msg/recv_msg_t.h"
-#include "../../abstract/utils/trie.h"
+#include "../../utils/trie.h"
 
 #include "../../direct_connections/udp/udp_server.h"
 #include "../../direct_connections/emp/emp_server.h"

@@ -5,7 +5,7 @@
 #include "../../abstract/sniffer/sniffer.h"
 #include "../../abstract/sniffer/basic_sniff_handler.h"
 
-#include "../../protocols/ether/ethernet_protocol.h"
+#include "../../protocols/ether/ethernet2_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/tcp/tcp_protocol.h"
@@ -37,7 +37,7 @@ class net_analyzer {
     incoming_sniff incoming_sniff;
 
     // actual protocols that will process sniffed messages
-    ethernet_protocol ethernetProtocol;
+    ethernet2_protocol ethernetProtocol;
     class ether_handler : public msg_recv_listener {
     public:
         void handle_callback(recv_msg_t &&data) override;

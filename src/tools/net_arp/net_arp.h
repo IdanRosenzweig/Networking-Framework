@@ -8,15 +8,15 @@
 #include "../../abstract/receiving/msg/recv_msg_t.h"
 #include "../../abstract/receiving/recv_queue.h"
 #include "../../abstract/gateway/gateway.h"
-#include "../../abstract/utils/circular_queue.h"
+#include "../../utils/circular_queue.h"
 
-#include "../../protocols/ether/ethernet_protocol.h"
+#include "../../protocols/ether/ethernet2_protocol.h"
 #include "../../protocols/ip4/ip4_addr.h"
 
 class net_arp {
     gateway *data_link_layer_gateway;
 
-    ethernet_protocol ether_client;
+    ethernet2_protocol ether_client;
     recv_queue<recv_msg_t> arp_recv_q;
 
 public:

@@ -1,5 +1,4 @@
-#ifndef LINUX_ERROR_CODES_H
-#define LINUX_ERROR_CODES_H
+#pragma once
 
 #define OPEN_ERROR (-1)
 #define CLOSE_ERROR (-1)
@@ -12,5 +11,3 @@
 #define SOCKET_ERROR (-1)
 #define CONNECT_ERROR (-1)
 #define ACCEPT_ERROR (-1)
-
-#endif //LINUX_ERROR_CODES_H

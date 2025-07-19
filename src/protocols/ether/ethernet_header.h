@@ -1,21 +1,17 @@
-#ifndef NETWORKING_ETHERNET_HEADER_H
-#define NETWORKING_ETHERNET_HEADER_H
+#pragma once
 
 #include "mac_addr.h"
+#include "ethertype.h"
 
 struct ethernet_header {
     mac_addr source_addr;
     mac_addr dest_addr;
 
-    uint16_t ether_type;
-    enum ethertype_values : decltype(ether_type) {
-        ip4 = 0x0800,
-        arp = 0x0806,
-    };
+    ethertype ether_type;
 };
 
-int write_in_network_order(uint8_t* dest, ethernet_header* src);
+int write_in_network_order(uint8_t* dest, ethernet_header const* src);
 
-int extract_from_network_order(ethernet_header* dest, uint8_t* src);
+int extract_from_network_order(ethernet_header* dest, uint8_t const* src);
 
-#endif //NETWORKING_ETHERNET_HEADER_H
+uint32_t ethernet_calc_crc(uint8_t const* data, size_t sz);

@@ -1,7 +1,7 @@
 #include <netinet/in.h>
 #include "ip4_header.h"
 
-int write_in_network_order(uint8_t * dest, ip4_header* src) {
+int write_in_network_order(uint8_t * dest, ip4_header const* src) {
     *dest++ = (src->version << 4) + src->header_len;
     *dest++ = src->type_of_service;
 
@@ -27,7 +27,7 @@ int write_in_network_order(uint8_t * dest, ip4_header* src) {
     return sizeof(ip4_header);
 }
 
-int extract_from_network_order(ip4_header* dest, uint8_t* src) {
+int extract_from_network_order(ip4_header* dest, uint8_t const* src) {
     dest->header_len = (*src) & 0b1111;
     dest->version = ((*src) & 0b11110000) >> 4;
     src++;

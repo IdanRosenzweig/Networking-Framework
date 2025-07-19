@@ -16,11 +16,14 @@ link_libraries(${Boost_LIBRARIES})
 # allow threads in linux
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
+# add root dir to include path
+include_directories(${CMAKE_SOURCE_DIR})
+
 
 set(ABSTRACT_SRC
-        src/protocols/protocol_t.cpp
+        # src/protocols/protocol_t.cpp
         src/abstract/connection/conn_aggregator.cpp
-        src/abstract/utils/network_atomic_queue.h
+        src/utils/network_atomic_queue.h
         src/abstract/sniffer/sniffer.h
         src/abstract/sniffer/basic_sniff_handler.h
         src/linux/if/wrappers/interface_sniffer.cpp
@@ -28,7 +31,7 @@ set(ABSTRACT_SRC
 )
 
 set(PROTOCOLS_SRC
-        src/protocols/ether/ethernet_protocol.cpp
+        src/protocols/ether/ethernet2_protocol.cpp
         src/protocols/ether/ethernet_header.cpp
         src/protocols/ether/mac_addr.cpp
 
@@ -51,17 +54,19 @@ set(PROTOCOLS_SRC
 )
 
 set(LINUX_SRC
-        src/linux/if/wrappers/interface_gateway.cpp
-        src/linux/if/iface_access_point.cpp
+        lib/linux/hardware.h
+        lib/linux/hardware.cpp
 
-        src/linux/if/hardware.cpp
+        lib/linux/tun_tap.h
+        lib/linux/tun_tap.cpp
 
-        src/linux/if/virtual/virtual_if.cpp
-        src/linux/if/virtual/tun_tap.cpp
+        lib/linux/linux_iface.h
+        lib/linux/linux_iface.cpp
 
-        src/linux/osi/data_link_layer_gateway.cpp
-        src/tools/net_arp/net_arp.cpp
-        src/linux/osi/network_layer_gateway.cpp
+        lib/linux/linux_iface_network_access.h
+
+        # src/linux/osi/data_link_layer_gateway.cpp
+        # src/linux/osi/network_layer_gateway.cpp
 )
 
 set(DIRECT_CONNECTIONS_SRC
@@ -79,6 +84,22 @@ set(DIRECT_CONNECTIONS_SRC
         src/direct_connections/emp/emp_client.cpp
         src/direct_connections/emp/emp_server.cpp
 
+)
+
+add_executable(test
+        ${ABSTRACT_SRC}
+        ${LINUX_SRC}
+
+        src/main/test/test.cpp
+
+        src/protocols/ether/ethernet2_protocol.cpp
+        src/protocols/ether/ethernet_header.cpp
+        src/protocols/ether/mac_addr.cpp
+
+        # src/protocols/ip4/ip4_protocol.cpp
+        src/protocols/ip4/ip4_addr.cpp
+        src/protocols/ip4/internet_checksum.cpp
+        src/protocols/ip4/ip4_header.cpp
 )
 
 add_executable(vpn_daemon

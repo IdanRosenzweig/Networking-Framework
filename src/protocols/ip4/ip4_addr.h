@@ -29,9 +29,9 @@ ip4_addr convert_to_ip4_addr(const string &str);
 
 string convert_to_str(ip4_addr ip_addr);
 
-int write_in_network_order(uint8_t* dest, ip4_addr* source);
+int write_in_network_order(uint8_t* dest, ip4_addr const* source);
 
-int extract_from_network_order(ip4_addr* dest, uint8_t* source);
+int extract_from_network_order(ip4_addr* dest, uint8_t const* source);
 
 
 struct ip4_subnet_mask {

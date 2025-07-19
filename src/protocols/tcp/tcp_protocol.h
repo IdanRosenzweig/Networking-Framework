@@ -7,7 +7,7 @@
 
 #include "../../abstract/session/session_conn.h"
 #include "../../abstract/session/session_generator.h"
-#include "../../abstract/utils/next_choice.h"
+#include "../../utils/next_choice.h"
 #include "../ip4/ip4_addr.h"
 #include "../ip4/ip4_protocol.h"
 

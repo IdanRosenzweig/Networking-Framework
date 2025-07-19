@@ -26,8 +26,8 @@ struct ip4_header {
     ip4_addr dest_addr;
 };
 
-int write_in_network_order(uint8_t* dest, ip4_header* src);
+int write_in_network_order(uint8_t* dest, ip4_header const* src);
 
-int extract_from_network_order(ip4_header* dest, uint8_t* src);
+int extract_from_network_order(ip4_header* dest, uint8_t const* src);
 
 #endif //NETWORKING_IP4_HEADER_H

@@ -5,11 +5,11 @@
 #include <linux/if_ether.h>
 
 #include "../../abstract/firewall/basic_firewall_filter.h"
-#include "../../abstract/utils/data_counter.h"
+#include "../../utils/data_counter.h"
 
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
-#include "../../protocols/ether/ethernet_protocol.h"
+#include "../../protocols/ether/ethernet2_protocol.h"
 
 class block_incoming_udp : public basic_firewall_filter<recv_msg_t> {
     ip4_protocol ip_prot;

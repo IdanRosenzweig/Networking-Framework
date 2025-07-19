@@ -3,8 +3,8 @@
 
 #include "../../abstract/sending/msg/send_msg_t.h"
 #include "../../abstract/receiving/msg/recv_msg_t.h"
-#include "../../abstract/utils/next_choice.h"
-#include "../../abstract/utils/multiplexer.h"
+#include "../../utils/next_choice.h"
+#include "../../utils/multiplexer.h"
 #include "udp_header.h"
 
 class udp_protocol : public msg_send_medium, public msg_recv_listener {

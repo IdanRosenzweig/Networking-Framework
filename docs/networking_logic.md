@@ -36,7 +36,7 @@ under `src/abstract/sniffer`:
 * `sniffer'`: represents aggregation of multiple `basic_sniff_handler` both for sniffing "outgoing" data and "incoming" data.
 
 # utils
-under `src/abstract/utils` there are some basic data structures and utility functions:
+under `src/utils` there are some basic data structures and utility functions:
 * `udata`: just unsigned bytes and encoding/decoding
 * `trie`: generic implementation of a trie data structure
 * `circular_queue`: generic implementation of a circular queue data structure with maximum size

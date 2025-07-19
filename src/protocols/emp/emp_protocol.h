@@ -3,9 +3,9 @@
 
 #include "../../abstract/sending/msg/send_msg_t.h"
 #include "../../abstract/receiving/msg/recv_msg_t.h"
-#include "../../abstract/utils/next_choice.h"
-#include "../../abstract/utils/udata.h"
-#include "../../abstract/utils/trie.h"
+#include "../../utils/next_choice.h"
+#include "../../utils/udata.h"
+#include "../../utils/trie.h"
 
 // endpoint multiplexing protocol
 class emp_protocol : public msg_send_medium, public msg_recv_listener {

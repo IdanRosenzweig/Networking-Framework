@@ -4,7 +4,7 @@
 #include <string>
 #include <cstring>
 #include <netinet/in.h>
-#include "../../abstract/utils/udata.h"
+#include "../../utils/udata.h"
 using namespace std;
 
 #define DNS_SERVER_PORT 53

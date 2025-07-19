@@ -6,14 +6,14 @@
 #include <linux/tcp.h>
 
 #include "../../abstract/firewall/basic_firewall_filter.h"
-#include "../../abstract/utils/data_counter.h"
+#include "../../utils/data_counter.h"
 
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
-#include "../../protocols/ether/ethernet_protocol.h"
+#include "../../protocols/ether/ethernet2_protocol.h"
 
 class block_incoming_tcp : public basic_firewall_filter<recv_msg_t> {
-    ethernet_protocol ether_prot;
+    ethernet2_protocol ether_prot;
     ip4_protocol ip_prot;
 
     class examiner : public msg_recv_listener {

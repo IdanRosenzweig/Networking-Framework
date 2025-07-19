@@ -1,15 +1,16 @@
 #include "tun_tap.h"
-#include "../../error_codes.h"
+#include "error_codes.h"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
+
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
 
-int open_tun_tap(std::string& iface_name, int flags) {
+pair<int, string> open_tun_tap(string const& iface_name, int flags) {
 #define CLONE_PATH "/dev/net/tun"
 
     int fd;
@@ -31,24 +32,22 @@ int open_tun_tap(std::string& iface_name, int flags) {
         throw;
     }
 
-    iface_name = ifr.ifr_name;
-
-    return fd;
+    return {fd, string(ifr.ifr_name)};
 }
 
-int open_raw_tap(std::string& iface_name) {
+pair<int, string> open_raw_tap(string const& iface_name) {
     return open_tun_tap(iface_name, IFF_TAP | IFF_NO_PI);
 }
 
 
-void set_up_tun_tap(const std::string& iface_name) {
-    std::string conf_command = "sudo ip link set dev ";
+void set_up_tun_tap(string const& iface_name) {
+    string conf_command = "sudo ip link set dev ";
     conf_command += iface_name.c_str();
     conf_command += " up";
     system(conf_command.c_str());
 }
-void set_down_tun_tap(const std::string& iface_name) {
-    std::string conf_command = "sudo ip link set dev ";
+void set_down_tun_tap(string const& iface_name) {
+    string conf_command = "sudo ip link set dev ";
     conf_command += iface_name.c_str();
     conf_command += " down";
     system(conf_command.c_str());
