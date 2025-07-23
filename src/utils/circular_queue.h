@@ -5,7 +5,7 @@
 #include <thread>
 
 // simple circular queue ds
-template <typename T, int BUFF_SZ = 1024>
+template <typename T, int BUFF_SZ = 2000>
 struct circular_queue {
 private:
     T buff[BUFF_SZ];

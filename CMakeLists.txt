@@ -65,7 +65,7 @@ set(LINUX_SRC
         lib/linux/linux_iface.h
         lib/linux/linux_iface.cpp
 
-        lib/linux/linux_iface_network_access.h
+        lib/linux/linux_iface_net_access.h
 
         # src/linux/osi/data_link_layer_gateway.cpp
         # src/linux/osi/network_layer_gateway.cpp
@@ -106,7 +106,7 @@ add_executable(test
         src/protocols/ip4/internet_checksum.cpp
         src/protocols/ip4/ip4_header.cpp
 
-        src/tools/arp_scanner/arp_scanner.cpp
+        src/tools/arp_tool/arp_tool.cpp
 )
 
 add_executable(vpn_daemon
@@ -233,25 +233,78 @@ add_executable(dns_client
 )
 
 
-add_executable(net_scanner
+
+
+
+
+# add_executable(net_scanner
+#         ${ABSTRACT_SRC}
+#         ${PROTOCOLS_SRC}
+#         ${DIRECT_CONNECTIONS_SRC}
+#         ${LINUX_SRC}
+
+#         src/main/net_scanner/net_scanner.cpp
+#         src/tools/net_arp/net_arp.cpp
+# )
+
+add_executable(arp_scanner
         ${ABSTRACT_SRC}
-        ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
-        src/main/net_scanner/net_scanner.cpp
-        src/tools/net_arp/net_arp.cpp
+        src/main/arp_scanner/arp_scanner.cpp
+
+        src/protocols/ether/ethernet2_protocol.cpp
+        src/protocols/ether/ethernet_header.cpp
+        src/protocols/ether/mac_addr.cpp
+
+        src/protocols/arp/arp_header.cpp
+        src/protocols/arp/arp_protocol.cpp
+
+        # src/protocols/ip4/ip4_protocol.cpp
+        src/protocols/ip4/ip4_addr.cpp
+        src/protocols/ip4/internet_checksum.cpp
+        src/protocols/ip4/ip4_header.cpp
+
+        src/tools/arp_tool/arp_tool.cpp
 )
 
-add_executable(net_intercept
+# add_executable(net_intercept
+#         ${ABSTRACT_SRC}
+#         ${PROTOCOLS_SRC}
+#         ${DIRECT_CONNECTIONS_SRC}
+#         ${LINUX_SRC}
+
+#         src/main/net_intercept/net_intercept.cpp
+#         src/tools/net_arp/net_arp.cpp
+# )
+
+add_executable(arp_spoofer
         ${ABSTRACT_SRC}
-        ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
-        src/main/net_intercept/net_intercept.cpp
-        src/tools/net_arp/net_arp.cpp
+        src/main/arp_spoofer/arp_spoofer.cpp
+
+        src/protocols/ether/ethernet2_protocol.cpp
+        src/protocols/ether/ethernet_header.cpp
+        src/protocols/ether/mac_addr.cpp
+
+        src/protocols/arp/arp_header.cpp
+        src/protocols/arp/arp_protocol.cpp
+
+        # src/protocols/ip4/ip4_protocol.cpp
+        src/protocols/ip4/ip4_addr.cpp
+        src/protocols/ip4/internet_checksum.cpp
+        src/protocols/ip4/ip4_header.cpp
+
+        src/tools/arp_tool/arp_tool.cpp
 )
+
+
+
+
+
+
+
 
 add_executable(net_analyzer
         ${ABSTRACT_SRC}

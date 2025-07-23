@@ -40,6 +40,9 @@ bool mac_addr::operator>=(const mac_addr &rhs) const {
     return !(*this < rhs);
 }
 
+mac_addr mac_addr_broadcast = mac_addr{{0xff,0xff,0xff,0xff,0xff,0xff}};
+mac_addr mac_addr_empty = mac_addr{{0x00,0x00,0x00,0x00,0x00,0x00}};
+
 optional<mac_addr> str_to_mac_addr(string const& str) {
     mac_addr addr;
 

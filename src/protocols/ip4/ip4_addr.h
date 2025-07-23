@@ -21,7 +21,7 @@ struct ip4_addr {
     bool operator>=(const ip4_addr &rhs) const;
 };
 
-#define ip4_addr_empty (ip4_addr{{0,0,0,0}})
+extern ip4_addr ip4_addr_empty;
 
 ip4_addr generate_next_ip(ip4_addr addr);
 

@@ -47,7 +47,7 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
     }
 
     // forward to the recv access
-    class_ptr->recv_access->handle_recv(vector<uint8_t>((uint8_t*) bytes, ((uint8_t*) bytes) + data_sz));
+    class_ptr->async_recv->handle_recv(vector<uint8_t>((uint8_t*) bytes, ((uint8_t*) bytes) + data_sz));
 }
 
 // void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
@@ -188,7 +188,7 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
 
 
 
-linux_iface::linux_iface(string const& iface) : iface_name(iface) {
+linux_iface::linux_iface(string const& iface) : iface_name(iface), async_recv(make_shared<async_recv_listener<vector<uint8_t>>>()) {
 
     // traffic out
     // outgoing_network_queue.add_listener(&outgoing_traffic);
@@ -213,7 +213,7 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface) {
             return;
         }
 
-        worker_out = std::thread([this]() {
+        worker_traffic_out = std::thread([this]() {
             pcap_loop(traffic_out, -1, handler_out, reinterpret_cast<u_char *>(this));
         });
     }
@@ -241,12 +241,12 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface) {
             return;
         }
 
-        worker_in = std::thread([this]() {
+        worker_traffic_in = std::thread([this]() {
             pcap_loop(traffic_in, -1, handler_in, reinterpret_cast<u_char *>(this));
         });
     }
 
-//    std::this_thread::sleep_for(2000ms); // ensure the pcap_loop has started
+   std::this_thread::sleep_for(2000ms); // ensure the pcap_loop has started // todo fix this
 
     // sending buff out
     fd = socket(
@@ -303,8 +303,8 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface) {
 
 linux_iface::~linux_iface() {
     // outgoing_network_queue.remove_listener(&this->outgoing_traffic);
-    worker_out.detach();
+    worker_traffic_out.detach();
     // incoming_network_queue.remove_listener(&this->incoming_traffic);
-    worker_in.detach();
+    worker_traffic_in.detach();
 }
 

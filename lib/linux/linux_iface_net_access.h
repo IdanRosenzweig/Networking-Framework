@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/abstract/network_access/network_access.h"
 #include "linux_iface.h"
+#include "src/abstract/network_access/net_access_bytes.h"
 
 #include <string>
 #include <vector>
@@ -9,12 +9,12 @@
 #include <memory>
 using namespace std;
 
-struct linux_iface_network_access : public network_access<vector<uint8_t>, vector<uint8_t>> {
+struct linux_iface_net_access_bytes : public net_access_bytes {
 private:
     shared_ptr<linux_iface> iface;
 
 public:
-    linux_iface_network_access(shared_ptr<linux_iface> const& iface) : iface(iface) {
+    linux_iface_net_access_bytes(shared_ptr<linux_iface> const& iface) : iface(iface) {
     }
 
     /* send access */

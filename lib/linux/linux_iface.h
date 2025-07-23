@@ -1,8 +1,10 @@
 #pragma once
 
-// #include "src/utils/network_atomic_queue.h"
 #include "src/abstract/sending/basic_send_medium.h"
 #include "src/abstract/receiving/basic_recv_listener.h"
+#include "src/abstract/receiving/async_recv_listener.h"
+
+#include "src/abstract/receiving/recv_queue.h"
 
 #include <pcap/pcap.h>
 
@@ -10,6 +12,7 @@
 #include <thread>
 #include <vector>
 #include <memory>
+#include <mutex>
 using namespace std;
 
 void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes);
@@ -53,20 +56,24 @@ void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *b
 
 class linux_iface {
 private:
-    // listening for outgoing traffic
+    // catching outgoing traffic from the iface
     pcap_t* traffic_out;
-    std::thread worker_out;
+    thread worker_traffic_out;
     // network_atomic_queue<recv_msg_t> outgoing_network_queue;
     friend void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes);
 
-    // listening for incoming traffic
+    // catching incoming traffic to the iface
     pcap_t* traffic_in;
-    std::thread worker_in;
+    thread worker_traffic_in;
     // network_atomic_queue<recv_msg_t> incoming_network_queue;
     friend void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes);
 
-    // injecting buff out
+    // injecting outgoing data to the iface
+    shared_ptr<basic_send_medium<vector<uint8_t>>> send_access;
     int fd;
+
+    // recv queue
+    shared_ptr<async_recv_listener<vector<uint8_t>>> async_recv;
 
 public:
     string const& iface_name;
@@ -74,23 +81,18 @@ public:
 
     ~linux_iface();
 
-    // todo inherit this from network_access, and no need for a seperate linux_iface_network_access class
-    /* send access, provided by the iface access, can be used outside */
-private:
-    shared_ptr<basic_send_medium<vector<uint8_t>>> send_access;
-
-public:
     shared_ptr<basic_send_medium<vector<uint8_t>>> get_send_access() {
         return send_access;
     }
 
     /* recv access, can be set from outside in order to receive from the iface */
-private:
-    shared_ptr<basic_recv_listener<vector<uint8_t>>> recv_access;
+// private:
+//     shared_ptr<basic_recv_listener<vector<uint8_t>>> recv_access;
 
 public:
     void set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) {
-        recv_access = recv;
+        async_recv->set_recv_listener(recv);
+        // recv_access = recv;
     }
 
 };

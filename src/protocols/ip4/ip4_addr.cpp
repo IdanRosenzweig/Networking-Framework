@@ -32,6 +32,7 @@ bool ip4_addr::operator>=(const ip4_addr &rhs) const {
     return !(*this < rhs);
 }
 
+ip4_addr ip4_addr_empty = ip4_addr{{0,0,0,0}};
 
 ip4_addr generate_next_ip(ip4_addr addr) {
     ip4_addr next_ip;

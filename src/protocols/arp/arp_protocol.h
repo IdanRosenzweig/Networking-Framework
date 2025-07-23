@@ -9,22 +9,21 @@
 #include <map>
 using namespace std;
 
-#include "src/abstract/network_access/network_access.h"
+#include "src/abstract/network_access/net_access_bytes.h"
 
 #include "arp_header.h"
 
 
 struct arp_protocol {
 private:
-    shared_ptr<network_access_bytes> net_access;
+    shared_ptr<net_access_bytes> net_access;
 
 public:
-    void set_net_access(shared_ptr<network_access_bytes> const& access) {
+    void set_net_access(shared_ptr<net_access_bytes> const& access) {
         net_access = access;
 
         struct my_recv : public basic_recv_listener<vector<uint8_t>> {
             arp_protocol* par;
-
             my_recv(arp_protocol* par) : par(par) {}
 
             void handle_recv(vector<uint8_t> const& data) override {
