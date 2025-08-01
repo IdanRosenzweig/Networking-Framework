@@ -6,7 +6,7 @@
 #include <cstdlib>
 using namespace std;
 
-#include <netinet/in.h>
+#include "arp_op_values.h"
 
 struct arp_header {
     uint16_t hard_type; // type of hardware address
@@ -15,7 +15,7 @@ struct arp_header {
     uint8_t hard_addr_sz; // size of the hardware address
     uint8_t prot_addr_sz; // size of the protocol address
 
-    uint16_t op; // type of operation
+    arp_op_values op; // type of operation
 
     vector<uint8_t> sender_hard_addr;
     vector<uint8_t> sender_prot_addr;

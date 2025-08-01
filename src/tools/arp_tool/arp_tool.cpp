@@ -2,7 +2,7 @@
 
 #include "src/abstract/receiving/recv_queue.h"
 
-#include "src/protocols/ether/ethertype.h"
+#include "src/protocols/ether2/ethertype.h"
 
 #include <linux/if_arp.h> // todo remove this
 
@@ -14,21 +14,17 @@ using namespace std;
 
 
 mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access_bytes> const& broadcast_access, ip4_addr const& searched_ip, mac_addr const& src_mac, ip4_addr const& src_ip) {
-    // set arp over the broadcast access
-    shared_ptr<arp_protocol> arp = make_shared<arp_protocol>();
-    arp->set_net_access(broadcast_access);
-
     // listen to arp replies via a queue
-    shared_ptr<recv_queue<shared_ptr<arp_header>>> queue = make_shared<recv_queue<shared_ptr<arp_header>>>();
-    arp->listener_op[ARPOP_REPLY] = queue; // todo this value from my own list
+    shared_ptr<recv_queue<arp_header>> queue = make_shared<recv_queue<arp_header>>();
+    arp_protocol::connect_recv(broadcast_access, queue, arp_op_values::reply);
 
-    // arp header
+    // prepare arp request
     struct arp_header arp_header;
     arp_header.hard_type = ARPHRD_ETHER; // todo this value from my own list
     arp_header.prot_type = ethertype::ip4;
     arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
     arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
-    arp_header.op = ARPOP_REQUEST; // operation (request) // todo this value from my own list
+    arp_header.op = arp_op_values::request; // operation (request) // todo this value from my own list
 
     arp_header.sender_hard_addr = vector<uint8_t>(src_mac.octets, src_mac.octets + sizeof(src_mac.octets));
     arp_header.sender_prot_addr = vector<uint8_t>(src_ip.octets, src_ip.octets + sizeof(src_ip.octets));
@@ -36,31 +32,28 @@ mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access_bytes> const& broad
     arp_header.target_hard_addr = vector<uint8_t>(mac_addr_empty.octets, mac_addr_empty.octets + sizeof(mac_addr_empty.octets));
     arp_header.target_prot_addr = vector<uint8_t>(searched_ip.octets, searched_ip.octets + sizeof(searched_ip.octets));
 
-    // set the next_header
-    arp->next_header = arp_header;
-
     while (true) {
-        // send REQUEST
+        // send request
         puts("sending arp request");
-        arp->send();
+        arp_protocol::send(broadcast_access, arp_header);
 
         // recv reply
         puts("waiting for reply");
-        shared_ptr<struct arp_header>* reply = queue->queue.front(std::chrono::milliseconds(50)); // todo be able to control this value
+        struct arp_header* reply = queue->queue.front(std::chrono::milliseconds(50)); // todo be able to control this value
         if (reply == nullptr) continue; // no response in a reasonable time, continue and send again
         queue->queue.pop_front();
 
-        // ensure it is a reply packet (no need, this is done directly via the listening registration)
-        // if ((*reply)->op != ARP_OP_REPLY) continue;
+        // ensure it is a reply packet (no need, this is done directly via the connect_recv registration)
+        // if ((*reply)->op != arp_op_values::reply) continue;
         
         // ensure the ip reply is the searched_ip
         ip4_addr reply_ip;
-        extract_from_network_order(&reply_ip, (*reply)->sender_prot_addr.data());
+        extract_from_network_order(&reply_ip, reply->sender_prot_addr.data());
         if (reply_ip != searched_ip) continue;
 
         // success, found the mac addr of search_ip
         mac_addr res{};
-        extract_from_network_order(&res, (*reply)->sender_hard_addr.data());
+        extract_from_network_order(&res, reply->sender_hard_addr.data());
         
         queue->queue.clear(); // clear any trailing replies
 
@@ -69,13 +62,9 @@ mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access_bytes> const& broad
 }
 
 map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes> const& broadcast_access, ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip) {
-    // set arp over the broadcast access
-    shared_ptr<arp_protocol> arp = make_shared<arp_protocol>();
-    arp->set_net_access(broadcast_access);
-
     // listen to arp replies via a queue
-    shared_ptr<recv_queue<shared_ptr<arp_header>>> queue = make_shared<recv_queue<shared_ptr<arp_header>>>();
-    arp->listener_op[ARPOP_REPLY] = queue; // todo this value from my own list
+    shared_ptr<recv_queue<arp_header>> queue = make_shared<recv_queue<arp_header>>();
+    arp_protocol::connect_recv(broadcast_access, queue, arp_op_values::reply);
 
     // send requests
     ip4_addr curr_ip = smallest_ip_addr_in_subnet(mask);
@@ -90,7 +79,7 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
         arp_header.prot_type = ethertype::ip4;
         arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
         arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
-        arp_header.op = ARPOP_REQUEST; // operation (request) // todo this value from my own list
+        arp_header.op = arp_op_values::request; // operation (request) // todo this value from my own list
 
         arp_header.sender_hard_addr = vector<uint8_t>(src_mac.octets, src_mac.octets + sizeof(src_mac.octets));
         arp_header.sender_prot_addr = vector<uint8_t>(src_ip.octets, src_ip.octets + sizeof(src_ip.octets));
@@ -98,9 +87,8 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
         arp_header.target_hard_addr = vector<uint8_t>(mac_addr_empty.octets, mac_addr_empty.octets + sizeof(mac_addr_empty.octets));
         arp_header.target_prot_addr = vector<uint8_t>(curr_ip.octets, curr_ip.octets + sizeof(curr_ip.octets));
 
-        // set next_header and send request
-        arp->next_header = arp_header;
-        arp->send();
+        // send request
+        arp_protocol::send(broadcast_access, arp_header);
 
         // advance curr_ip
         curr_ip = generate_next_ip(curr_ip);
@@ -117,7 +105,7 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
     // process all the replies
     map<ip4_addr, mac_addr> res;
     while (!queue->queue.is_empty()) {
-        shared_ptr<struct arp_header>* reply = queue->queue.front(std::chrono::milliseconds(0));
+        struct arp_header* reply = queue->queue.front(std::chrono::milliseconds(0));
         if (reply == nullptr) continue; // no reply?
         queue->queue.pop_front();
 
@@ -126,7 +114,7 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
         
         // extract the ip4 addr
         ip4_addr reply_ip;
-        extract_from_network_order(&reply_ip, (*reply)->sender_prot_addr.data());
+        extract_from_network_order(&reply_ip, reply->sender_prot_addr.data());
 
         // ensure the ip reply is within the subnet mask
         if (!is_inside_subnet(mask, reply_ip)) continue;
@@ -136,7 +124,7 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
 
         // extract the mac addr
         mac_addr reply_mac{};
-        extract_from_network_order(&reply_mac, (*reply)->sender_hard_addr.data());
+        extract_from_network_order(&reply_mac, reply->sender_hard_addr.data());
 
         // add to res
         res[reply_ip] = reply_mac;
@@ -169,7 +157,7 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
 //     arp_header->arp_pro = htons(ethernet_header::ethertype_values::ip4); // first net_arp octets type: ip
 //     arp_header->arp_hln = ETH_ALEN; // len of mac octets
 //     arp_header->arp_pln = 4; // len of ip octets
-//     arp_header->arp_op = htons(ARPOP_REPLY); // type of net_arp (forged reply)
+//     arp_header->arp_op = htons(arp_op_values::reply); // type of net_arp (forged reply)
 
 //     write_in_network_order(arp_header->arp_sha, &src_mac); // my spoofed mac octets
 //     write_in_network_order(arp_header->arp_spa, &target_ip);
@@ -231,17 +219,13 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
 
 
 void arp_tool::announce_new_pair(shared_ptr<net_access_bytes> const& broadcast_access, ip4_addr new_ip, mac_addr new_mac) {
-    // set arp over the broadcast access
-    shared_ptr<arp_protocol> arp = make_shared<arp_protocol>();
-    arp->set_net_access(broadcast_access);
-
     // arp header
     struct arp_header arp_header;
     arp_header.hard_type = ARPHRD_ETHER; // todo this value from my own list
     arp_header.prot_type = ethertype::ip4;
     arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
     arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
-    arp_header.op = ARPOP_REPLY; // operation (reply) // todo this value from my own list
+    arp_header.op = arp_op_values::reply; // operation (reply) // todo this value from my own list
 
     arp_header.sender_hard_addr = vector<uint8_t>(new_mac.octets, new_mac.octets + sizeof(new_mac.octets));
     arp_header.sender_prot_addr = vector<uint8_t>(new_ip.octets, new_ip.octets + sizeof(new_ip.octets));
@@ -249,9 +233,8 @@ void arp_tool::announce_new_pair(shared_ptr<net_access_bytes> const& broadcast_a
     arp_header.target_hard_addr = vector<uint8_t>(mac_addr_empty.octets, mac_addr_empty.octets + sizeof(mac_addr_empty.octets));
     arp_header.target_prot_addr = vector<uint8_t>(ip4_addr_empty.octets, ip4_addr_empty.octets + sizeof(ip4_addr_empty.octets));
     
-    // set next_header and send
-    arp->next_header = arp_header;
-    arp->send();
+    // send
+    arp_protocol::send(broadcast_access, arp_header);
 
 }
 
@@ -267,7 +250,7 @@ void arp_tool::spoofing_attack(
     arp_header.prot_type = ethertype::ip4;
     arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
     arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
-    arp_header.op = ARPOP_REPLY; // operation (reply) // todo this value from my own list
+    arp_header.op = arp_op_values::reply; // operation (reply) // todo this value from my own list
 
     arp_header.sender_hard_addr = vector<uint8_t>(src_mac.octets, src_mac.octets + sizeof(src_mac.octets)); // the victim sends data to src_mac
 
@@ -283,11 +266,7 @@ void arp_tool::spoofing_attack(
             arp_header.target_hard_addr = vector<uint8_t>(assoc_mac_addr.octets, assoc_mac_addr.octets + sizeof(assoc_mac_addr.octets));
             arp_header.target_prot_addr = vector<uint8_t>(assoc_ip4_addr.octets, assoc_ip4_addr.octets + sizeof(assoc_ip4_addr.octets));
 
-            shared_ptr<arp_protocol> arp = make_shared<arp_protocol>(); // todo no need to make this every round. can simple make it beforehand.
-            arp->set_net_access(net_access);
-
-            arp->next_header = arp_header;
-            arp->send();
+            arp_protocol::send(net_access, arp_header);
         }
 
         std::cout << "spoofed data num " << cnt << " sent" << endl;

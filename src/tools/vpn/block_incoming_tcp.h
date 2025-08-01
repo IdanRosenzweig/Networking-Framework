@@ -10,7 +10,7 @@
 
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
-#include "../../protocols/ether/ethernet2_protocol.h"
+#include "../../protocols/ether2/ethernet2_protocol.h"
 
 class block_incoming_tcp : public basic_firewall_filter<recv_msg_t> {
     ethernet2_protocol ether_prot;
@@ -40,7 +40,7 @@ class block_incoming_tcp : public basic_firewall_filter<recv_msg_t> {
 public:
     block_incoming_tcp(uint16_t port) : blocked_port(port), tcp_examine(this) {
         ether_prot.listeners.append_new_empty_handler(&ip_prot);
-        ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(ethernet_header::ethertype_values::ip4);
+        ether_prot.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(ethernet2_header::ethertype_values::ip4);
 
         ip_prot.listeners.append_new_empty_handler(&tcp_examine);
         ip_prot.listeners.add_requirement_to_last_handler<IP4_LISTEN_ON_PROTOCOL_INDEX>(ip4_header::protocol_values::tcp);

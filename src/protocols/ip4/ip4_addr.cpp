@@ -33,6 +33,7 @@ bool ip4_addr::operator>=(const ip4_addr &rhs) const {
 }
 
 ip4_addr ip4_addr_empty = ip4_addr{{0,0,0,0}};
+ip4_addr ip4_addr_broadcast = ip4_addr{{0xff,0xff,0xff,0xff}};
 
 ip4_addr generate_next_ip(ip4_addr addr) {
     ip4_addr next_ip;
@@ -88,8 +89,11 @@ optional<ip4_subnet_mask> str_to_ip4_subnet_mask(string const& str) {
     if (auto res = str_to_ip4_addr(str.substr(0, slash)); res.has_value()) ip = res.value();
     else return {};
 
-    int mask = std::stoi(str.substr(slash + 1));
-    if (!(0 <= mask <= 32)) return {};
+    int mask;
+    try {
+        mask = std::stoi(str.substr(slash + 1));
+    } catch (...) {return {};}
+    if (!(0 <= mask && mask <= 32)) return {};
 
     return {{ip, mask}};
 }

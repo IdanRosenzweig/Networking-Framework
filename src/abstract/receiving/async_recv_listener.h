@@ -9,8 +9,6 @@
 #include <condition_variable>
 using namespace std;
 
-// this is just a wrapper class around circular_queue which adds atomicity and concurrency
-// instead of reimplementing all the multi_recv_listener logic, it just inherits multi_recv_listener and overrides handle_recv
 // receives data and forwards it async to a receiver
 template<typename TYPE>
 class async_recv_listener : public basic_recv_listener<TYPE>  {

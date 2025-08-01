@@ -11,3 +11,5 @@
 #define SOCKET_ERROR (-1)
 #define CONNECT_ERROR (-1)
 #define ACCEPT_ERROR (-1)
+#define FLOCK_ERROR (-1)
+#define SENDTO_ERROR (-1)

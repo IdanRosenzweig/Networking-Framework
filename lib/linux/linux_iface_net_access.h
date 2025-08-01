@@ -17,6 +17,7 @@ public:
     linux_iface_net_access_bytes(shared_ptr<linux_iface> const& iface) : iface(iface) {
     }
 
+protected:
     /* send access */
     shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
         return iface->get_send_access();

@@ -22,6 +22,7 @@ struct ip4_addr {
 };
 
 extern ip4_addr ip4_addr_empty;
+extern ip4_addr ip4_addr_broadcast;
 
 ip4_addr generate_next_ip(ip4_addr addr);
 

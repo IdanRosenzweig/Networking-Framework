@@ -5,7 +5,7 @@
 #include "../../abstract/sniffer/sniffer.h"
 #include "../../abstract/sniffer/basic_sniff_handler.h"
 
-#include "../../protocols/ether/ethernet2_protocol.h"
+#include "../../protocols/ether2/ethernet2_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/tcp/tcp_protocol.h"

@@ -25,4 +25,11 @@ under `abstract/sniffer`:
 
 # network access
 under `abstract/network_access`:
-* `network_access`: pure virtual class providing a `basic_send_medium` and the ability to specify a `basic_recv_listener`, representing an logical network access where data can be sent to and received from
+* `net_access`: pure virtual class providing a `basic_send_medium` and the ability to specify a `basic_recv_listener`, representing an logical network access where data can be sent to and received from
+* `multi_net_access`: takes a concrete `net_access` and allows for creating new `net_access`s that all share the common `net_access`.
+* `net_access_generator`: represents a class which generates `net_access`s to be used
+* `net_access_generator_listener`: pure virtual class that handles new connections from a `net_access_generator`.
+
+# routing
+under `abstract/routing`:
+* `routing_table`: pure virtual class representing a routing table, allows for adding routing rules and finding the correct route for addrs.

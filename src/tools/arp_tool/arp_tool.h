@@ -5,10 +5,10 @@
 #include <utility>
 using namespace std;
 
-#include "src/protocols/ether/ethernet2_protocol.h"
+#include "src/protocols/ether2/ethernet2_protocol.h"
 #include "src/protocols/arp/arp_protocol.h"
 
-#include "src/protocols/ether/mac_addr.h"
+#include "src/protocols/ether2/mac_addr.h"
 #include "src/protocols/ip4/ip4_addr.h"
 
 namespace arp_tool {

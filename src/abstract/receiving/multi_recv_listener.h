@@ -28,7 +28,7 @@ public:
     }
 
     bool remove_listener(shared_ptr<basic_recv_listener<TYPE>> const& listener) {
-        if (listener == nullptr) return;
+        if (listener == nullptr) return false;
 
         lock_guard<mutex> lock(listeners_mtx);
 
@@ -41,10 +41,14 @@ public:
     }
 
     void handle_recv(TYPE const& data) override {
-        lock_guard<mutex> lock(listeners_mtx);
+        vector<shared_ptr<basic_recv_listener<TYPE>>> listeners_copy;
+        {
+            lock_guard<mutex> lock(listeners_mtx);
+            for (auto const& listener : listeners) listeners_copy.push_back(listener);
+        }
 
         for (auto& listener: listeners) {
-            listener->handle_recv(data_copy);
+            listener->handle_recv(data);
         }
     }
 

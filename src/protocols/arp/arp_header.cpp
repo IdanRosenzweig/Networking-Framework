@@ -2,6 +2,8 @@
 
 #include <cstdio>
 
+#include <netinet/in.h>
+
 size_t write_in_network_order(uint8_t* dest, arp_header const* src) {
     uint8_t* dest_orig = dest;
 
@@ -15,7 +17,7 @@ size_t write_in_network_order(uint8_t* dest, arp_header const* src) {
     *(uint8_t*)dest = src->prot_addr_sz;
     dest += sizeof(src->prot_addr_sz);
 
-    *(uint16_t*)dest = htons(src->op);
+    *(uint16_t*)dest = htons(static_cast<uint16_t>(src->op));
     dest += sizeof(src->op);
 
     if (src->sender_hard_addr.size() != src->hard_addr_sz) {puts("size doesn't match");abort();} // todo make this function return optional<size_t> instead of aborting
@@ -50,7 +52,7 @@ size_t extract_from_network_order(arp_header* dest, uint8_t const* src) {
     dest->prot_addr_sz = *(uint8_t*)src;
     src += sizeof(dest->prot_addr_sz);
 
-    dest->op = ntohs(*(uint16_t*)src);
+    dest->op = static_cast<arp_op_values>(ntohs(*(uint16_t*)src));
     src += sizeof(dest->op);
 
     dest->sender_hard_addr = vector<uint8_t>(src, src + dest->hard_addr_sz); // todo fix vuln here

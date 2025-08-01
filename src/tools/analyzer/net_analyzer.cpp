@@ -7,9 +7,9 @@ void net_analyzer::ether_handler::handle_callback(recv_msg_t &&data) {
     std::cout << "offset: 0x" << hex << data.protocol_offsets.back().first << "\t";
     std::cout << "ethernet\t";
 
-    struct ethernet_header header;
+    struct ethernet2_header header;
     extract_from_network_order(&header, data.buff_of_prot_from_end(0));
-    std::cout << "src " << convert_to_str(header.source_addr) << "\t";
+    std::cout << "src " << convert_to_str(header.src_addr) << "\t";
     std::cout << "dest " << convert_to_str(header.dest_addr) << "\t";
 
     std::cout << endl;
@@ -55,7 +55,7 @@ net_analyzer::net_analyzer(struct sniffer* _sniffer) : sniffer(_sniffer), outgoi
 
     ethernetProtocol.default_listener = &etherHandler;
     ethernetProtocol.listeners.append_new_empty_handler(&ip4Protocol);
-    ethernetProtocol.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(ethernet_header::ethertype_values::ip4);
+    ethernetProtocol.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(ethernet2_header::ethertype_values::ip4);
 //    ethernetProtocol.listeners.append_new_empty_handler(&arpProtocol);
 //    ethernetProtocol.listeners.add_requirement_to_last_handler<ETHER_LISTEN_ON_PROTOCOL_INDEX>(htons(ETH_P_ARP));
 

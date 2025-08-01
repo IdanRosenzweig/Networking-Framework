@@ -7,7 +7,7 @@ using namespace std;
 #include "lib/linux/linux_iface_net_access.h"
 #include "lib/linux/hardware.h"
 
-#include "src/protocols/ether/ethernet2_protocol.h"
+#include "src/protocols/ether2/ethernet2_protocol.h"
 #include "src/protocols/arp/arp_header.h"
 #include "src/protocols/arp/arp_protocol.h"
 
@@ -33,7 +33,7 @@ int main() {
 
     string subnet_str = "10.100.102.0/24";
     cout << "scanning the subnet " << subnet_str << endl;
-    auto entries = arp_tool::scan_entire_subnet(net_access_eth_broadcast_arp, str_to_ip4_subnet_mask(subnet_str).value(), get_mac_addr_of_iface("enp0s3").value(), get_ip_addr_of_iface("enp0s3").value());
+    auto entries = arp_tool::scan_entire_subnet(net_access_eth_broadcast_arp, str_to_ip4_subnet_mask(subnet_str).value(), get_mac_addr_of_iface("enp0s3").value(), get_ip4_addr_of_iface("enp0s3").value());
     // auto entries = arp_tool::scan_entire_subnet(ether_to_arp_bridge, str_to_ip4_subnet_mask("10.100.102.0/24").value(), mac_addr_empty, ip4_addr_empty);
     for (auto const& entry : entries) {
         printf("%s is %s\n", ip4_addr_to_str(entry.first).c_str(), mac_addr_to_str(entry.second).c_str());
@@ -48,7 +48,7 @@ int main() {
         // {{net_access_victim, victim_mac_addr, victim_ip4_addr}},
         {{net_access_eth_single_arp, mac_addr_empty, ip4_addr_empty}},
         str_to_ip4_addr("10.100.102.1").value(),
-        get_mac_addr_of_iface("enp0s3").value(), get_ip_addr_of_iface("enp0s3").value(),
+        get_mac_addr_of_iface("enp0s3").value(), get_ip4_addr_of_iface("enp0s3").value(),
         true
     );
 

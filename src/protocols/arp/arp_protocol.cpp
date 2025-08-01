@@ -2,10 +2,38 @@
 
 #include <cstdio>
 
-void arp_protocol::send() {
-    // write to buff
-    vector<uint8_t> buff(next_header.calc_sz());
-    write_in_network_order(buff.data(), &next_header);
+namespace arp_protocol {
+    void send(shared_ptr<net_access_bytes> const& net_access, arp_header const& header) {
+        vector<uint8_t> buff(sizeof(arp_header));
 
-    net_access->get_send_access()->send_data(buff);
+        // arp header
+        write_in_network_order(buff.data(), &header);
+
+        net_access->get_send_access()->send_data(buff);
+    }
+
+    void connect_recv(
+        shared_ptr<net_access_bytes> const& net_access, shared_ptr<basic_recv_listener<arp_header>> const& recv,
+        optional<arp_op_values> op
+    ) {
+        struct my_recv : public basic_recv_listener<vector<uint8_t>> {
+            shared_ptr<basic_recv_listener<arp_header>> recv;
+            optional<arp_op_values> op;
+            my_recv(shared_ptr<basic_recv_listener<arp_header>> const& recv, optional<arp_op_values> op) : recv(recv), op(op) {}
+
+            void handle_recv(vector<uint8_t> const& data) override {
+                struct arp_header header;
+                extract_from_network_order(&header, data.data());
+
+                if (op.has_value()) {
+                    if (header.op != op.value()) return;
+                }
+
+                recv->handle_recv(header);
+            }
+        };
+
+        net_access->set_recv_access(make_shared<my_recv>(recv, op));
+    }
+
 }

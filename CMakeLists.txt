@@ -28,14 +28,12 @@ set(ABSTRACT_SRC
         src/utils/network_atomic_queue.h
         src/abstract/sniffer/sniffer.h
         src/abstract/sniffer/basic_sniff_handler.h
-        src/linux/if/wrappers/interface_sniffer.cpp
-        src/linux/if/wrappers/interface_sniffer.h
 )
 
 set(PROTOCOLS_SRC
-        src/protocols/ether/ethernet2_protocol.cpp
-        src/protocols/ether/ethernet_header.cpp
-        src/protocols/ether/mac_addr.cpp
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
@@ -67,8 +65,7 @@ set(LINUX_SRC
 
         lib/linux/linux_iface_net_access.h
 
-        # src/linux/osi/data_link_layer_gateway.cpp
-        # src/linux/osi/network_layer_gateway.cpp
+        lib/linux/virtual_net.cpp
 )
 
 set(DIRECT_CONNECTIONS_SRC
@@ -94,9 +91,9 @@ add_executable(test
 
         src/main/test/test.cpp
 
-        src/protocols/ether/ethernet2_protocol.cpp
-        src/protocols/ether/ethernet_header.cpp
-        src/protocols/ether/mac_addr.cpp
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
 
         src/protocols/arp/arp_header.cpp
         src/protocols/arp/arp_protocol.cpp
@@ -237,15 +234,6 @@ add_executable(dns_client
 
 
 
-# add_executable(net_scanner
-#         ${ABSTRACT_SRC}
-#         ${PROTOCOLS_SRC}
-#         ${DIRECT_CONNECTIONS_SRC}
-#         ${LINUX_SRC}
-
-#         src/main/net_scanner/net_scanner.cpp
-#         src/tools/net_arp/net_arp.cpp
-# )
 
 add_executable(arp_scanner
         ${ABSTRACT_SRC}
@@ -253,9 +241,9 @@ add_executable(arp_scanner
 
         src/main/arp_scanner/arp_scanner.cpp
 
-        src/protocols/ether/ethernet2_protocol.cpp
-        src/protocols/ether/ethernet_header.cpp
-        src/protocols/ether/mac_addr.cpp
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
 
         src/protocols/arp/arp_header.cpp
         src/protocols/arp/arp_protocol.cpp
@@ -267,16 +255,6 @@ add_executable(arp_scanner
 
         src/tools/arp_tool/arp_tool.cpp
 )
-
-# add_executable(net_intercept
-#         ${ABSTRACT_SRC}
-#         ${PROTOCOLS_SRC}
-#         ${DIRECT_CONNECTIONS_SRC}
-#         ${LINUX_SRC}
-
-#         src/main/net_intercept/net_intercept.cpp
-#         src/tools/net_arp/net_arp.cpp
-# )
 
 add_executable(arp_spoofer
         ${ABSTRACT_SRC}
@@ -284,9 +262,9 @@ add_executable(arp_spoofer
 
         src/main/arp_spoofer/arp_spoofer.cpp
 
-        src/protocols/ether/ethernet2_protocol.cpp
-        src/protocols/ether/ethernet_header.cpp
-        src/protocols/ether/mac_addr.cpp
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
 
         src/protocols/arp/arp_header.cpp
         src/protocols/arp/arp_protocol.cpp
@@ -299,8 +277,38 @@ add_executable(arp_spoofer
         src/tools/arp_tool/arp_tool.cpp
 )
 
+add_executable(netcat_local_ether2
+        ${ABSTRACT_SRC}
+        ${LINUX_SRC}
 
+        src/main/netcat/netcat_local_ether2.cpp
 
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
+
+        src/protocols/ip4/ip4_protocol.cpp
+        src/protocols/ip4/ip4_addr.cpp
+        src/protocols/ip4/internet_checksum.cpp
+        src/protocols/ip4/ip4_header.cpp
+
+)
+
+add_executable(netcat_local_ip4
+        ${ABSTRACT_SRC}
+        ${LINUX_SRC}
+
+        src/main/netcat/netcat_local_ip4.cpp
+
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
+
+        src/protocols/ip4/ip4_protocol.cpp
+        src/protocols/ip4/ip4_header.cpp
+        src/protocols/ip4/ip4_addr.cpp
+        src/protocols/ip4/internet_checksum.cpp
+)
 
 
 
@@ -314,15 +322,5 @@ add_executable(net_analyzer
 
         src/main/net_analyzer/net_analyzer.cpp
         src/tools/analyzer/net_analyzer.cpp
-)
-
-add_executable(mac_changer
-        ${ABSTRACT_SRC}
-        ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTIONS_SRC}
-        ${LINUX_SRC}
-
-        src/main/net_intercept/mac_changer.cpp
-        src/tools/net_arp/net_arp.cpp
 )
 

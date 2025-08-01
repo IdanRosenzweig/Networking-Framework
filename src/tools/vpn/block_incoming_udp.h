@@ -9,7 +9,7 @@
 
 #include "../../protocols/udp/udp_protocol.h"
 #include "../../protocols/ip4/ip4_protocol.h"
-#include "../../protocols/ether/ethernet2_protocol.h"
+#include "../../protocols/ether2/ethernet2_protocol.h"
 
 class block_incoming_udp : public basic_firewall_filter<recv_msg_t> {
     ip4_protocol ip_prot;

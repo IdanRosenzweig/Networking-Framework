@@ -47,7 +47,7 @@ void set_mac_addr_for_iface(string const& iface, mac_addr new_addr) {
 
 }
 
-optional<ip4_addr> get_ip_addr_of_iface(string const& iface) {
+optional<ip4_addr> get_ip4_addr_of_iface(string const& iface) {
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     // Get the private ip address of our device

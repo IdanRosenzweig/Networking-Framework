@@ -1,7 +1,10 @@
-#include <netinet/in.h>
 #include "ip4_header.h"
 
-int write_in_network_order(uint8_t * dest, ip4_header const* src) {
+#include <netinet/in.h>
+
+#include "internet_checksum.h"
+
+int write_in_network_order(uint8_t* dest, ip4_header const* src) {
     *dest++ = (src->version << 4) + src->header_len;
     *dest++ = src->type_of_service;
 
@@ -16,12 +19,12 @@ int write_in_network_order(uint8_t * dest, ip4_header const* src) {
 
     *dest++ = src->ttl;
 
-    *dest++ = src->protocol;
+    *dest++ = src->prot;
 
     *(uint16_t *)dest = htons(src->checksum);
     dest += sizeof(uint16_t);
 
-    dest += write_in_network_order(dest, &src->source_addr);
+    dest += write_in_network_order(dest, &src->src_addr);
     dest += write_in_network_order(dest, &src->dest_addr);
 
     return sizeof(ip4_header);
@@ -46,12 +49,12 @@ int extract_from_network_order(ip4_header* dest, uint8_t const* src) {
 
     dest->ttl = *src++;
 
-    dest->protocol = *src++;
+    dest->prot = static_cast<ip_prot_values>(*src++);
 
     dest->checksum = ntohs(*(uint16_t*) src);
     src += sizeof(uint16_t);
 
-    src += extract_from_network_order(&dest->source_addr, src);
+    src += extract_from_network_order(&dest->src_addr, src);
     src += extract_from_network_order(&dest->dest_addr, src);
 
     return sizeof(ip4_header);
