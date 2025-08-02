@@ -1,17 +1,19 @@
 #include <netinet/in.h>
 #include "ethernet2_header.h"
 
+#include <iostream>
+
 int write_in_network_order(uint8_t * dest, ethernet2_header const* src) {
     dest += write_in_network_order(dest, &src->dest_addr);
     dest += write_in_network_order(dest, &src->src_addr);
-    *(uint16_t*) dest = htons(src->ether_type);
+    *(uint16_t*) dest = htons(src->prot);
     return sizeof(ethernet2_header);
 }
 
 int extract_from_network_order(ethernet2_header* dest, uint8_t const* src) {
     src += extract_from_network_order(&dest->dest_addr, src);
     src += extract_from_network_order(&dest->src_addr, src);
-    dest->ether_type = static_cast<ethertype>(ntohs(*(uint16_t*) src));
+    dest->prot = static_cast<ethertype>(ntohs(*(uint16_t*) src));
     return sizeof(ethernet2_header);
 }
 

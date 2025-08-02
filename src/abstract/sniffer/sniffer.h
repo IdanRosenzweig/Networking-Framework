@@ -3,10 +3,12 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <cstdint>
 using namespace std;
 
 #include "../receiving/basic_recv_listener.h"
 #include "../sending/basic_send_medium.h"
+#include "src/abstract/network_access/net_access_bytes.h"
 
 #include "basic_sniff_handler.h"
 
@@ -41,52 +43,103 @@ using namespace std;
 
 // };
 
-template <typename T>
-struct sniffer_send : public basic_send_medium<T> {
+struct sniffer_send : public basic_send_medium<vector<uint8_t>> {
 private:
-    shared_ptr<basic_send_medium<T>> send;
-
-    vector<shared_ptr<basic_sniff_handler<T>>> handlers; // handlers to use
-
+    vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> handlers; // handlers to use
 public:
-    explicit sniffer_send(shared_ptr<basic_send_medium<T>> const& send) : send(send) {
-    }
 
-    void add_handler(shared_ptr<basic_sniff_handler<T>> const& handler) {
+    void add_handler(shared_ptr<basic_sniff_handler<vector<uint8_t>>>&& handler) {
         if (handler == nullptr) return;
-        handlers.push_back(handler);
+        handlers.push_back(std::move(handler));
     }
 
-    int send_data(T const& data) override {
+    err_t send_data(vector<uint8_t> const& data) override {
         for (auto& handler: handlers) {
             handler->handle_sniff(data);
         }
 
-        return send->send_data(data);
+        return err_t::OK;
     }
 };
 
-template <typename T>
-struct sniffer_recv : public basic_recv_listener<T> {
+struct sniffer_recv : public basic_recv_listener<vector<uint8_t>> {
 private:
-    shared_ptr<basic_recv_listener<T>> recv;
-
-    vector<shared_ptr<basic_sniff_handler<T>>> handlers; // handlers to use
+    vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> handlers; // handlers to use
 
 public:
-    explicit sniffer_recv(shared_ptr<basic_recv_listener<T>> const& recv) : recv(recv) {
-    }
-
-    void add_handler(shared_ptr<basic_sniff_handler<T>> const& handler) {
+    void add_handler(shared_ptr<basic_sniff_handler<vector<uint8_t>>>&& handler) {
         if (handler == nullptr) return;
-        handlers.push_back(handler);
+        handlers.push_back(std::move(handler));
     }
 
-    int handle_recv(T const& data) override {
+    void handle_recv(vector<uint8_t> const& data) override {
         for (auto& handler: handlers) {
             handler->handle_sniff(data);
         }
-
-        recv->handle_recv(data);
     }
+};
+
+struct sniffer_net_access : public net_access_bytes {
+public:
+    shared_ptr<net_access_bytes> net_access;
+
+    vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> handlers_send; // handlers to use when sending
+    vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> handlers_recv; // handlers to use when receiving
+
+    shared_ptr<basic_recv_listener<vector<uint8_t>>> recv;
+    shared_ptr<basic_send_medium<vector<uint8_t>>> send;
+
+public:
+    sniffer_net_access(shared_ptr<net_access_bytes>&& _net_access) : net_access(std::move(_net_access)) {
+        // receiving
+        struct my_recv : public basic_recv_listener<vector<uint8_t>> {
+        private:
+            sniffer_net_access* par;
+
+        public:
+            my_recv(sniffer_net_access* par) : par(par) {
+            }
+
+            void handle_recv(vector<uint8_t> const& data) override {
+                for (auto& handler: par->handlers_recv) {
+                    handler->handle_sniff(data);
+                }
+
+                if (par->recv != nullptr) par->recv->handle_recv(data);
+            }
+        };
+
+        net_access->set_recv_access(make_shared<my_recv>(this));
+
+        // sending
+        struct my_send : public basic_send_medium<vector<uint8_t>> {
+        private:
+            sniffer_net_access* par;
+
+        public:
+            my_send(sniffer_net_access* par) : par(par) {
+            }
+
+            err_t send_data(vector<uint8_t> const& data) override {
+                for (auto& handler: par->handlers_send) {
+                    handler->handle_sniff(data);
+                }
+
+                return par->net_access->get_send_access()->send_data(data);
+            }
+        };
+        send = make_shared<my_send>(this);
+    }
+
+protected:
+    /* send access */
+    shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
+        return send;
+    }
+
+    /* recv access */
+    void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
+        this->recv = recv;
+    }
+
 };

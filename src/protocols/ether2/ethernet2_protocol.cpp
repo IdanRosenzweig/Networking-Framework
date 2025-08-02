@@ -50,7 +50,7 @@ namespace ethernet2_protocol {
                 }
 
                 if (type.has_value()) {
-                    if (eth_header.ether_type != type.value()) return;
+                    if (eth_header.prot != type.value()) return;
                 }
 
                 recv->handle_recv({eth_header, encap_data});

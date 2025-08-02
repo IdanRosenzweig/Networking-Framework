@@ -20,23 +20,13 @@ void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *b
         return;
     }
 
-    // nothing
+    // the data
+    vector<uint8_t> data((uint8_t*) bytes, ((uint8_t*) bytes) + data_sz);
+
+    // send to outgoing sniff
+    if (class_ptr->sniff_outgoing != nullptr)
+        class_ptr->sniff_outgoing->handle_recv(data);
 }
-
-// void handler_out(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
-//     linux_iface *class_ptr = reinterpret_cast<linux_iface *>(user);
-
-//     int data_sz = pkthdr->caplen;
-//     if (data_sz <= 0) {
-//         return;
-//     }
-
-//     recv_msg_t msg;
-//     msg.buff = udata_t(data_sz, 0x00);
-//     memcpy(msg.buff.data(), bytes, data_sz);
-//     msg.curr_offset = 0;
-//     class_ptr->outgoing_network_queue.add_msg(std::move(msg));
-// }
 
 void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
     linux_iface *class_ptr = reinterpret_cast<linux_iface *>(user);
@@ -46,26 +36,16 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
         return;
     }
 
+    // the data
+    vector<uint8_t> data((uint8_t*) bytes, ((uint8_t*) bytes) + data_sz);
+
     // forward to the recv access
-    class_ptr->async_recv->handle_recv(vector<uint8_t>((uint8_t*) bytes, ((uint8_t*) bytes) + data_sz));
+    class_ptr->async_recv->handle_recv(data);
+
+    // send to incoming sniff
+    if (class_ptr->sniff_incoming != nullptr)
+        class_ptr->sniff_incoming->handle_recv(data);
 }
-
-// void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes) {
-//     linux_iface *class_ptr = reinterpret_cast<linux_iface *>(user);
-
-//     int data_sz = pkthdr->caplen;
-//     if (data_sz <= 0) {
-//         return;
-//     }
-
-//     recv_msg_t msg;
-//     msg.buff = udata_t(data_sz, 0x00);
-//     memcpy(msg.buff.data(), bytes, data_sz);
-//     msg.curr_offset = 0;
-//     class_ptr->incoming_network_queue.add_msg(std::move(msg));
-// }
-
-
 
 
 
@@ -191,7 +171,6 @@ void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *by
 linux_iface::linux_iface(string const& iface) : iface_name(iface), async_recv(make_shared<async_recv_listener<vector<uint8_t>>>()) {
 
     // traffic out
-    // outgoing_network_queue.add_listener(&outgoing_traffic);
     {
         char errbuf[PCAP_ERRBUF_SIZE];
         traffic_out = pcap_open_live(iface.c_str(), BUFSIZ, 1, 10, errbuf);
@@ -219,7 +198,6 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface), async_recv(ma
     }
 
     // traffic in
-    // incoming_network_queue.add_listener(&incoming_traffic);
     {
         char errbuf[PCAP_ERRBUF_SIZE];
         traffic_in = pcap_open_live(iface.c_str(), BUFSIZ, 1, 10, errbuf);
@@ -246,21 +224,20 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface), async_recv(ma
         });
     }
 
-   std::this_thread::sleep_for(2000ms); // ensure the pcap_loop has started // todo fix this
+    std::this_thread::sleep_for(2000ms); // ensure the pcap_loops have started // todo fix this
 
-    // sending buff out
+    // setup the send access
     fd = socket(
             AF_PACKET,
             SOCK_RAW,
             htons(ETH_P_ALL)
     );
     if (fd == OPEN_ERROR) {
-        std::cerr << "data_link_layer_fd err" << endl;
+        std::cerr << "fd err" << endl;
         printf("errno: %d\n", errno);
         throw;
     }
 
-    // get if_req
     struct ifreq if_idx;
     memset(&if_idx, 0, sizeof(struct ifreq));
     strncpy(if_idx.ifr_name, iface.c_str(), IFNAMSIZ - 1);
@@ -280,11 +257,7 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface), async_recv(ma
         perror("bind");
         throw;
     }
-    // set ll socket plain_data
-//    dest_addr.sll_ifindex = if_idx.ifr_ifindex;
 
-
-    // setup the send access
     struct my_send : public basic_send_medium<vector<uint8_t>> {
         int fd;
         my_send(int fd) : fd(fd) {}
@@ -302,9 +275,7 @@ linux_iface::linux_iface(string const& iface) : iface_name(iface), async_recv(ma
 }
 
 linux_iface::~linux_iface() {
-    // outgoing_network_queue.remove_listener(&this->outgoing_traffic);
     worker_traffic_out.detach();
-    // incoming_network_queue.remove_listener(&this->incoming_traffic);
     worker_traffic_in.detach();
 }
 

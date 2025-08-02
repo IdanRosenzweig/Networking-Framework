@@ -244,6 +244,7 @@ add_executable(arp_scanner
         src/protocols/ether2/ethernet2_protocol.cpp
         src/protocols/ether2/ethernet2_header.cpp
         src/protocols/ether2/mac_addr.cpp
+        src/protocols/ether2/ethertype.cpp
 
         src/protocols/arp/arp_header.cpp
         src/protocols/arp/arp_protocol.cpp
@@ -265,6 +266,7 @@ add_executable(arp_spoofer
         src/protocols/ether2/ethernet2_protocol.cpp
         src/protocols/ether2/ethernet2_header.cpp
         src/protocols/ether2/mac_addr.cpp
+        src/protocols/ether2/ethertype.cpp
 
         src/protocols/arp/arp_header.cpp
         src/protocols/arp/arp_protocol.cpp
@@ -286,6 +288,7 @@ add_executable(netcat_local_ether2
         src/protocols/ether2/ethernet2_protocol.cpp
         src/protocols/ether2/ethernet2_header.cpp
         src/protocols/ether2/mac_addr.cpp
+        src/protocols/ether2/ethertype.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_addr.cpp
@@ -303,6 +306,7 @@ add_executable(netcat_local_ip4
         src/protocols/ether2/ethernet2_protocol.cpp
         src/protocols/ether2/ethernet2_header.cpp
         src/protocols/ether2/mac_addr.cpp
+        src/protocols/ether2/ethertype.cpp
 
         src/protocols/ip4/ip4_protocol.cpp
         src/protocols/ip4/ip4_header.cpp
@@ -310,17 +314,25 @@ add_executable(netcat_local_ip4
         src/protocols/ip4/internet_checksum.cpp
 )
 
-
-
-
-
 add_executable(net_analyzer
         ${ABSTRACT_SRC}
-        ${PROTOCOLS_SRC}
-        ${DIRECT_CONNECTIONS_SRC}
         ${LINUX_SRC}
 
         src/main/net_analyzer/net_analyzer.cpp
-        src/tools/analyzer/net_analyzer.cpp
+
+        src/protocols/ether2/ethernet2_protocol.cpp
+        src/protocols/ether2/ethernet2_header.cpp
+        src/protocols/ether2/mac_addr.cpp
+        src/protocols/ether2/ethertype.cpp
+
+        src/protocols/arp/arp_header.cpp
+        src/protocols/arp/arp_protocol.cpp
+
+        src/protocols/ip4/ip4_protocol.cpp
+        src/protocols/ip4/ip4_header.cpp
+        src/protocols/ip4/ip4_addr.cpp
+        src/protocols/ip4/internet_checksum.cpp
+
+        src/tools/net_analyzer/net_analyzer.cpp
 )
 

@@ -7,10 +7,11 @@
 using namespace std;
 
 #include "arp_op_values.h"
+#include "src/protocols/ether2/ethertype.h"
 
 struct arp_header {
     uint16_t hard_type; // type of hardware address
-    uint16_t prot_type; // type of protocol address
+    ethertype prot_type; // type of protocol address
 
     uint8_t hard_addr_sz; // size of the hardware address
     uint8_t prot_addr_sz; // size of the protocol address

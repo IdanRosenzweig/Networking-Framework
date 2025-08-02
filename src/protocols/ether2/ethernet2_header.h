@@ -7,7 +7,7 @@ struct ethernet2_header {
     mac_addr src_addr;
     mac_addr dest_addr;
 
-    ethertype ether_type;
+    ethertype prot;
 };
 
 int write_in_network_order(uint8_t* dest, ethernet2_header const* src);

@@ -68,12 +68,17 @@ private:
     // network_atomic_queue<recv_msg_t> incoming_network_queue;
     friend void handler_in(u_char *user, const struct pcap_pkthdr *pkthdr, const u_char *bytes);
 
+
     // injecting outgoing data to the iface
     shared_ptr<basic_send_medium<vector<uint8_t>>> send_access;
     int fd;
 
-    // recv queue
+    // recv access for incoming data (async queue)
     shared_ptr<async_recv_listener<vector<uint8_t>>> async_recv;
+
+    // sniff outgoing and incoming data
+    shared_ptr<basic_recv_listener<vector<uint8_t>>> sniff_outgoing;
+    shared_ptr<basic_recv_listener<vector<uint8_t>>> sniff_incoming;
 
 public:
     string const& iface_name;
@@ -81,18 +86,24 @@ public:
 
     ~linux_iface();
 
-    shared_ptr<basic_send_medium<vector<uint8_t>>> get_send_access() {
+public:
+    // send access for outgoing data
+    shared_ptr<basic_send_medium<vector<uint8_t>>> outgoing_get_send() {
         return send_access;
     }
 
-    /* recv access, can be set from outside in order to receive from the iface */
-// private:
-//     shared_ptr<basic_recv_listener<vector<uint8_t>>> recv_access;
-
-public:
-    void set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) {
+    // async recv access for incoming data
+    void incoming_set_recv(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) {
         async_recv->set_recv_listener(recv);
-        // recv_access = recv;
     }
 
+    // async sniff for outgoing data
+    void sniffing_set_outgoing(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& sniff) {
+        sniff_outgoing = sniff;
+    }
+
+    // async sniff for incoming data
+    void sniffing_set_incoming(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& sniff) {
+        sniff_incoming = sniff;
+    }
 };

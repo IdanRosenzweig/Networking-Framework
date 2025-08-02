@@ -76,15 +76,15 @@ private:
     vector<shared_ptr<basic_firewall_filter<T>>> filters; // filters to apply
 
 public:
-    explicit firewall(shared_ptr<basic_send_medium<T>> const& send) : send(send) {
+    explicit firewall(shared_ptr<basic_send_medium<T>>&& _send) : send(std::move(_send)) {
     }
 
-    void add_filter(shared_ptr<basic_firewall_filter<T>> const& filter) {
+    void add_filter(shared_ptr<basic_firewall_filter<T>>&& filter) {
         if (filter == nullptr) return;
-        filters.push_back(filter);
+        filters.push_back(std::move(filter));
     }
     
-    int send_data(T const& data) override {
+    err_t send_data(T const& data) override {
         for (auto& filter: filters) {
             switch (filter->calc_policy(data)) {
                 case firewall_policy::ALLOW:
@@ -111,7 +111,12 @@ private:
     vector<shared_ptr<basic_firewall_filter<T>>> filters; // filters to apply
 
 public:
-    explicit firewall(shared_ptr<basic_recv_listener<T>> const& recv) : recv(recv) {
+    explicit firewall(shared_ptr<basic_recv_listener<T>>&& _recv) : recv(std::move(_recv)) {
+    }
+
+    void add_filter(shared_ptr<basic_firewall_filter<T>>&& filter) {
+        if (filter == nullptr) return;
+        filters.push_back(std::move(filter));
     }
 
     void handle_recv(T const& data) override {
@@ -131,4 +136,99 @@ public:
 
         recv->handle_recv(data);
     }
+};
+
+struct firewall_net_access : public net_access_bytes {
+public:
+    shared_ptr<net_access_bytes> net_access;
+
+    vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> filters_send; // filters to use when sending
+    vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> filters_recv; // filters to use when receiving
+
+    shared_ptr<basic_recv_listener<vector<uint8_t>>> recv;
+    shared_ptr<basic_send_medium<vector<uint8_t>>> send;
+
+public:
+    sniffer_net_access(shared_ptr<net_access_bytes>&& _net_access) : net_access(std::move(_net_access)) {
+        // receiving
+        struct my_recv : public basic_recv_listener<vector<uint8_t>> {
+        private:
+            sniffer_net_access* par;
+
+        public:
+            my_recv(sniffer_net_access* par) : par(par) {
+            }
+
+            void handle_recv(vector<uint8_t> const& data) override {
+                for (auto& filter: par->filters_recv) {
+                    switch (filter->calc_policy(data)) {
+                        case firewall_policy::ALLOW:
+                            break; // continue to next filter
+                        case firewall_policy::BLOCK: {
+                            return; // stop
+                        }
+                        case firewall_policy::DELAY: {
+                            std::this_thread::sleep_for(1000ms); // todo include this metadata
+                            break; // continue to next filter
+                        }
+                    }
+                }
+
+                if (par->recv != nullptr) par->recv->handle_recv(data);
+            }
+        };
+
+        net_access->set_recv_access(make_shared<my_recv>(this));
+
+        // sending
+        struct my_send : public basic_send_medium<vector<uint8_t>> {
+        private:
+            sniffer_net_access* par;
+
+        public:
+            my_send(sniffer_net_access* par) : par(par) {
+            }
+
+            err_t send_data(vector<uint8_t> const& data) override {
+                for (auto& filter: par->filters_send) {
+                    switch (filter->calc_policy(data)) {
+                        case firewall_policy::ALLOW:
+                            break; // continue to next filter
+                        case firewall_policy::BLOCK: {
+                            return err_t::ERR; // stop
+                        }
+                        case firewall_policy::DELAY: {
+                            std::this_thread::sleep_for(1000ms); // todo include this metadata
+                            break; // continue to next filter
+                        }
+                    }
+                }
+
+                return par->net_access->get_send_access()->send_data(data);
+            }
+        };
+        send = make_shared<my_send>(this);
+    }
+
+    void add_filter_send(shared_ptr<basic_firewall_filter<vector<uint8_t>>> const& filter) {
+        if (filter == nullptr) return;
+        filters_send.push_back(filter);
+    }
+
+    void add_filter_recv(shared_ptr<basic_firewall_filter<vector<uint8_t>>> const& filter) {
+        if (filter == nullptr) return;
+        filters_recv.push_back(filter);
+    }
+    
+protected:
+    /* send access */
+    shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
+        return send;
+    }
+
+    /* recv access */
+    void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
+        this->recv = recv;
+    }
+
 };

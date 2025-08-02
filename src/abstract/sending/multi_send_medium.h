@@ -40,7 +40,7 @@ public:
         return true;
     }
 
-    int send_data(TYPE const& data) override {
+    err_t send_data(TYPE const& data) override {
         lock_guard<mutex> lock(mediums_mtx);
 
         err_t res = err_t::OK;

@@ -1,31 +1,43 @@
-#include "../../tools/analyzer/net_analyzer.h"
-
-#include "../../linux/if/iface_access_point.h"
-#include "../../linux/if/wrappers/interface_sniffer.h"
-
 #include <boost/program_options.hpp>
+
 #include <iostream>
+#include <memory>
+#include <ctime>
 using namespace std;
 
-void net_analyzer_main(const string& iface) {
-    std::shared_ptr<iface_access_point> iface_access = make_shared<iface_access_point>(iface);
+#include "lib/linux/linux_iface.h"
+#include "lib/linux/linux_iface_net_access.h"
+#include "lib/linux/virtual_net.h"
+#include "lib/linux/hardware.h"
 
-    interface_sniffer sniffer(iface_access);
-    net_analyzer analyzer(&sniffer);
+#include "src/tools/net_analyzer/net_analyzer.h"
+
+void net_analyzer_main(string const& iface_name) {
+    /* network access in linux */
+    shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
+
+    shared_ptr<sniffer_recv> sniff_outgoing = make_shared<sniffer_recv>();
+    iface->sniffing_set_outgoing(sniff_outgoing);
+
+    shared_ptr<sniffer_recv> sniff_incoming = make_shared<sniffer_recv>();
+    iface->sniffing_set_incoming(sniff_incoming);
+
+    net_analyzer analyzer(sniff_outgoing, sniff_incoming);
 
     while (true) {
-
+        sleep(1);
     }
+
 }
 
-namespace po = boost::program_options;
-
 int main(int argc, char **argv) {
-    po::options_description opts("analyze traffic of an interface");
+    namespace po = boost::program_options;
+
+    po::options_description opts("tool for sending and receiving raw text (on the local network)");
     opts.add_options()
-            ("help,h", "print tool use description")
-            ("iface", po::value<string>(), "interface to sniff traffic from")
-            ;
+        ("help,h", "print tool use description")
+        ("iface", po::value<string>(), "linux interface to use")
+    ;
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);

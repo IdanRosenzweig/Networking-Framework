@@ -57,7 +57,7 @@ namespace ethernet2_protocol {
                     struct ethernet2_header eth_header;
                     eth_header.src_addr = dest_addr.has_value() ? dest_addr.value() : mac_addr_empty;
                     eth_header.dest_addr = mac_addr_broadcast;
-                    eth_header.ether_type = prot.has_value() ? prot.value() : static_cast<ethertype>(0); // todo some ETHERTYPE_NONE
+                    eth_header.prot = prot.has_value() ? prot.value() : static_cast<ethertype>(0); // todo some ETHERTYPE_NONE
 
                     ethernet2_protocol::send(par->my_net_access, eth_header, data);
 
@@ -114,7 +114,7 @@ namespace ethernet2_protocol {
                     struct ethernet2_header eth_header;
                     eth_header.src_addr = dest_addr.has_value() ? dest_addr.value() : mac_addr_empty;
                     eth_header.dest_addr = src_addr;
-                    eth_header.ether_type = prot.has_value() ? prot.value() : static_cast<ethertype>(0); // todo some ETHERTYPE_NONE
+                    eth_header.prot = prot.has_value() ? prot.value() : static_cast<ethertype>(0); // todo some ETHERTYPE_NONE
 
                     // cout << "single sends, src_addr " << mac_addr_to_str(src_addr) << " dest_addr " << mac_addr_to_str(dest_addr.has_value() ? dest_addr.value() : mac_addr_empty) << endl;
                     ethernet2_protocol::send(par->my_net_access, eth_header, data);

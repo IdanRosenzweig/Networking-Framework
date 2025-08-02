@@ -20,12 +20,12 @@ public:
 protected:
     /* send access */
     shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
-        return iface->get_send_access();
+        return iface->outgoing_get_send();
     }
 
     /* recv access */
     void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
-        iface->set_recv_access(recv);
+        iface->incoming_set_recv(recv);
     }
 
 };

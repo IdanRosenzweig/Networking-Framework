@@ -9,7 +9,7 @@ size_t write_in_network_order(uint8_t* dest, arp_header const* src) {
 
     *(uint16_t*)dest = htons(src->hard_type);
     dest += sizeof(src->hard_type);
-    *(uint16_t*)dest = htons(src->prot_type);
+    *(uint16_t*)dest = htons(static_cast<uint16_t>(src->prot_type));
     dest += sizeof(src->prot_type);
 
     *(uint8_t*)dest = src->hard_addr_sz;
@@ -44,7 +44,7 @@ size_t extract_from_network_order(arp_header* dest, uint8_t const* src) {
 
     dest->hard_type = ntohs(*(uint16_t*)src);
     src += sizeof(dest->hard_type);
-    dest->prot_type = ntohs(*(uint16_t*)src);
+    dest->prot_type = static_cast<ethertype>(ntohs(*(uint16_t*)src));
     src += sizeof(dest->prot_type);
 
     dest->hard_addr_sz = *(uint8_t*)src;
