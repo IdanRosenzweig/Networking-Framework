@@ -29,12 +29,10 @@ public:
             }
             
         protected:
-            /* send access */
             shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
                 return par->net_access->get_send_access();
             }
 
-            /* recv access */
             void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
                 if (curr_recv != nullptr) par->multi_recv->remove_listener(curr_recv);
 

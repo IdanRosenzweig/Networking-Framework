@@ -20,8 +20,9 @@ under `abstract/firewall`:
 # sniffers
 under `abstract/sniffer`:
 * `basic_sniff_handler`: pure virtual class, handles callbacks for sniffed data
-* `sniffer_send`: implementation of `basic_send_medium` for sending data through a sub-`basic_send_medium` after passing it to sniffer handlers
-* `sniffer_recv`: implementation of `basic_recv_listener` for receiving data into a sub-`basic_recv_listener` after passing it to sniffer handlers
+* `sniffer_send`: implementation of `basic_send_medium` that passes sent data to sniffer handlers
+* `sniffer_recv`: implementation of `basic_recv_listener` taht passes received data to sniffer handlers
+* `sniffer_net_access`: a wrapper implemenation of `net_access`, which takes a concrete `net_access` and hooks sniffer handlers for sent and received data
 
 # network access
 under `abstract/network_access`:

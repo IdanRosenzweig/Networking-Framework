@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include <optional>
+using namespace std;
+
 #include "ip4_addr.h"
 
 enum ip_prot_values : uint8_t {
@@ -7,6 +11,8 @@ enum ip_prot_values : uint8_t {
     tcp = 6,
     udp = 17
 };
+optional<string> ip_prot_to_str(ip_prot_values prot);
+optional<ip_prot_values> str_to_ip_prot(string const& str);
 
 struct __attribute__((packed)) ip4_header {
     uint8_t version : 4;

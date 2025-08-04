@@ -4,6 +4,22 @@
 
 #include "internet_checksum.h"
 
+optional<string> ip_prot_to_str(ip_prot_values prot) {
+    switch (prot) {
+        case ip_prot_values::icmp: return "icmp";
+        case ip_prot_values::udp: return "udp";
+        case ip_prot_values::tcp: return "tcp";
+        default: return {};
+    }
+}
+
+optional<ip_prot_values> str_to_ip_prot(string const& str) {
+    if (str == "icmp") return ip_prot_values::icmp;
+    else if (str == "udp") return ip_prot_values::udp;
+    else if (str == "tcp") return ip_prot_values::tcp;
+    else return {};
+}
+
 int write_in_network_order(uint8_t* dest, ip4_header const* src) {
     *dest++ = (src->version << 4) + src->header_len;
     *dest++ = src->type_of_service;
@@ -21,7 +37,8 @@ int write_in_network_order(uint8_t* dest, ip4_header const* src) {
 
     *dest++ = src->prot;
 
-    *(uint16_t *)dest = htons(src->checksum);
+    // *(uint16_t *)dest = htons(src->checksum);
+    *(uint16_t *)dest = src->checksum;
     dest += sizeof(uint16_t);
 
     dest += write_in_network_order(dest, &src->src_addr);
@@ -51,7 +68,8 @@ int extract_from_network_order(ip4_header* dest, uint8_t const* src) {
 
     dest->prot = static_cast<ip_prot_values>(*src++);
 
-    dest->checksum = ntohs(*(uint16_t*) src);
+    // dest->checksum = ntohs(*(uint16_t*) src);
+    dest->checksum = *(uint16_t*) src;
     src += sizeof(uint16_t);
 
     src += extract_from_network_order(&dest->src_addr, src);

@@ -14,13 +14,56 @@ namespace ip4_protocol {
         // ip4 header
         ip4_header tmp_header = header;
         tmp_header.checksum = 0;
-        tmp_header.checksum = internet_checksum((uint16_t *)&tmp_header, sizeof(struct ip4_header));
         write_in_network_order(buff.data(), &tmp_header);
+
+        // checksum
+        tmp_header.checksum = internet_checksum(buff.data(), sizeof(struct ip4_header));
+        write_in_network_order(buff.data(), &tmp_header); // todo something smarter here
 
         // encapsulated data
         memcpy(buff.data() + sizeof(struct ip4_header), data.data(), data.size());
 
         net_access->get_send_access()->send_data(buff);
+    }
+
+    shared_ptr<net_access_bytes> create_net_access_from_routing_table(ip4_routing_table&& routing_table) {
+        // todo take shared_ptr<routing_table> so that the table can be updated online
+        struct my_net_access : net_access_bytes {
+        public:
+            ip4_routing_table routing_table;
+            shared_ptr<basic_recv_listener<vector<uint8_t>>> curr_recv;
+
+        public:
+            my_net_access(ip4_routing_table&& routing_table) : routing_table(std::move(routing_table)) {
+            }
+            
+        protected:
+            shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
+                struct my_send : public basic_send_medium<vector<uint8_t>> {
+                    my_net_access* par;
+                    my_send(my_net_access* par) : par(par) {}
+
+                    err_t send_data(vector<uint8_t> const& data) override {
+                        struct ip4_header header;
+                        extract_from_network_order(&header, data.data());
+
+                        auto route = par->routing_table.find_route(header.dest_addr);
+                        if (route == nullptr) return err_t::ERR;
+
+                        return route->get_send_access()->send_data(data);
+                    }
+                };
+                static auto res = make_shared<my_send>(this);
+
+                return res;
+            }
+
+            void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
+                // todo seperate send and recv in most send functions (???_protocol::send)
+            }
+        };
+
+        return make_shared<my_net_access>(std::move(routing_table));
     }
 
     void send(ip4_routing_table const& routing_table, ip4_header const& header, vector<uint8_t> const& data) {

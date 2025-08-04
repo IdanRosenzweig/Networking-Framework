@@ -1,8 +1,8 @@
 #include "internet_checksum.h"
 
-uint16_t internet_checksum(const uint16_t * buf, int no_bytes) {
+uint16_t internet_checksum(uint8_t const* buf, int no_bytes) {
     int len = no_bytes;
-    const uint16_t* current = reinterpret_cast<const uint16_t *>(buf);
+    uint16_t const* current = reinterpret_cast<uint16_t const*>(buf);
 
     uint32_t sum = 0;
     while (len > 1) {

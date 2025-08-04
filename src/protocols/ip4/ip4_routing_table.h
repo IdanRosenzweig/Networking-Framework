@@ -8,12 +8,8 @@ struct ip4_routing_table : public routing_table<ip4_subnet_mask, ip4_addr> {
 private:
     vector<pair<ip4_subnet_mask, shared_ptr<net_access_bytes>>> rules;
 
-public:
-    void add_routing_rule(ip4_subnet_mask const& subnet, shared_ptr<net_access_bytes>&& net_access) override {
-        rules.push_back({subnet, std::move(net_access)});
-    }
-
-    shared_ptr<net_access_bytes> find_route(ip4_addr const& addr) const override {
+protected:
+    shared_ptr<net_access_bytes> impl_find_route(ip4_addr const& addr) const override {
         optional<ip4_subnet_mask> closest_subnet = {};
         shared_ptr<net_access_bytes> closest_route = nullptr;
 
@@ -32,5 +28,10 @@ public:
         }
 
         return closest_route;
+    }
+
+public:
+    void add_routing_rule(ip4_subnet_mask const& subnet, shared_ptr<net_access_bytes>&& net_access) override {
+        rules.push_back({subnet, std::move(net_access)});
     }
 };

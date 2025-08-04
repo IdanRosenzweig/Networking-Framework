@@ -1,17 +1,17 @@
-#ifndef NETWORKING_ICMP_HEADER_H
-#define NETWORKING_ICMP_HEADER_H
+#pragma once
 
-#include <stdint.h>
+#include <cstdint>
+
+enum class icmp_type : uint8_t {
+    echoreply = 0,
+    dest_unreachable = 3,
+    redirect = 5,
+    echo = 8,
+    time_exceeded = 11
+};
 
 struct icmp_header {
-    uint8_t type;
-    enum type_values : decltype(type) {
-        echoreply = 0,
-        dest_unreachable = 3,
-        redirect = 5,
-        echo = 8,
-        time_exceeded = 11
-    };
+    icmp_type type;
 
     uint8_t code;
     uint16_t checksum;
@@ -32,8 +32,7 @@ struct icmp_header {
 
 };
 
-int write_in_network_order(uint8_t* dest, icmp_header* src);
+int write_in_network_order(uint8_t* dest, icmp_header const* src);
 
-int extract_from_network_order(icmp_header* dest, uint8_t* src);
+int extract_from_network_order(icmp_header* dest, uint8_t const* src);
 
-#endif //NETWORKING_ICMP_HEADER_H

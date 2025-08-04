@@ -26,7 +26,7 @@ void netcat_server_main(string const& iface_name) {
     shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
     vnet_net_access->connect(iface_name);
 
-    /* net access for ip4 broadcast over unused prot */
+    /* net access for ether2 broadcast over unused prot */
     auto net_access_generator = make_shared<ethernet2_protocol::net_access_generator_single>(std::move(vnet_net_access), get_mac_addr_of_iface(iface_name).value(), ethertype_unsed_prot);
 
     /* clients */
@@ -75,7 +75,7 @@ void netcat_client_main(string const& iface_name, mac_addr server_addr) {
     shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
     vnet_net_access->connect(iface_name);
 
-    /* single net access for ip4 */
+    /* single net access for ether2 */
     auto server_net_access = make_shared<ethernet2_protocol::net_access_single>(std::move(vnet_net_access), server_addr, get_mac_addr_of_iface(iface_name).value(), ethertype_unsed_prot);
 
     struct my_client : public basic_recv_listener<vector<uint8_t>> {

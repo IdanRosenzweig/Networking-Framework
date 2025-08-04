@@ -24,7 +24,7 @@ using namespace std;
 namespace ip4_protocol {
     void send(shared_ptr<net_access_bytes> const& net_access, ip4_header const& header, vector<uint8_t> const& data);
 
-    void send(ip4_routing_table const& routing_table, ip4_header const& header, vector<uint8_t> const& data);
+    shared_ptr<net_access_bytes> create_net_access_from_routing_table(ip4_routing_table&& routing_table);
 
     // connect a receiver to all ip4 packets which match the conditions of src_addr, dest_addr, and prot
     void connect_recv(
