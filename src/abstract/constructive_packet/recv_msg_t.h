@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../utils/udata.h"
-#include "../basic_recv_listener.h"
+#include "../recv_listener.h"
 #include "../recv_forwarder.h"
 
 #include <vector>
@@ -94,7 +94,7 @@ struct recv_msg_t {
 
 };
 
-using msg_recv_listener = basic_recv_listener<recv_msg_t>;
+using msg_recv_listener = recv_listener<recv_msg_t>;
 using msg_recv_forwarder = recv_forwarder<recv_msg_t>;
 
 

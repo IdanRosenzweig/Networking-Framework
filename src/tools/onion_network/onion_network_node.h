@@ -13,7 +13,7 @@ class onion_network_node {
 
     class udp_server udpServer;
 
-    class server_app_handler : public basic_recv_listener<udp_packet_stack>, public connection {
+    class server_app_handler : public recv_listener<udp_packet_stack>, public connection {
     public:
         onion_network_node* master;
 

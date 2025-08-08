@@ -16,10 +16,8 @@ using namespace std;
 /* net analyzer */
 struct net_analyzer {
 private:
-    shared_ptr<sniffer_recv> sniffer_outgoing;
-    shared_ptr<sniffer_recv> sniffer_incoming;
+    shared_ptr<sniffer_recv> sniffer;
 
-    template <net_analyzer_capture_dir dir>
     struct sniff_handler : public basic_sniff_handler<vector<uint8_t>> {
     private:
         net_analyzer* par;
@@ -32,7 +30,6 @@ private:
             // create the sniffed packet struct
             shared_ptr<net_analyzer_sniffed_packet> sniffed_packet = make_shared<net_analyzer_sniffed_packet>(
                 chrono::system_clock::now(),
-                dir,
                 val
             );
 
@@ -46,11 +43,10 @@ private:
     };
     
 public:
-    net_analyzer(shared_ptr<sniffer_recv> const& _sniffer_outgoing, shared_ptr<sniffer_recv> const& _sniffer_incoming)
-    : sniffer_outgoing(_sniffer_outgoing), sniffer_incoming(_sniffer_incoming) {
+    net_analyzer(shared_ptr<sniffer_recv> const& _sniffer)
+    : sniffer(_sniffer) {
 
-        sniffer_outgoing->add_handler(make_shared<sniff_handler<net_analyzer_capture_dir::outgoing>>(this));
-        sniffer_incoming->add_handler(make_shared<sniff_handler<net_analyzer_capture_dir::incoming>>(this));
+        sniffer->add_handler(make_shared<sniff_handler>(this));
 
     }
 

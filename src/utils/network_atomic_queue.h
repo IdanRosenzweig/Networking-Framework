@@ -1,7 +1,7 @@
 #pragma once
 
 #include "circular_queue.h"
-#include "src/abstract/receiving/basic_recv_listener.h"
+#include "src/abstract/receiving/recv_listener.h"
 
 #include <thread>
 #include <mutex>

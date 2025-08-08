@@ -1,5 +1,4 @@
-#ifndef NETWORKING_UDATA_H
-#define NETWORKING_UDATA_H
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -121,4 +120,3 @@ int decode_number(NUM_TYPE* dest_num, void* buff) {
     return res_cnt;
 }
 
-#endif //NETWORKING_UDATA_H

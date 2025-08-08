@@ -5,9 +5,17 @@
 #include <ctime>
 using namespace std;
 
+#ifdef BUILD_OS_LINUX
 #include "lib/linux/linux_iface.h"
 #include "lib/linux/linux_iface_net_access.h"
 #include "lib/linux/hardware.h"
+#elifdef BUILD_OS_MACOS
+#include "lib/macos/macos_iface.h"
+#include "lib/macos/macos_iface_net_access.h"
+#include "lib/macos/hardware.h"
+#include "lib/macos/virtual_net.h"
+#endif
+
 
 #include "src/protocols/ether2/ethernet2_protocol.h"
 #include "src/protocols/arp/arp_header.h"
@@ -16,17 +24,38 @@ using namespace std;
 #include "src/tools/arp_tool/arp_tool.h"
 
 void arp_scan_single_main(string const& iface_name, ip4_addr ip_addr) {
+#ifdef BUILD_OS_LINUX
     /* network access in linux */
-    shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
-    shared_ptr<net_access_bytes> iface_net_access = make_shared<linux_iface_net_access_bytes>(iface);
+    // shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
+    // shared_ptr<net_access> iface_net_access = make_shared<linux_iface_net_access>(iface);
+    /* virtual net access in linux */
+    shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
+    vnet_net_access->connect(iface_name);
+#elifdef BUILD_OS_MACOS
+    /* network access in macos */
+    shared_ptr<macos_iface> iface = make_shared<macos_iface>(iface_name);
+    shared_ptr<net_access> iface_net_access = make_shared<macos_iface_net_access>(iface);
+#endif
 
-    /* net access for ethernet broadcast arp */
-    shared_ptr<net_access_bytes> net_access_eth_broadcast_arp = make_shared<ethernet2_protocol::net_access_broadcast>(std::move(iface_net_access), get_mac_addr_of_iface(iface_name).value(), ethertype::arp);
+    /* ether2 surface */
+    shared_ptr<net_access> ether2_surface;
+#ifdef BUILD_OS_LINUX
+    ether2_surface = vnet_net_access;
+#elifdef BUILD_OS_MACOS
+    ether2_surface = iface_net_access;
+#endif
+
+    /* arp broadcast surface */
+    shared_ptr<net_access> arp_broadcast_surface = make_shared<ethernet2_protocol::net_access_broadcast>(
+        std::move(ether2_surface),
+        get_mac_addr_of_iface(iface_name).value(),
+        ethertype::arp
+    );
 
     /* scanning */
     cout << "scanning for " << ip4_addr_to_str(ip_addr) << endl;
     mac_addr res = arp_tool::search_for_mac_addr(
-        net_access_eth_broadcast_arp,
+        arp_broadcast_surface,
         ip_addr,
         get_mac_addr_of_iface(iface_name).value(), get_ip4_addr_of_iface(iface_name).value()
     );
@@ -35,17 +64,28 @@ void arp_scan_single_main(string const& iface_name, ip4_addr ip_addr) {
 
 void arp_scan_subnet_main(string const& iface_name, ip4_subnet_mask subnet, chrono::duration<int64_t, milli> delay) {
     /* network access in linux */
-    shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
-    shared_ptr<net_access_bytes> iface_net_access = make_shared<linux_iface_net_access_bytes>(iface);
+    // shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
+    // shared_ptr<net_access> iface_net_access = make_shared<linux_iface_net_access>(iface);
+    /* network access in linux */
+    shared_ptr<macos_iface> iface = make_shared<macos_iface>(iface_name);
+    shared_ptr<net_access> iface_net_access = make_shared<macos_iface_net_access>(iface);
 
-    /* net access for ethernet broadcast arp */
-    shared_ptr<net_access_bytes> net_access_eth_broadcast_arp = make_shared<ethernet2_protocol::net_access_broadcast>(std::move(iface_net_access), get_mac_addr_of_iface(iface_name).value(), ethertype::arp);
+    /* ether2 surface */
+    shared_ptr<net_access> ether2_surface = iface_net_access;
+
+    /* arp broadcast surface */
+    shared_ptr<net_access> arp_broadcast_surface = make_shared<ethernet2_protocol::net_access_broadcast>(
+        std::move(ether2_surface),
+        get_mac_addr_of_iface(iface_name).value(),
+        ethertype::arp
+    );
 
     /* scanning */
     cout << "scanning the subnet " << ip4_subnet_mask_to_str(subnet) << endl;
     auto entries = arp_tool::scan_entire_subnet(
-        net_access_eth_broadcast_arp,
+        arp_broadcast_surface,
         subnet,
+        {get_ip4_addr_of_iface(iface_name).value()},
         get_mac_addr_of_iface(iface_name).value(), get_ip4_addr_of_iface(iface_name).value()
     );
     for (auto const& entry : entries) {

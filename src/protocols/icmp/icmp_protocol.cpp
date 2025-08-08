@@ -5,7 +5,9 @@
 #include <cstring>
 using namespace std;
 
-void icmp_protocol::send(shared_ptr<net_access_bytes> const& net_access, icmp_header const& header, vector<uint8_t> const& data) {
+void icmp_protocol::send(shared_ptr<net_access> const& icmp_surface, icmp_header const& header, vector<uint8_t> const& data) {
+    if (icmp_surface == nullptr) return;
+
     vector<uint8_t> buff(sizeof(icmp_header) + data.size());
 
     // arp header
@@ -20,17 +22,19 @@ void icmp_protocol::send(shared_ptr<net_access_bytes> const& net_access, icmp_he
     tmp_header.checksum = internet_checksum(buff.data(), buff.size());
     write_in_network_order(buff.data(), &tmp_header); // todo something smarter here
 
-    net_access->get_send_access()->send_data(buff);
+    icmp_surface->get_send_access()->send_data(buff);
 }
 
 void icmp_protocol::connect_recv(
-    shared_ptr<net_access_bytes> const& net_access, shared_ptr<basic_recv_listener<pair<icmp_header, vector<uint8_t>>>> const& recv,
+    shared_ptr<net_access> const& icmp_surface, shared_ptr<recv_listener<pair<icmp_header, vector<uint8_t>>>> const& recv,
     optional<icmp_type> type
 ) {
-    struct my_recv : public basic_recv_listener<vector<uint8_t>> {
-        shared_ptr<basic_recv_listener<pair<icmp_header, vector<uint8_t>>>> recv;
+    if (icmp_surface == nullptr) return;
+
+    struct my_recv : public recv_listener_bytes {
+        shared_ptr<recv_listener<pair<icmp_header, vector<uint8_t>>>> recv;
         optional<icmp_type> type;
-        my_recv(shared_ptr<basic_recv_listener<pair<icmp_header, vector<uint8_t>>>> const& recv, optional<icmp_type> type) : recv(recv), type(type) {}
+        my_recv(shared_ptr<recv_listener<pair<icmp_header, vector<uint8_t>>>> const& recv, optional<icmp_type> type) : recv(recv), type(type) {}
 
         void handle_recv(vector<uint8_t> const& data) override {
             struct icmp_header header;
@@ -44,7 +48,7 @@ void icmp_protocol::connect_recv(
         }
     };
 
-    net_access->set_recv_access(make_shared<my_recv>(recv, type));
+    icmp_surface->set_recv_access(make_shared<my_recv>(recv, type));
 }
 
 // icmp_protocol::icmp_protocol() {

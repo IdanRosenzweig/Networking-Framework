@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/abstract/network_access/net_access_bytes.h"
+#include "src/abstract/net_access/net_access.h"
 
 #include "error_codes.h"
 
@@ -25,7 +25,7 @@ namespace fs = std::filesystem;
 optional<int> lock_file(fs::path const& file);
 void unlock_file(int fd);
 
-struct virtual_net : public net_access_bytes {
+struct virtual_net : public net_access {
 public: // todo fix the encapsulation in all classes
     fs::path net_dir;
     fs::path net_lockfile;
@@ -36,8 +36,8 @@ public: // todo fix the encapsulation in all classes
     bool recv_thrd_flag;
     thread recv_thrd;
 
-    shared_ptr<basic_send_medium<vector<uint8_t>>> send_access;
-    shared_ptr<basic_recv_listener<vector<uint8_t>>> recv_access;
+    shared_ptr<send_medium_bytes> send_access;
+    shared_ptr<recv_listener_bytes> recv_access;
 
     bool connected = false;
 
@@ -81,7 +81,7 @@ public:
         });
 
         // sending
-        struct my_send : public basic_send_medium<vector<uint8_t>> {
+        struct my_send : public send_medium_bytes {
             virtual_net* par;
             my_send(virtual_net* par) : par(par) {
             }
@@ -116,13 +116,13 @@ public:
         // set connected
         connected = true;
 
-        cout << "connected to the virtual network" << endl;
+        // cout << "connected to the virtual network" << endl;
     }
 
     void disconnect() {
         // reset recv thrd, and send access
         recv_thrd_flag = false;
-        recv_thrd.detach();
+        if (recv_thrd.joinable()) recv_thrd.detach();
         send_access = nullptr;
 
         // reset fd
@@ -134,7 +134,7 @@ public:
         // set disconnected
         connected = false;
 
-        cout << "disconnected from the virtual network" << endl;
+        // cout << "disconnected from the virtual network" << endl;
     }
 
     ~virtual_net() {
@@ -142,11 +142,11 @@ public:
     }
 
 protected:
-    shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
+    shared_ptr<send_medium_bytes> impl_get_send_access() override {
         return send_access;
     }
 
-    void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
+    void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {
         recv_access = recv;
     }
 };

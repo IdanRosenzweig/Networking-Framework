@@ -1,21 +1,23 @@
 #pragma once
 
-#include "basic_send_medium.h"
+#include "send_medium.h"
 
 #include <set>
 #include <mutex>
 #include <memory>
 #include <iostream>
+#include <cstdint>
+#include <vector>
 using namespace std;
 
-// sends to multiple basic_send_mediums
+// sends to multiple send_mediums
 template <typename TYPE>
-class multi_send_medium : public basic_send_medium<TYPE> {
-    set<shared_ptr<basic_send_medium<TYPE>>> mediums;
+class multi_send_medium : public send_medium<TYPE> {
+    set<shared_ptr<send_medium<TYPE>>> mediums;
     mutex mediums_mtx;
 
 public:
-    void add_send_medium(shared_ptr<basic_send_medium<TYPE>> const& channel) {
+    void add_send_medium(shared_ptr<send_medium<TYPE>> const& channel) {
         if (channel == nullptr) return;
 
         lock_guard<mutex> lock(mediums_mtx);
@@ -27,7 +29,7 @@ public:
         mediums.clear();
     }
 
-    bool remove_send_medium(shared_ptr<basic_send_medium<TYPE>> const& channel) {
+    bool remove_send_medium(shared_ptr<send_medium<TYPE>> const& channel) {
         if (channel == nullptr) return;
 
         lock_guard<mutex> lock(mediums_mtx);
@@ -55,3 +57,4 @@ public:
 
 };
 
+using multi_send_medium_bytes = multi_send_medium<vector<uint8_t>>;

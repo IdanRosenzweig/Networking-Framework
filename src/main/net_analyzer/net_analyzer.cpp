@@ -5,27 +5,42 @@
 #include <ctime>
 using namespace std;
 
+#ifdef BUILD_OS_LINUX
 #include "lib/linux/linux_iface.h"
 #include "lib/linux/linux_iface_net_access.h"
 #include "lib/linux/virtual_net.h"
 #include "lib/linux/hardware.h"
+#elifdef BUILD_OS_MACOS
+#include "lib/macos/macos_iface.h"
+#include "lib/macos/macos_iface_net_access.h"
+#include "lib/macos/hardware.h"
+#include "lib/macos/virtual_net.h"
+#endif
 
 #include "src/tools/net_analyzer/net_analyzer.h"
 
 void net_analyzer_main(string const& iface_name) {
+#ifdef BUILD_OS_LINUX
     /* network access in linux */
     shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
+#elifdef BUILD_OS_MACOS
+    /* network access in macos */
+    shared_ptr<macos_iface> iface = make_shared<macos_iface>(iface_name);
+#endif
 
-    shared_ptr<sniffer_recv> sniff_outgoing = make_shared<sniffer_recv>();
-    iface->sniffing_set_outgoing(sniff_outgoing);
+    // create the sniff, and attach it
+    shared_ptr<sniffer_recv> sniff = make_shared<sniffer_recv>();
+#ifdef BUILD_OS_LINUX
+    iface->set_sniffing(sniff);
+#elifdef BUILD_OS_MACOS
+    iface->set_sniffing(sniff);
+#endif
 
-    shared_ptr<sniffer_recv> sniff_incoming = make_shared<sniffer_recv>();
-    iface->sniffing_set_incoming(sniff_incoming);
-
-    net_analyzer analyzer(sniff_outgoing, sniff_incoming);
+    // create the net anazlyer based on the sniffer
+    net_analyzer analyzer(sniff);
 
     while (true) {
-        sleep(1);
+        sleep(100000);
     }
 
 }

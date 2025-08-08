@@ -3,7 +3,7 @@
 #include <cstdio>
 
 namespace arp_protocol {
-    void send(shared_ptr<net_access_bytes> const& net_access, arp_header const& header) {
+    void send(shared_ptr<net_access> const& net_access, arp_header const& header) {
         vector<uint8_t> buff(sizeof(arp_header));
 
         // arp header
@@ -13,13 +13,13 @@ namespace arp_protocol {
     }
 
     void connect_recv(
-        shared_ptr<net_access_bytes> const& net_access, shared_ptr<basic_recv_listener<arp_header>> const& recv,
+        shared_ptr<net_access> const& net_access, shared_ptr<recv_listener<arp_header>> const& recv,
         optional<arp_op_values> op
     ) {
-        struct my_recv : public basic_recv_listener<vector<uint8_t>> {
-            shared_ptr<basic_recv_listener<arp_header>> recv;
+        struct my_recv : public recv_listener_bytes {
+            shared_ptr<recv_listener<arp_header>> recv;
             optional<arp_op_values> op;
-            my_recv(shared_ptr<basic_recv_listener<arp_header>> const& recv, optional<arp_op_values> op) : recv(recv), op(op) {}
+            my_recv(shared_ptr<recv_listener<arp_header>> const& recv, optional<arp_op_values> op) : recv(recv), op(op) {}
 
             void handle_recv(vector<uint8_t> const& data) override {
                 struct arp_header header;

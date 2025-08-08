@@ -52,7 +52,7 @@ class session_manager {
         }
     };
 
-    struct sessions_recv : basic_recv_listener<SESSION_TYPE> {
+    struct sessions_recv : recv_listener<SESSION_TYPE> {
         session_manager *master;
 
         void handle_callback(SESSION_TYPE &&data) override {

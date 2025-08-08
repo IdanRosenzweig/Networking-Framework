@@ -1,11 +1,15 @@
 #pragma once
 
-#include "basic_recv_listener.h"
+#include "recv_listener.h"
 #include "src/utils/circular_queue.h"
+
+#include <vector>
+#include <cstdint>
+using namespace std;
 
 // receives buff and stores it in a queue
 template <typename T>
-class recv_queue : public basic_recv_listener<T> {
+class recv_queue : public recv_listener<T> {
 public:
     circular_queue<T> queue;
 
@@ -14,3 +18,5 @@ public:
     }
 
 };
+
+using recv_queue_bytes = recv_queue<vector<uint8_t>>;

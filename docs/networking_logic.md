@@ -1,17 +1,17 @@
 # send and receive data
 under `src/abstract/sending`:
-* `basic_send_medium`: pure virtual class, representing networking logic for sending data
-* `send_forwarder`: implementation of `basic_send_medium` for forwarding data that is sent through multiple `basic_send_medium` classes
+* `send_medium`: pure virtual class, representing networking logic for sending data
+* `send_forwarder`: implementation of `send_medium` for forwarding data that is sent through multiple `send_medium` classes
 * `msg/send_msg_t`: a basic unit for transmitting **unsigned bytes (uint8_t)**
 
 under `src/abstract/receiving`:
-* `basic_recv_listener`: pure virtual class, representing networking logic for an actor which can handle received data
-* `recv_forwarder`: implementation of `basic_recv_listener` for forwarding data that is received through multiple `basic_recv_listener` classes
+* `recv_listener`: pure virtual class, representing networking logic for an actor which can handle received data
+* `recv_forwarder`: implementation of `recv_listener` for forwarding data that is received through multiple `recv_listener` classes
 * `msg/recv_msg_t`: a basic unit for receiving **unsigned bytes (uint8_t)** representing a packet with layers of protocol encapsulation
 
 # connections
 under `src/connection/connection`:
-* `connection`: a simple class which inherits `basic_send_medium` and `recv_forwarder`, representing a networking login for a communication connection.
+* `connection`: a simple class which inherits `send_medium` and `recv_forwarder`, representing a networking login for a communication connection.
 
 # sessions
 under `src/connection/session`:
@@ -32,7 +32,7 @@ under `src/abstract/firewall`:
 
 # sniffers
 under `src/abstract/sniffer`:
-* `basic_sniff_handler`: pure virtual class, represents networking logic for an actor which handles sniffed data. this class just inherits the pure virtual `basic_recv_listener` without implementing it\
+* `basic_sniff_handler`: pure virtual class, represents networking logic for an actor which handles sniffed data. this class just inherits the pure virtual `recv_listener` without implementing it\
 * `sniffer'`: represents aggregation of multiple `basic_sniff_handler` both for sniffing "outgoing" data and "incoming" data.
 
 # utils

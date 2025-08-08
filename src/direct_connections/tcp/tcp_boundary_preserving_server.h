@@ -9,7 +9,7 @@
 class tcp_boundary_preserving_server : public session_generator<tcp_boundary_preserving_session_type> {
     tcp_server raw_tcp_server;
 
-    class sessions_handler : public basic_recv_listener<tcp_session_type> {
+    class sessions_handler : public recv_listener<tcp_session_type> {
         tcp_boundary_preserving_server *master;
     public:
         explicit sessions_handler(tcp_boundary_preserving_server *master) : master(master) {

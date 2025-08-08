@@ -6,12 +6,12 @@
 
 struct ip4_routing_table : public routing_table<ip4_subnet_mask, ip4_addr> {
 private:
-    vector<pair<ip4_subnet_mask, shared_ptr<net_access_bytes>>> rules;
+    vector<pair<ip4_subnet_mask, shared_ptr<net_access>>> rules;
 
 protected:
-    shared_ptr<net_access_bytes> impl_find_route(ip4_addr const& addr) const override {
+    shared_ptr<net_access> impl_find_route(ip4_addr const& addr) const override {
         optional<ip4_subnet_mask> closest_subnet = {};
-        shared_ptr<net_access_bytes> closest_route = nullptr;
+        shared_ptr<net_access> closest_route = nullptr;
 
         for (auto& [subnet, route] : rules) {
             if (is_inside_subnet(subnet, addr)) {
@@ -31,7 +31,7 @@ protected:
     }
 
 public:
-    void add_routing_rule(ip4_subnet_mask const& subnet, shared_ptr<net_access_bytes>&& net_access) override {
+    void add_routing_rule(ip4_subnet_mask const& subnet, shared_ptr<net_access>&& net_access) override {
         rules.push_back({subnet, std::move(net_access)});
     }
 };

@@ -69,14 +69,14 @@ using namespace std;
 // };
 
 template <typename T>
-struct firewall_send : public basic_send_medium<T> {
+struct firewall_send : public send_medium<T> {
 private:
-    shared_ptr<basic_send_medium<T>> send;
+    shared_ptr<send_medium<T>> send;
 
     vector<shared_ptr<basic_firewall_filter<T>>> filters; // filters to apply
 
 public:
-    explicit firewall(shared_ptr<basic_send_medium<T>>&& _send) : send(std::move(_send)) {
+    explicit firewall(shared_ptr<send_medium<T>>&& _send) : send(std::move(_send)) {
     }
 
     void add_filter(shared_ptr<basic_firewall_filter<T>>&& filter) {
@@ -104,14 +104,14 @@ public:
 };
 
 template <typename T>
-struct firewall_recv : public basic_recv_listener<T> {
+struct firewall_recv : public recv_listener<T> {
 private:
-    shared_ptr<basic_recv_listener<T>> recv;
+    shared_ptr<recv_listener<T>> recv;
 
     vector<shared_ptr<basic_firewall_filter<T>>> filters; // filters to apply
 
 public:
-    explicit firewall(shared_ptr<basic_recv_listener<T>>&& _recv) : recv(std::move(_recv)) {
+    explicit firewall(shared_ptr<recv_listener<T>>&& _recv) : recv(std::move(_recv)) {
     }
 
     void add_filter(shared_ptr<basic_firewall_filter<T>>&& filter) {
@@ -138,20 +138,20 @@ public:
     }
 };
 
-struct firewall_net_access : public net_access_bytes {
+struct firewall_net_access : public net_access {
 public:
-    shared_ptr<net_access_bytes> net_access;
+    shared_ptr<net_access> net_access;
 
     vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> filters_send; // filters to use when sending
     vector<shared_ptr<basic_sniff_handler<vector<uint8_t>>>> filters_recv; // filters to use when receiving
 
-    shared_ptr<basic_recv_listener<vector<uint8_t>>> recv;
-    shared_ptr<basic_send_medium<vector<uint8_t>>> send;
+    shared_ptr<recv_listener_bytes> recv;
+    shared_ptr<send_medium_bytes> send;
 
 public:
-    sniffer_net_access(shared_ptr<net_access_bytes>&& _net_access) : net_access(std::move(_net_access)) {
+    sniffer_net_access(shared_ptr<net_access>&& _net_access) : net_access(std::move(_net_access)) {
         // receiving
-        struct my_recv : public basic_recv_listener<vector<uint8_t>> {
+        struct my_recv : public recv_listener_bytes {
         private:
             sniffer_net_access* par;
 
@@ -181,7 +181,7 @@ public:
         net_access->set_recv_access(make_shared<my_recv>(this));
 
         // sending
-        struct my_send : public basic_send_medium<vector<uint8_t>> {
+        struct my_send : public send_medium_bytes {
         private:
             sniffer_net_access* par;
 
@@ -222,12 +222,12 @@ public:
     
 protected:
     /* send access */
-    shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
+    shared_ptr<send_medium_bytes> impl_get_send_access() override {
         return send;
     }
 
     /* recv access */
-    void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
+    void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {
         this->recv = recv;
     }
 

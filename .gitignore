@@ -1,4 +1,9 @@
 /cmake-build-debug/
+
 /build/
+/build_macos/
+/build_linux/
+
 /.vscode/
+/.idea/
 

@@ -1,7 +1,7 @@
-#include "ping_tool.h"
+// #include "ping_tool.h"
 
-#include <iostream>
-using namespace std;
+// #include <iostream>
+// using namespace std;
 
 // ping_util::ping_util(ip4_addr src_ip, gateway* gw) : network_layer_gw(gw) {
 //     // send flow

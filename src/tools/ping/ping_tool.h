@@ -10,13 +10,14 @@ using namespace std;
 #include "src/protocols/icmp/icmp_protocol.h"
 
 #include "src/abstract/receiving/recv_queue.h"
+#include "src/abstract/net_access/net_access.h"
 
 namespace ping_tool {
     template <typename DURATION_T>
-    void ping(shared_ptr<net_access_bytes> const& net_access, optional<size_t> cnt, DURATION_T const& delay_interval) {
+    void ping(shared_ptr<net_access> const& icmp_surface, optional<size_t> cnt, DURATION_T const& delay_interval) {
         // listen to icmp messages via a queue
         shared_ptr<recv_queue<pair<icmp_header, vector<uint8_t>>>> queue = make_shared<recv_queue<pair<icmp_header, vector<uint8_t>>>>();
-        icmp_protocol::connect_recv(net_access, queue, {});
+        icmp_protocol::connect_recv(icmp_surface, queue, {});
 
         // prepare base icmp echo
         struct icmp_header icmp_header;
@@ -28,22 +29,25 @@ namespace ping_tool {
         icmp_header.content.echo.sequence = (uint16_t) 10;
         
         // send echos
+        cout << "starting pinging" << endl;
         for (size_t i = 0; cnt.has_value() ? (i < cnt.value()) : true; i++) {
             auto start = std::chrono::high_resolution_clock::now(); // count start time
 
             queue->queue.clear();
             while (true) {
                 // send icmp echo
-                puts("sending icmp echo");
-                icmp_protocol::send(net_access, icmp_header, vector<uint8_t>());
+                icmp_protocol::send(icmp_surface, icmp_header, vector<uint8_t>());
 
                 // recv reply
-                puts("waiting for reply");
+                recv_reply: {}
                 auto* reply = queue->queue.front(std::chrono::milliseconds(50)); // todo be able to control this value
-                if (reply == nullptr) continue; // no response in a reasonable time, continue and send again
+                if (reply == nullptr) {cout << "no valid reply, resending" << endl; continue;} // no response in a reasonable time, continue and send again
                 queue->queue.pop_front();
 
+                // process reply
                 struct icmp_header icmp_reply = reply->first;
+
+                if (icmp_reply.content.echo.id != icmp_header.content.echo.id) goto recv_reply; // not our reply
 
                 // take timestamp
                 auto end = std::chrono::high_resolution_clock::now();
@@ -74,6 +78,7 @@ namespace ping_tool {
                             break;
                         }
 
+                        // print reply
                         std::cout << "received reply"
                                 << ", seq_num=" << icmp_header.content.echo.sequence
                                 << ", delay=" << chrono::duration_cast<chrono::milliseconds>(duration).count() << " millisecs"
@@ -99,22 +104,3 @@ namespace ping_tool {
     }
 
 }
-
-// class ping_util {
-//     gateway *network_layer_gw;
-//     icmp_protocol_stack prot_stack;
-//     recv_queue<recv_msg_t> replies_recv_q;
-
-// public:
-//     ping_util(ip4_addr src_ip, gateway* gw);
-
-//     ~ping_util();
-
-//     next_choice<ip4_addr> dest_ip;
-//     next_choice<int> count;
-//     next_choice<std::chrono::duration<uint64_t, milli>> delay_interval;
-
-//     void ping_node();
-
-// };
-

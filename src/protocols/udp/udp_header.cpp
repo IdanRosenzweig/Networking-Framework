@@ -1,8 +1,9 @@
-#include <netinet/in.h>
 #include "udp_header.h"
 
-int write_in_network_order(uint8_t* dest, udp_header* src) {
-    *(udp_port*) dest = htons(src->source_port);
+#include <netinet/in.h>
+
+int write_in_network_order(uint8_t* dest, udp_header const* src) {
+    *(udp_port*) dest = htons(src->src_port);
     dest += sizeof(udp_port);
     *(udp_port*) dest = htons(src->dest_port);
     dest += sizeof(udp_port);
@@ -16,8 +17,8 @@ int write_in_network_order(uint8_t* dest, udp_header* src) {
     return sizeof(udp_header);
 }
 
-int extract_from_network_order(udp_header* dest, uint8_t* src) {
-    dest->source_port = ntohs(*(udp_port*) src);
+int extract_from_network_order(udp_header* dest, uint8_t const* src) {
+    dest->src_port = ntohs(*(udp_port*) src);
     src += sizeof(udp_port);
     dest->dest_port = ntohs(*(udp_port*) src);
     src += sizeof(udp_port);

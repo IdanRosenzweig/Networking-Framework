@@ -1,19 +1,21 @@
 #pragma once
 
 #include "src/utils/circular_queue.h"
-#include "src/abstract/receiving/basic_recv_listener.h"
+#include "src/abstract/receiving/recv_listener.h"
 
 #include <thread>
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <vector>
+#include <cstdint>
 using namespace std;
 
 // receives data and forwards it async to a receiver
 template<typename TYPE>
-class async_recv_listener : public basic_recv_listener<TYPE>  {
+class async_recv_listener : public recv_listener<TYPE>  {
     // todo lock that prioritizes the worker
-    shared_ptr<basic_recv_listener<TYPE>> listener;
+    shared_ptr<recv_listener<TYPE>> listener;
     mutex listener_mtx;
 
     // todo lock that prioritizes the worker
@@ -26,7 +28,7 @@ class async_recv_listener : public basic_recv_listener<TYPE>  {
     condition_variable wake_condition;
 
 public:
-    void set_recv_listener(shared_ptr<basic_recv_listener<TYPE>> const& listener) {
+    void set_recv_listener(shared_ptr<recv_listener<TYPE>> const& listener) {
         if (listener == nullptr) return;
 
         lock_guard<mutex> lock(listener_mtx);
@@ -79,3 +81,5 @@ public:
     }
 
 };
+
+using async_recv_listener_bytes = async_recv_listener<vector<uint8_t>>;

@@ -47,13 +47,13 @@ static vector<unique_ptr<net_analyzer_parsed_prot>> parse_prots(vector<uint8_t> 
     ctx.recv_ip4 = make_shared<my_recv_ip4>(&ctx);
 
     // a tmp net access
-    struct tmp_net_access : public net_access_bytes {
-        shared_ptr<basic_recv_listener<vector<uint8_t>>> the_recv;
+    struct tmp_net_access : public net_access {
+        shared_ptr<recv_listener_bytes> the_recv;
 
     protected:
-        shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {return nullptr;}
+        shared_ptr<send_medium_bytes> impl_get_send_access() override {return nullptr;}
 
-        void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {the_recv = recv;}
+        void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {the_recv = recv;}
     };
     shared_ptr<tmp_net_access> tmp_access = make_shared<tmp_net_access>();
 
@@ -89,16 +89,16 @@ void print_parsed_packet(net_analyzer_parsed_packet const& packet) {
     cout << std::ctime(&as_time_t);
 
     // capture dir
-    switch (packet.sniffed_packet->capture_dir) {
-        case net_analyzer_capture_dir::outgoing: {
-            cout << "outgoing" << endl;
-            break;
-        }
-        case net_analyzer_capture_dir::incoming: {
-            cout << "incoming" << endl;
-            break;
-        }
-    }
+    // switch (packet.sniffed_packet->capture_dir) {
+    //     case net_analyzer_capture_dir::outgoing: {
+    //         cout << "outgoing" << endl;
+    //         break;
+    //     }
+    //     case net_analyzer_capture_dir::incoming: {
+    //         cout << "incoming" << endl;
+    //         break;
+    //     }
+    // }
 
     // desc
     cout << packet.desc << endl;
@@ -175,12 +175,12 @@ void my_recv_ether2::handle_recv(pair<ethernet2_header, vector<uint8_t>> const& 
 
     switch (data.first.prot) {
         case ethertype::arp: {
-            struct tmp_net_access : public net_access_bytes {
-                shared_ptr<basic_recv_listener<vector<uint8_t>>> the_recv;
+            struct tmp_net_access : public net_access {
+                shared_ptr<recv_listener_bytes> the_recv;
 
             protected:
-                shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {return nullptr;}
-                void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {the_recv = recv;}
+                shared_ptr<send_medium_bytes> impl_get_send_access() override {return nullptr;}
+                void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {the_recv = recv;}
             };
             shared_ptr<tmp_net_access> tmp_access = make_shared<tmp_net_access>();
             
@@ -191,12 +191,12 @@ void my_recv_ether2::handle_recv(pair<ethernet2_header, vector<uint8_t>> const& 
             break;
         }
         case ethertype::ip4: {
-            struct tmp_net_access : public net_access_bytes {
-                shared_ptr<basic_recv_listener<vector<uint8_t>>> the_recv;
+            struct tmp_net_access : public net_access {
+                shared_ptr<recv_listener_bytes> the_recv;
 
             protected:
-                shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {return nullptr;}
-                void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {the_recv = recv;}
+                shared_ptr<send_medium_bytes> impl_get_send_access() override {return nullptr;}
+                void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {the_recv = recv;}
             };
             shared_ptr<tmp_net_access> tmp_access = make_shared<tmp_net_access>();
             
@@ -304,13 +304,13 @@ void my_recv_ip4::handle_recv(pair<ip4_header, vector<uint8_t>> const& data) {
 
     switch (data.first.prot) {
         case ip_prot_values::icmp: {
-            struct tmp_net_access : public net_access_bytes {
-                shared_ptr<basic_recv_listener<vector<uint8_t>>> the_recv;
+            struct tmp_net_access : public net_access {
+                shared_ptr<recv_listener_bytes> the_recv;
 
             protected:
-                shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {return nullptr;}
+                shared_ptr<send_medium_bytes> impl_get_send_access() override {return nullptr;}
                 /* recv access */
-                void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {the_recv = recv;}
+                void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {the_recv = recv;}
             };
             shared_ptr<tmp_net_access> tmp_access = make_shared<tmp_net_access>();
             
@@ -321,13 +321,13 @@ void my_recv_ip4::handle_recv(pair<ip4_header, vector<uint8_t>> const& data) {
             break;
         }
         case ip_prot_values::udp: {
-            struct tmp_net_access : public net_access_bytes {
-                shared_ptr<basic_recv_listener<vector<uint8_t>>> the_recv;
+            struct tmp_net_access : public net_access {
+                shared_ptr<recv_listener_bytes> the_recv;
 
             protected:
-                shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {return nullptr;}
+                shared_ptr<send_medium_bytes> impl_get_send_access() override {return nullptr;}
                 /* recv access */
-                void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {the_recv = recv;}
+                void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {the_recv = recv;}
             };
             shared_ptr<tmp_net_access> tmp_access = make_shared<tmp_net_access>();
             
@@ -338,13 +338,13 @@ void my_recv_ip4::handle_recv(pair<ip4_header, vector<uint8_t>> const& data) {
             break;
         }
         case ip_prot_values::tcp: {
-            struct tmp_net_access : public net_access_bytes {
-                shared_ptr<basic_recv_listener<vector<uint8_t>>> the_recv;
+            struct tmp_net_access : public net_access {
+                shared_ptr<recv_listener_bytes> the_recv;
 
             protected:
-                shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {return nullptr;}
+                shared_ptr<send_medium_bytes> impl_get_send_access() override {return nullptr;}
                 /* recv access */
-                void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {the_recv = recv;}
+                void impl_set_recv_access(shared_ptr<recv_listener_bytes> const& recv) override {the_recv = recv;}
             };
             shared_ptr<tmp_net_access> tmp_access = make_shared<tmp_net_access>();
             

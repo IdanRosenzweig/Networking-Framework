@@ -25,7 +25,7 @@ struct icmp_header {
             uint32_t gateway; // content for type redirect
         } redirect;
         struct dest_unreachable_content {
-            uint16_t __unused;
+            uint16_t _unused;
             uint16_t mtu;
         } dest_unreach; // content for type destination unreachable
     } content; // content varying for different types

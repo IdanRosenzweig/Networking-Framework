@@ -6,7 +6,7 @@
 #include <memory>
 using namespace std;
 
-#include "src/abstract/receiving/basic_recv_listener.h"
+#include "src/abstract/receiving/recv_listener.h"
 
 #include "sniffed_packet.h"
 
@@ -71,21 +71,21 @@ struct local_ctx {
     shared_ptr<my_recv_ip4> recv_ip4;
 };
 
-struct my_recv_ether2 : public basic_recv_listener<pair<ethernet2_header, vector<uint8_t>>> {
+struct my_recv_ether2 : public recv_listener<pair<ethernet2_header, vector<uint8_t>>> {
     local_ctx* ctx;
     my_recv_ether2(local_ctx* ctx) : ctx(ctx) {}
 
     void handle_recv(pair<ethernet2_header, vector<uint8_t>> const& data);
 };
 
-struct my_recv_arp : public basic_recv_listener<arp_header> {
+struct my_recv_arp : public recv_listener<arp_header> {
     local_ctx* ctx;
     my_recv_arp(local_ctx* ctx) : ctx(ctx) {}
 
     void handle_recv(arp_header const& data);
 };
 
-struct my_recv_ip4 : public basic_recv_listener<pair<ip4_header, vector<uint8_t>>> {
+struct my_recv_ip4 : public recv_listener<pair<ip4_header, vector<uint8_t>>> {
     local_ctx* ctx;
     my_recv_ip4(local_ctx* ctx) : ctx(ctx) {}
 

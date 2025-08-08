@@ -36,7 +36,7 @@ void set_mac_addr_for_iface(string const& iface, mac_addr new_addr) {
     struct ifreq ifr;
     memset(&ifr, 0, sizeof ifr);
     snprintf(ifr.ifr_name, IFNAMSIZ, "%s", iface.c_str());
-    ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+    ifr.ifr_hwaddr.sa_family = 1;
     memcpy(ifr.ifr_hwaddr.sa_data, &new_addr, sizeof(new_addr));
 
     int temp_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));

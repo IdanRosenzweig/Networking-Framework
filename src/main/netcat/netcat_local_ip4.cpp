@@ -5,50 +5,70 @@
 #include <ctime>
 using namespace std;
 
+#ifdef BUILD_OS_LINUX
 #include "lib/linux/linux_iface.h"
 #include "lib/linux/linux_iface_net_access.h"
 #include "lib/linux/virtual_net.h"
 #include "lib/linux/hardware.h"
+#elifdef BUILD_OS_MACOS
+#include "lib/macos/macos_iface.h"
+#include "lib/macos/macos_iface_net_access.h"
+#include "lib/macos/hardware.h"
+#include "lib/macos/virtual_net.h"
+#endif
 
-#include "src/abstract/network_access/multi_net_access.h"
+#include "src/abstract/net_access/multi_net_access.h"
 
 #include "src/protocols/ip4/ip4_protocol.h"
 
 static constexpr ip_prot_values ip4_unsed_prot = static_cast<ip_prot_values>((uint16_t) 0xa0); 
 
 void netcat_server_main(string const& iface_name) {
+#ifdef BUILD_OS_LINUX
     /* network access in linux */
     // shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
-    // shared_ptr<net_access_bytes> iface_net_access = make_shared<linux_iface_net_access_bytes>(iface);
-
+    // shared_ptr<net_access> iface_net_access = make_shared<linux_iface_net_access>(iface);
     /* virtual net access in linux */
     shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
     vnet_net_access->connect(iface_name);
+#elifdef BUILD_OS_MACOS
+    /* network access in macos */
+    // shared_ptr<macos_iface> iface = make_shared<macos_iface>(iface_name);
+    // shared_ptr<net_access> iface_net_access = make_shared<macos_iface_net_access>(iface);
+    /* virtual net access in linux */
+    shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
+    vnet_net_access->connect(iface_name);
+#endif
 
-    /* net access for ip4 broadcast over unused prot */
-    auto net_access_generator = make_shared<ip4_protocol::net_access_generator_single>(std::move(vnet_net_access), get_ip4_addr_of_iface(iface_name).value(), ip4_unsed_prot);
+    /* ip4 surface */
+    shared_ptr<net_access> ip4_surface;
+#ifdef BUILD_OS_LINUX
+    ip4_surface = vnet_net_access;
+#elifdef BUILD_OS_MACOS
+    ip4_surface = vnet_net_access;
+#endif
 
-    /* clients */
-    struct my_client_listener : public basic_recv_listener<vector<uint8_t>> {
+    struct my_unused_prot_surface_generator_listener : public net_access_generator_listener {
     public:
-        void handle_recv(vector<uint8_t> const& data) override {
-            cout << "a client sent: " << (char*) data.data() << endl;
-        }
-    };
+        void handle_new_net_access(shared_ptr<net_access> const& net_access) override {
 
-    /* set the generator listener */
-    struct my_generator_listener : public net_access_generator_listener {
-    public:
-        void handle_new_net_access(shared_ptr<net_access_bytes> const& net_access) override {
-            // ip4_addr addr = dynamic_cast<ip4_protocol::net_access_single*>(net_access.get())->src_addr;
-            // cout << "got new net access from " << ip4_addr_to_str(addr) << endl;
-
+            struct my_client_listener : public recv_listener_bytes {
+            public:
+                void handle_recv(vector<uint8_t> const& data) override {
+                    cout << "a client sent: " << (char*) data.data() << endl;
+                }
+            };
             static auto handler = make_shared<my_client_listener>();
             net_access->set_recv_access(handler);
-        }
 
+        }
     };
-    net_access_generator->set_net_access_generator_listener(make_shared<my_generator_listener>());
+    ip4_protocol::connect_net_access_generator_listener(
+        ip4_surface,
+        get_ip4_addr_of_iface(iface_name).value(),
+        ip4_unsed_prot,
+        make_shared<my_unused_prot_surface_generator_listener>()
+    );
 
     while (true) {
         string str;
@@ -66,32 +86,54 @@ void netcat_server_main(string const& iface_name) {
 
 
 void netcat_client_main(string const& iface_name, ip4_addr server_addr) {
+#ifdef BUILD_OS_LINUX
     /* network access in linux */
     // shared_ptr<linux_iface> iface = make_shared<linux_iface>(iface_name);
-    // shared_ptr<net_access_bytes> iface_net_access = make_shared<linux_iface_net_access_bytes>(iface);
-
+    // shared_ptr<net_access> iface_net_access = make_shared<linux_iface_net_access>(iface);
     /* virtual net access in linux */
     shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
     vnet_net_access->connect(iface_name);
+#elifdef BUILD_OS_MACOS
+    /* network access in macos */
+    // shared_ptr<macos_iface> iface = make_shared<macos_iface>(iface_name);
+    // shared_ptr<net_access> iface_net_access = make_shared<macos_iface_net_access>(iface);
+    /* virtual net access in linux */
+    shared_ptr<virtual_net> vnet_net_access = make_shared<virtual_net>();
+    vnet_net_access->connect(iface_name);
+#endif
 
-    /* single net access for ip4 */
-    auto server_net_access = make_shared<ip4_protocol::net_access_single>(std::move(vnet_net_access), server_addr, get_ip4_addr_of_iface(iface_name).value(), ip4_unsed_prot);
+    /* ip4 surface */
+    shared_ptr<net_access> ip4_surface;
+#ifdef BUILD_OS_LINUX
+    ip4_surface = vnet_net_access;
+#elifdef BUILD_OS_MACOS
+    ip4_surface = vnet_net_access;
+#endif
 
-    struct my_client : public basic_recv_listener<vector<uint8_t>> {
+    /* unused prot surface */
+    auto unused_prot_surface = make_shared<ip4_protocol::net_access_single>(
+        std::move(ip4_surface),
+        server_addr, 
+        get_ip4_addr_of_iface(iface_name).value(),
+        ip4_unsed_prot
+    );
+
+    struct my_client : public recv_listener_bytes {
     public:
         void handle_recv(vector<uint8_t> const& data) override {
             cout << "the server sent: " << (char*) data.data() << endl;
         }
     };
-    shared_ptr<my_client> client = make_shared<my_client>();
-    server_net_access->set_recv_access(client);
+    static auto client = make_shared<my_client>();
+    unused_prot_surface->set_recv_access(client);
+    
 
     while (true) {
         string str;
         getline(cin, str);
 
         // send to server
-        server_net_access->get_send_access()->send_data(vector<uint8_t>(str.data(), str.data() + str.size() + 1));
+        unused_prot_surface->get_send_access()->send_data(vector<uint8_t>(str.data(), str.data() + str.size() + 1));
     }
 }
 

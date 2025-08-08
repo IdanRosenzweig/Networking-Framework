@@ -15,7 +15,7 @@
 class vpn_daemon {
     tcp_server tcpServer;
 
-    class sessions_handler : public basic_recv_listener<tcp_session_type> {
+    class sessions_handler : public recv_listener<tcp_session_type> {
         vpn_daemon *master;
     public:
 

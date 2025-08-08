@@ -6,8 +6,8 @@
 using namespace std;
 
 namespace ip4_protocol {
-    void send(shared_ptr<net_access_bytes> const& net_access, ip4_header const& header, vector<uint8_t> const& data) {
-        if (net_access == nullptr) return;
+    void send(shared_ptr<net_access> const& ip4_surface, ip4_header const& header, vector<uint8_t> const& data) {
+        if (ip4_surface == nullptr) return;
 
         vector<uint8_t> buff(sizeof(ip4_header) + data.size());
 
@@ -23,47 +23,28 @@ namespace ip4_protocol {
         // encapsulated data
         memcpy(buff.data() + sizeof(struct ip4_header), data.data(), data.size());
 
-        net_access->get_send_access()->send_data(buff);
+        ip4_surface->get_send_access()->send_data(buff);
     }
 
-    shared_ptr<net_access_bytes> create_net_access_from_routing_table(ip4_routing_table&& routing_table) {
+    shared_ptr<send_medium_bytes> create_send_access_from_routing_table(ip4_routing_table&& routing_table) {
         // todo take shared_ptr<routing_table> so that the table can be updated online
-        struct my_net_access : net_access_bytes {
-        public:
+        struct my_send : public send_medium_bytes {
             ip4_routing_table routing_table;
-            shared_ptr<basic_recv_listener<vector<uint8_t>>> curr_recv;
-
-        public:
-            my_net_access(ip4_routing_table&& routing_table) : routing_table(std::move(routing_table)) {
-            }
-            
-        protected:
-            shared_ptr<basic_send_medium<vector<uint8_t>>> impl_get_send_access() override {
-                struct my_send : public basic_send_medium<vector<uint8_t>> {
-                    my_net_access* par;
-                    my_send(my_net_access* par) : par(par) {}
-
-                    err_t send_data(vector<uint8_t> const& data) override {
-                        struct ip4_header header;
-                        extract_from_network_order(&header, data.data());
-
-                        auto route = par->routing_table.find_route(header.dest_addr);
-                        if (route == nullptr) return err_t::ERR;
-
-                        return route->get_send_access()->send_data(data);
-                    }
-                };
-                static auto res = make_shared<my_send>(this);
-
-                return res;
+            my_send(ip4_routing_table&& routing_table) : routing_table(std::move(routing_table)) {
             }
 
-            void impl_set_recv_access(shared_ptr<basic_recv_listener<vector<uint8_t>>> const& recv) override {
-                // todo seperate send and recv in most send functions (???_protocol::send)
+            err_t send_data(vector<uint8_t> const& data) override {
+                struct ip4_header header;
+                extract_from_network_order(&header, data.data());
+
+                auto route = routing_table.find_route(header.dest_addr);
+                if (route == nullptr) return err_t::ERR;
+
+                return route->get_send_access()->send_data(data);
             }
         };
 
-        return make_shared<my_net_access>(std::move(routing_table));
+        return make_shared<my_send>(std::move(routing_table));
     }
 
     void send(ip4_routing_table const& routing_table, ip4_header const& header, vector<uint8_t> const& data) {
@@ -71,17 +52,17 @@ namespace ip4_protocol {
     }
 
     void connect_recv(
-        shared_ptr<net_access_bytes> const& net_access, shared_ptr<basic_recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv,
+        shared_ptr<net_access> const& ip4_surface, shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv,
         optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot
     ) {
-        if (net_access == nullptr) return;
+        if (ip4_surface == nullptr) return;
 
-        struct my_recv : public basic_recv_listener<vector<uint8_t>> {
-            shared_ptr<basic_recv_listener<pair<ip4_header, vector<uint8_t>>>> recv;
+        struct my_recv : public recv_listener_bytes {
+            shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> recv;
             optional<ip4_addr> src_addr;
             optional<ip4_addr> dest_addr;
             optional<ip_prot_values> prot;
-            my_recv(shared_ptr<basic_recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv, optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot) : recv(recv), src_addr(src_addr), dest_addr(dest_addr), prot(prot) {}
+            my_recv(shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv, optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot) : recv(recv), src_addr(src_addr), dest_addr(dest_addr), prot(prot) {}
 
             void handle_recv(vector<uint8_t> const& data) override {
                 ip4_header ip_header;
@@ -91,86 +72,62 @@ namespace ip4_protocol {
 
                 // todo instead of checking all parameters, do something smarter ("interuupt" based on the parameters)
                 if (src_addr.has_value()) {
-                    if (ip_header.src_addr != src_addr.value()) {return;}
+                    if (ip_header.src_addr != src_addr.value()) {
+                        // cout << "src addr no match, needed " << ip4_addr_to_str(src_addr.value()) << " got " << ip4_addr_to_str(ip_header.src_addr) << endl;
+                        return;
+                    }
                 }
 
                 if (dest_addr.has_value()) {
-                    if (ip_header.dest_addr != dest_addr.value()) return;
+                    if (ip_header.dest_addr != dest_addr.value()) {
+                        // cout << "dest addr no match" << endl;
+                        return;
+                    }
                 }
 
                 if (prot.has_value()) {
-                    if (ip_header.prot != prot.value()) return;
+                    if (ip_header.prot != prot.value()) {
+                        // cout << "prot no match" << endl;
+                        return;
+                    }
                 }
 
                 recv->handle_recv({ip_header, encap_data});
             }
         };
 
-        net_access->set_recv_access(make_shared<my_recv>(recv, src_addr, dest_addr, prot));
+        ip4_surface->set_recv_access(make_shared<my_recv>(recv, src_addr, dest_addr, prot));
     }
 
+    void connect_net_access_generator_listener(shared_ptr<net_access> const& access, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot, shared_ptr<net_access_generator_listener>&& listener) {
+        struct my_recv : public recv_listener<pair<ip4_header, vector<uint8_t>>> {
+            optional<ip4_addr> dest_addr;
+            optional<ip_prot_values> prot;
+            multi_net_access multi_access;
+            shared_ptr<net_access_generator_listener> listener;
+
+            my_recv(optional<ip4_addr> dest_addr, optional<ip_prot_values> prot, shared_ptr<net_access> const& access, shared_ptr<net_access_generator_listener>&& listener) : dest_addr(dest_addr), prot(prot), multi_access(std::move(shared_ptr<net_access>(access))), listener(std::move(listener)) {
+            }
+
+            void handle_recv(pair<ip4_header, vector<uint8_t>> const& data) {
+                // cout << "ip4 generator called" << endl;
+                if (listener == nullptr) {cout << "won't generate new net access, because there is no listener" << endl;return;}
+
+                // create a new net access
+                auto new_net_access = make_shared<ip4_protocol::net_access_single>(std::move(multi_access.generate_net_access()), data.first.src_addr, dest_addr, prot);
+
+                // forward it to the generator
+                listener->handle_new_net_access(new_net_access);
+                
+                // send the data
+                // cout << "ip4 generator handles data" << endl;
+                if (new_net_access->recv_access != nullptr) {
+                    // cout << "ip4 generator sends data" << endl;
+                    new_net_access->recv_access->handle_recv(data.second); // todo fix it is possible that another data will be received into new_net_access async in the meantime, before this call is invoked
+                }
+            }
+        };
+
+        ip4_protocol::connect_recv(access, make_shared<my_recv>(dest_addr, prot, access, std::move(listener)), {}, dest_addr, prot);
+    }
 }
-
-
-
-
-
-
-// ip4_protocol::ip4_protocol() {
-//     next_ttl.set_next_choice(255);
-// }
-
-// int ip4_protocol::send_data(send_msg_t &&data) {
-//     uint8_t *buff = data.get_reserve_buff();
-
-//     // ip4 header
-//     struct ip4_header header;
-//     header.header_len = 5; // no additional options
-//     header.version = 4;
-//     header.type_of_service = 0;
-//     int ip_packet_len = sizeof(struct ip4_header) + data.get_count();
-//     header.total_len = ip_packet_len;
-//     header.id = 6969;
-//     header.flags = 0;
-//     header.frag_off = 0;
-//     header.ttl = next_ttl.get_next_choice();
-//     header.protocol = next_protocol.get_next_choice();
-//     header.checksum = 0;
-//     header.source_addr = next_source_addr.get_next_choice();
-//     header.dest_addr = next_dest_addr.get_next_choice();
-
-//     write_in_network_order(buff, &header);
-
-//     // 0 is now substituted for the checksum. calculate the checksum value over the header
-//     ((struct ip4_header *) buff)->checksum = internet_checksum((uint16_t *) buff, sizeof(struct ip4_header));
-
-//     // plain buff
-//     uint8_t *plain_data = buff + sizeof(struct ip4_header);
-//     memcpy(plain_data, data.get_active_buff(), data.get_count());
-
-//     data.toggle_active_buff();
-//     data.set_count(ip_packet_len);
-//     return send_medium.send_data(std::move(data));
-// }
-
-// void ip4_protocol::handle_callback(recv_msg_t &&data) {
-//     uint8_t *buff = data.buff_at_curr_offset();
-
-//     struct ip4_header header;
-//     extract_from_network_order(&header, buff);
-
-//     data.protocol_offsets.push_back({data.curr_offset, IP4});
-//     data.curr_offset += sizeof(struct ip4_header);
-
-
-//     if (default_listener != nullptr) {
-//         recv_msg_t copy(data);
-//         default_listener->handle_callback(std::move(copy));
-//     }
-
-//     for (auto listener: listeners.stream_array({header.protocol, header.source_addr, header.dest_addr})) {
-//         recv_msg_t copy(data);
-//         listener->handle_callback(std::move(copy));
-//     }
-
-// }

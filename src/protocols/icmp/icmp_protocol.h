@@ -9,15 +9,15 @@
 #include <map>
 using namespace std;
 
-#include "src/abstract/network_access/net_access_bytes.h"
+#include "src/abstract/net_access/net_access.h"
 
 #include "icmp_header.h"
 
 namespace icmp_protocol {
-    void send(shared_ptr<net_access_bytes> const& net_access, icmp_header const& header, vector<uint8_t> const& data);
+    void send(shared_ptr<net_access> const& icmp_surface, icmp_header const& header, vector<uint8_t> const& data);
 
     void connect_recv(
-        shared_ptr<net_access_bytes> const& net_access, shared_ptr<basic_recv_listener<pair<icmp_header, vector<uint8_t>>>> const& recv,
+        shared_ptr<net_access> const& icmp_surface, shared_ptr<recv_listener<pair<icmp_header, vector<uint8_t>>>> const& recv,
         optional<icmp_type> type
     );
 }
@@ -39,11 +39,11 @@ namespace icmp_protocol {
 //     // recv
 // #define ICMP_LISTEN_ON_TYPE_INDEX 0
 // #define ICMP_LISTEN_ON_CODE_INDEX 1
-//     multiplexer<basic_recv_listener *,
+//     multiplexer<recv_listener *,
 //             uint8_t, // type, index 0
 //             uint8_t // code, index 1
 //     > listeners;
-//     basic_recv_listener *default_listener = nullptr;
+//     recv_listener *default_listener = nullptr;
 
 //     void handle_callback(recv_msg_t &&data) override;
 

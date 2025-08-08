@@ -4,8 +4,6 @@
 
 #include "src/protocols/ether2/ethertype.h"
 
-#include <linux/if_arp.h> // todo remove this
-
 #include <cstdio>
 #include <iostream>
 #include <vector>
@@ -13,14 +11,14 @@
 using namespace std;
 
 
-mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access_bytes> const& broadcast_access, ip4_addr const& searched_ip, mac_addr const& src_mac, ip4_addr const& src_ip) {
+mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access> const& arp_broadcast_surface, ip4_addr const& searched_ip, mac_addr const& src_mac, ip4_addr const& src_ip) {
     // listen to arp replies via a queue
     shared_ptr<recv_queue<arp_header>> queue = make_shared<recv_queue<arp_header>>();
-    arp_protocol::connect_recv(broadcast_access, queue, arp_op_values::reply);
+    arp_protocol::connect_recv(arp_broadcast_surface, queue, arp_op_values::reply);
 
     // prepare arp request
     struct arp_header arp_header;
-    arp_header.hard_type = ARPHRD_ETHER; // todo this value from my own list
+    arp_header.hard_type = 1; // todo this value from my own list
     arp_header.prot_type = ethertype::ip4;
     arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
     arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
@@ -35,7 +33,7 @@ mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access_bytes> const& broad
     while (true) {
         // send request
         puts("sending arp request");
-        arp_protocol::send(broadcast_access, arp_header);
+        arp_protocol::send(arp_broadcast_surface, arp_header);
 
         // recv reply
         puts("waiting for reply");
@@ -61,46 +59,53 @@ mac_addr arp_tool::search_for_mac_addr(shared_ptr<net_access_bytes> const& broad
     }
 }
 
-map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes> const& broadcast_access, ip4_subnet_mask mask, mac_addr src_mac, ip4_addr src_ip) {
+map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access> const& arp_broadcast_surface, ip4_subnet_mask mask, set<ip4_addr> const& skip_addrs, mac_addr src_mac, ip4_addr src_ip) {
     // listen to arp replies via a queue
     shared_ptr<recv_queue<arp_header>> queue = make_shared<recv_queue<arp_header>>();
-    arp_protocol::connect_recv(broadcast_access, queue, arp_op_values::reply);
+    arp_protocol::connect_recv(arp_broadcast_surface, queue, arp_op_values::reply);
 
     // send requests
+    size_t request_cnt = 0;
     ip4_addr curr_ip = smallest_ip_addr_in_subnet(mask);
     while (true) {
         if (!is_inside_subnet(mask, curr_ip)) break;
+        if (skip_addrs.count(curr_ip)) goto cont;
 
-        // cout << "sending request for ip: " << ip4_addr_to_str(curr_ip) << endl;
+        {
+            // cout << "sending request for ip: " << ip4_addr_to_str(curr_ip) << endl;
 
-        // arp header
-        struct arp_header arp_header;
-        arp_header.hard_type = ARPHRD_ETHER; // todo this value from my own list
-        arp_header.prot_type = ethertype::ip4;
-        arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
-        arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
-        arp_header.op = arp_op_values::request; // operation (request) // todo this value from my own list
+            // arp header
+            struct arp_header arp_header;
+            arp_header.hard_type = 1; // todo this value from my own list
+            arp_header.prot_type = ethertype::ip4;
+            arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
+            arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
+            arp_header.op = arp_op_values::request; // operation (request) // todo this value from my own list
 
-        arp_header.sender_hard_addr = vector<uint8_t>(src_mac.octets, src_mac.octets + sizeof(src_mac.octets));
-        arp_header.sender_prot_addr = vector<uint8_t>(src_ip.octets, src_ip.octets + sizeof(src_ip.octets));
+            arp_header.sender_hard_addr = vector<uint8_t>(src_mac.octets, src_mac.octets + sizeof(src_mac.octets));
+            arp_header.sender_prot_addr = vector<uint8_t>(src_ip.octets, src_ip.octets + sizeof(src_ip.octets));
 
-        arp_header.target_hard_addr = vector<uint8_t>(mac_addr_empty.octets, mac_addr_empty.octets + sizeof(mac_addr_empty.octets));
-        arp_header.target_prot_addr = vector<uint8_t>(curr_ip.octets, curr_ip.octets + sizeof(curr_ip.octets));
+            arp_header.target_hard_addr = vector<uint8_t>(mac_addr_empty.octets, mac_addr_empty.octets + sizeof(mac_addr_empty.octets));
+            arp_header.target_prot_addr = vector<uint8_t>(curr_ip.octets, curr_ip.octets + sizeof(curr_ip.octets));
 
-        // send request
-        arp_protocol::send(broadcast_access, arp_header);
+            // send request
+            arp_protocol::send(arp_broadcast_surface, arp_header);
+        }
 
-        // advance curr_ip
+        // advance to next iteration
+        cont: {}
         curr_ip = generate_next_ip(curr_ip);
+        ++request_cnt;
 
         // wait some dealy
         // std::this_thread::sleep_for(std::chrono::milliseconds(50)); // todo be able to control this value
     }
 
-    cout << "sent all the requests, waiting and processing replies" << endl;
+    cout << "sent " << request_cnt << " requests" << endl;
+    cout << "waiting and processing replies" << endl;
 
     // wait some reasonable time for all the replies
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     // process all the replies
     map<ip4_addr, mac_addr> res;
@@ -153,7 +158,7 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
 
 //     // prepare net_arp
 //     struct ether_arp *arp_header = (struct ether_arp *) buff; // arp_header header
-//     arp_header->arp_hrd = htons(ARPHRD_ETHER); // first net_arp octets type: mac
+//     arp_header->arp_hrd = htons(1); // first net_arp octets type: mac
 //     arp_header->arp_pro = htons(ethernet_header::ethertype_values::ip4); // first net_arp octets type: ip
 //     arp_header->arp_hln = ETH_ALEN; // len of mac octets
 //     arp_header->arp_pln = 4; // len of ip octets
@@ -218,10 +223,10 @@ map<ip4_addr, mac_addr> arp_tool::scan_entire_subnet(shared_ptr<net_access_bytes
 // }
 
 
-void arp_tool::announce_new_pair(shared_ptr<net_access_bytes> const& broadcast_access, ip4_addr new_ip, mac_addr new_mac) {
+void arp_tool::announce_new_pair(shared_ptr<net_access> const& arp_broadcast_surface, ip4_addr new_ip, mac_addr new_mac) {
     // arp header
     struct arp_header arp_header;
-    arp_header.hard_type = ARPHRD_ETHER; // todo this value from my own list
+    arp_header.hard_type = 1; // todo this value from my own list
     arp_header.prot_type = ethertype::ip4;
     arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
     arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
@@ -234,19 +239,19 @@ void arp_tool::announce_new_pair(shared_ptr<net_access_bytes> const& broadcast_a
     arp_header.target_prot_addr = vector<uint8_t>(ip4_addr_empty.octets, ip4_addr_empty.octets + sizeof(ip4_addr_empty.octets));
     
     // send
-    arp_protocol::send(broadcast_access, arp_header);
+    arp_protocol::send(arp_broadcast_surface, arp_header);
 
 }
 
 void arp_tool::spoofing_attack(
-    vector<tuple<shared_ptr<net_access_bytes>, mac_addr, ip4_addr>> targets,
+    vector<tuple<shared_ptr<net_access>, mac_addr, ip4_addr>> targets,
     ip4_addr dest_ip,
     mac_addr src_mac, ip4_addr src_ip,
     bool block
 ) {
     // arp header
     struct arp_header arp_header;
-    arp_header.hard_type = ARPHRD_ETHER; // todo this value from my own list
+    arp_header.hard_type = 1; // todo this value from my own list
     arp_header.prot_type = ethertype::ip4;
     arp_header.hard_addr_sz = sizeof(mac_addr); // len of mac addr
     arp_header.prot_addr_sz = sizeof(ip4_addr); // len of ipv4 addr
@@ -273,6 +278,6 @@ void arp_tool::spoofing_attack(
         ++cnt;
 
         // wait some dealy
-        std::this_thread::sleep_for(std::chrono::milliseconds(300)); // todo be able to control this value
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // todo be able to control this value
     }
 }
