@@ -95,7 +95,7 @@ void dns_server_main(string const& iface_name, dns_database* database) {
 
                     struct my_dns_handler : public recv_listener<struct dns_message> {
                     public:
-                        shared_ptr<net_access> dns_surface;
+                        shared_ptr<net_access> dns_surface; // todo weak_ptr?
                         my_dns_handler(shared_ptr<net_access> _dns_surface) : dns_surface(_dns_surface) {
                         }
 

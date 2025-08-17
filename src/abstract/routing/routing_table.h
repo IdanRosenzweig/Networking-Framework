@@ -7,7 +7,7 @@ using namespace std;
 
 template <typename NET_MASK_T, typename ADDR_T>
 struct routing_table {
-protected: // todo protected
+protected:
     shared_ptr<net_access> default_gateway = nullptr;
 
     // find the appropriate route for an address (based only on the addded rules)

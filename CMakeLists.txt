@@ -48,6 +48,7 @@ set(ABSTRACT_SRC
         src/abstract/sniffer/sniffer.h
         src/abstract/sniffer/basic_sniff_handler.h
         src/abstract/net_access/net_access.cpp
+        src/abstract/net_access/multi_net_access.cpp
 )
 
 set(PROT_ETHER2_SRC
@@ -86,16 +87,29 @@ set(PROT_DNS_SRC
         src/protocols/dns/dns_database.cpp
 )
 
-set(PROT_EAP_SRC
-        src/protocols/eap/eap_addr.cpp
-        src/protocols/eap/eap_header.cpp
-        src/protocols/eap/eap_protocol.cpp
-)
+# set(PROT_EAP_SRC
+#         src/protocols/eap/eap_addr.cpp
+#         src/protocols/eap/eap_header.cpp
+#         src/protocols/eap/eap_protocol.cpp
+# )
 
 set(PROT_EMP_SRC
         src/protocols/emp/emp_port.cpp
         src/protocols/emp/emp_header.cpp
         src/protocols/emp/emp_protocol.cpp
+)
+
+set(PROT_PTP_SRC
+        src/protocols/ptp/endpoints/ptp_endpoint.cpp
+
+        src/protocols/ptp/local_conn/ptp_addr.cpp
+        src/protocols/ptp/local_conn/ptp_local_conn.cpp
+
+        src/protocols/ptp/net_switch/ptp_net_id.cpp
+        src/protocols/ptp/net_switch/ptp_net_switch.cpp
+
+        src/protocols/ptp/ptp_header.cpp
+        src/protocols/ptp/ptp_protocol.cpp
 )
 
 set(PROTS_SRC
@@ -105,8 +119,9 @@ set(PROTS_SRC
         ${PROT_UDP_SRC}
         ${PROT_ICMP_SRC}
         ${PROT_DNS_SRC}
-        ${PROT_EAP_SRC}
+        # ${PROT_EAP_SRC}
         ${PROT_EMP_SRC}
+        ${PROT_PTP_SRC}
 )
 
 # set(PROTOCOLS_SRC
@@ -138,6 +153,9 @@ set(LIB_SRC
 
         lib/var_len_encoding.h
         lib/var_len_encoding.cpp
+
+        lib/split_str.h
+        lib/split_str.cpp
 )
 
 set(LIB_LINUX_SRC
@@ -368,6 +386,15 @@ add_executable(netcat_local_ip4
         ${PROTS_SRC}
 
         src/main/netcat/netcat_local_ip4.cpp
+)
+
+add_executable(netcat_local_ptp
+        ${ABSTRACT_SRC}
+        ${LIB_SRC}
+        ${LIB_OS_SRC}
+        ${PROTS_SRC}
+
+        src/main/netcat/netcat_local_ptp.cpp
 )
 
 add_executable(net_analyzer

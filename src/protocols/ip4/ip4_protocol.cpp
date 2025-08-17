@@ -6,7 +6,7 @@
 using namespace std;
 
 namespace ip4_protocol {
-    void send(shared_ptr<net_access> const& ip4_surface, ip4_header const& header, vector<uint8_t> const& data) {
+    void send(shared_ptr<net_access_send> const& ip4_surface, ip4_header const& header, vector<uint8_t> const& data) {
         if (ip4_surface == nullptr) return;
 
         vector<uint8_t> buff(sizeof(ip4_header) + data.size());
@@ -52,17 +52,17 @@ namespace ip4_protocol {
     }
 
     void connect_recv(
-        shared_ptr<net_access> const& ip4_surface, shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv,
+        shared_ptr<net_access_recv> const& ip4_surface, shared_ptr<recv_listener<pair<ip4_header/*ip4 header*/, vector<uint8_t>/*encapsulated data*/>>> const& recv,
         optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot
     ) {
         if (ip4_surface == nullptr) return;
 
         struct my_recv : public recv_listener_bytes {
-            shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> recv;
+            shared_ptr<recv_listener<pair<ip4_header/*ip4 header*/, vector<uint8_t>/*encapsulated data*/>>> recv;
             optional<ip4_addr> src_addr;
             optional<ip4_addr> dest_addr;
             optional<ip_prot_values> prot;
-            my_recv(shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv, optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot) : recv(recv), src_addr(src_addr), dest_addr(dest_addr), prot(prot) {}
+            my_recv(shared_ptr<recv_listener<pair<ip4_header/*ip4 header*/, vector<uint8_t>/*encapsulated data*/>>> const& recv, optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot) : recv(recv), src_addr(src_addr), dest_addr(dest_addr), prot(prot) {}
 
             void handle_recv(vector<uint8_t> const& data) override {
                 ip4_header ip_header;
@@ -99,7 +99,10 @@ namespace ip4_protocol {
         ip4_surface->set_recv_access(make_shared<my_recv>(recv, src_addr, dest_addr, prot));
     }
 
-    void connect_net_access_generator_listener(shared_ptr<net_access> const& access, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot, shared_ptr<net_access_generator_listener>&& listener) {
+}
+
+namespace ip4_protocol {
+    void connect_net_access_generator_listener(shared_ptr<net_access> const& ip4_surface, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot, shared_ptr<net_access_generator_listener>&& listener) {
         struct my_recv : public recv_listener<pair<ip4_header, vector<uint8_t>>> {
             optional<ip4_addr> dest_addr;
             optional<ip_prot_values> prot;
@@ -128,6 +131,6 @@ namespace ip4_protocol {
             }
         };
 
-        ip4_protocol::connect_recv(access, make_shared<my_recv>(dest_addr, prot, access, std::move(listener)), {}, dest_addr, prot);
+        ip4_protocol::connect_recv(ip4_surface, make_shared<my_recv>(dest_addr, prot, ip4_surface, std::move(listener)), {}, dest_addr, prot);
     }
 }

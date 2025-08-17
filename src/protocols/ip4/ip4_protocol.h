@@ -18,16 +18,20 @@ using namespace std;
 #include "ip4_routing_table.h"
 
 namespace ip4_protocol {
-    void send(shared_ptr<net_access> const& ip4_surface, ip4_header const& header, vector<uint8_t> const& data);
+    // send the ip4 header along with the encapsulated data into the send access
+    void send(shared_ptr<net_access_send> const& ip4_surface, ip4_header const& header, vector<uint8_t> const& data);
 
     shared_ptr<send_medium_bytes> create_send_access_from_routing_table(ip4_routing_table&& routing_table);
 
-    // connect a receiver to all ip4 packets which match the conditions of src_addr, dest_addr, and prot
+    // connect a receiver for all ptp packets in which the conditions of src_addr, dest_addr, and prot match
+    // the receiver gets the ip4 header and the encapsulated data
     void connect_recv(
-        shared_ptr<net_access> const& ip4_surface, shared_ptr<recv_listener<pair<ip4_header, vector<uint8_t>>>> const& recv,
+        shared_ptr<net_access_recv> const& ip4_surface, shared_ptr<recv_listener<pair<ip4_header/*ip4 header*/, vector<uint8_t>/*encapsulated data*/>>> const& recv,
         optional<ip4_addr> src_addr, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot
     );
+}
 
+namespace ip4_protocol {
     // net_access based on any source addr in received packets.
     // can specify optional dest_addr and protocol to match in received packets.
     struct net_access_broadcast : public net_access {
@@ -201,6 +205,11 @@ namespace ip4_protocol {
 
     //     }
     // };
-    void connect_net_access_generator_listener(shared_ptr<net_access> const& access, optional<ip4_addr> dest_addr, optional<ip_prot_values> prot, shared_ptr<net_access_generator_listener>&& listener);
+    void connect_net_access_generator_listener(
+        shared_ptr<net_access> const& ip4_surface,
+        optional<ip4_addr> dest_addr,
+        optional<ip_prot_values> prot,
+        shared_ptr<net_access_generator_listener>&& listener
+    );
 
 }
